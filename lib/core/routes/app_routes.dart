@@ -5,8 +5,8 @@ import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/clients/presentation/screens/clients_details_screen.dart';
 import '../../features/clients/presentation/screens/clients_list_screen.dart';
-import '../../features/clients/presentation/screens/diet_plan_form_screen.dart';
-import '../../features/clients/presentation/screens/workout_plan_form_screen.dart';
+import '../../features/clients/presentation/screens/plan_form_screen.dart';
+import '../../features/clients/presentation/screens/plan_management_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class AppRoutes {
@@ -27,13 +27,14 @@ class AppRoutes {
           name: '/client-details',
           page: () => const ClientDetailsScreen(),
         ),
+        GetPage(name: '/plan-form', page: () => const PlanFormScreen()),
         GetPage(
-          name: '/diet-plan-form',
-          page: () => const DietPlanFormScreen(),
+          name: '/diet-plan-management',
+          page: () => const PlanManagementScreen(),
         ),
         GetPage(
-          name: '/workout-plan-form',
-          page: () => const WorkoutPlanFormScreen(),
+          name: '/workout-plan-management',
+          page: () => const PlanManagementScreen(),
         ),
       ],
     ),
@@ -41,8 +42,14 @@ class AppRoutes {
 
   static Future<String?> redirect(Routing? routing) async {
     final user = FirebaseAuth.instance.currentUser;
+    final currentRoute = routing?.current ?? '';
+    final arguments = Get.arguments;
+    print(
+      'AppRoutes.redirect: Current route: $currentRoute, Arguments: $arguments',
+    );
+
     if (user == null) {
-      print('No user logged in, redirecting to /');
+      print('AppRoutes.redirect: No user logged in, redirecting to /');
       return '/';
     }
 
@@ -50,18 +57,22 @@ class AppRoutes {
     final isAdmin = await controller.isAdmin(user.uid);
     if (!isAdmin) {
       print(
-        'User ${user.uid} is not an admin, signing out and redirecting to /',
+        'AppRoutes.redirect: User ${user.uid} is not an admin, signing out and redirecting to /',
       );
       await FirebaseAuth.instance.signOut();
       return '/';
     }
 
-    if (routing?.current == '/' || routing?.current == '/signup') {
-      print('Admin user, redirecting to /home');
+    // Redirect only for root routes '/' or '/signup'
+    if (currentRoute == '/' || currentRoute == '/signup') {
+      print('AppRoutes.redirect: Admin user, redirecting to /home');
       return '/home';
     }
 
-    print('Allowing navigation to ${routing?.current}');
+    // Allow nested routes to proceed without interference
+    print(
+      'AppRoutes.redirect: Allowing navigation to $currentRoute with arguments: $arguments',
+    );
     return null;
   }
 }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import '../../../../core/theme/theme.dart';
 import '../../data/models/client_model.dart';
 
@@ -43,8 +42,12 @@ class ClientListItem extends StatelessWidget {
           size: 16.w,
           color: AdminTheme.colors['textSecondary'],
         ),
-        onTap: () =>
-            Get.toNamed('/home/client-details', arguments: {'uid': client.uid}),
+        onTap: () {
+          print(
+            'ClientListItem: Navigating to client-details with UID: ${client.uid}',
+          );
+          Get.toNamed('/home/client-details', arguments: {'uid': client.uid});
+        },
       ),
     );
   }

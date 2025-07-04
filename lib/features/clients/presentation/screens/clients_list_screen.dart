@@ -4,10 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_appbar.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
-import '../controllers/client_controller.dart';
+import '../controllers/client_list_controller.dart';
 import '../widgets/client_list_item.dart';
 
-class ClientsListScreen extends GetView<ClientController> {
+class ClientsListScreen extends GetView<ClientListController> {
   const ClientsListScreen({super.key});
 
   @override

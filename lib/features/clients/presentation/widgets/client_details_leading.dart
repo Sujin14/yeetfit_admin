@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
-import '../controllers/client_controller.dart';
+import '../controllers/client_details_controller.dart';
 
 class ClientDetailsLeading extends StatelessWidget {
-  final ClientController controller;
+  final ClientDetailsController controller;
 
   const ClientDetailsLeading({super.key, required this.controller});
 

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../controllers/client_controller.dart';
 import '../controllers/client_details_controller.dart';
 import '../widgets/client_details_content.dart';
 import '../widgets/client_details_leading.dart';
@@ -12,8 +11,15 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize ClientDetailsController
-    Get.put(ClientDetailsController());
+    // Use existing controller
+    final controller = Get.find<ClientDetailsController>();
+    // Trigger reinitialize only once
+    if (controller.uid.value.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('ClientDetailsScreen: Triggering reinitialize');
+        controller.reinitialize();
+      });
+    }
 
     return Obx(
       () => Scaffold(
@@ -26,39 +32,53 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
           ),
           backgroundColor: AdminTheme.colors['surface'],
           elevation: 2,
-          leading: ClientDetailsLeading(
-            controller: Get.find<ClientController>(),
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(
-                Icons.restaurant_menu,
-                color: AdminTheme.colors['textPrimary'],
-                size: 20.w,
-              ),
-              onPressed: controller.navigateToDietPlanForm,
-            ),
-            IconButton(
-              icon: Icon(
-                Icons.fitness_center,
-                color: AdminTheme.colors['textPrimary'],
-                size: 20.w,
-              ),
-              onPressed: controller.navigateToWorkoutPlanForm,
-            ),
-          ],
+          leading: ClientDetailsLeading(controller: controller),
         ),
-        body: controller.isInvalidUid.value
+        body: controller.isLoading.value
             ? Center(
-                child: Text(
-                  'Invalid client ID provided',
-                  style: AdminTheme.textStyles['body']!.copyWith(
-                    color: AdminTheme.colors['textSecondary'],
-                  ),
+                child: CircularProgressIndicator(
+                  color: AdminTheme.colors['primary'],
+                ),
+              )
+            : controller.isInvalidUid.value
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Invalid client ID provided',
+                      style: AdminTheme.textStyles['body']!.copyWith(
+                        color: AdminTheme.colors['textSecondary'],
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    Text(
+                      'Error: ${controller.error.value}',
+                      style: AdminTheme.textStyles['body']!.copyWith(
+                        color: AdminTheme.colors['error'],
+                      ),
+                    ),
+                    SizedBox(height: 16.h),
+                    ElevatedButton(
+                      onPressed: () {
+                        print('ClientDetailsScreen: Going back');
+                        Get.back();
+                      },
+                      child: Text(
+                        'Go Back',
+                        style: AdminTheme.textStyles['body']!.copyWith(
+                          color: AdminTheme.colors['textPrimary'],
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AdminTheme.colors['primary'],
+                      ),
+                    ),
+                  ],
                 ),
               )
             : ClientDetailsContent(
-                controller: Get.find<ClientController>(),
+                controller: controller,
                 uid: controller.uid.value,
               ),
       ),

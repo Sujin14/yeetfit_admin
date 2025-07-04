@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../../../core/controllers/bottom_nav_controller.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../clients/presentation/controllers/client_controller.dart';
+import '../../../clients/presentation/controllers/client_list_controller.dart';
 
 class DashboardListTile extends StatelessWidget {
   final String image;
@@ -23,7 +22,7 @@ class DashboardListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final bottomNavController = Get.put(BottomNavController());
-    final clientController = Get.find<ClientController>();
+    final clientController = Get.find<ClientListController>();
 
     return Card(
       margin: EdgeInsets.symmetric(vertical: 4.h),

@@ -1,16 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../models/client_model.dart';
 import '../models/plan_model.dart';
 import '../models/progress_model.dart';
 
 class FirestoreClientService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   Future<List<ClientModel>> getClientsByGoal(String goal) async {
     try {
       print('getClientsByGoal: Fetching clients for goal: $goal');
-      final query = await _firestore
+      final query = await firestore
           .collection('users')
           .where('goal', isEqualTo: goal.toLowerCase())
           .where('role', isEqualTo: 'user')
@@ -34,7 +33,7 @@ class FirestoreClientService {
   Future<ClientModel?> getClientDetails(String uid) async {
     try {
       print('getClientDetails: Fetching details for UID: $uid');
-      final doc = await _firestore.collection('users').doc(uid).get();
+      final doc = await firestore.collection('users').doc(uid).get();
       if (!doc.exists) {
         print('getClientDetails: No document found for UID: $uid');
         return null;
@@ -47,14 +46,14 @@ class FirestoreClientService {
       print(
         'getClientDetails: Error fetching client details for UID: $uid - $e',
       );
-      return null;
+      throw Exception('Failed to fetch client details: $e');
     }
   }
 
   Future<List<ProgressModel>> getClientProgress(String uid) async {
     try {
       print('getClientProgress: Fetching progress for UID: $uid');
-      final query = await _firestore
+      final query = await firestore
           .collection('users')
           .doc(uid)
           .collection('progress')
@@ -76,24 +75,30 @@ class FirestoreClientService {
   Future<List<PlanModel>> getClientPlans(String userId) async {
     try {
       print('getClientPlans: Fetching plans for userId: $userId');
-      final workouts = await _firestore
+      final workouts = await firestore
           .collection('workouts')
           .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
-      final diets = await _firestore
+      final diets = await firestore
           .collection('diets')
           .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
       final plans = [
         ...workouts.docs.map((doc) {
-          print('getClientPlans: Workout plan - ${doc.data()}');
-          return PlanModel.fromMap(doc.data());
+          final data = doc.data();
+          data['id'] = doc.id;
+          data['title'] = data['title'] ?? 'Workout Plan ${doc.id}';
+          print('getClientPlans: Workout plan - $data');
+          return PlanModel.fromMap(data);
         }),
         ...diets.docs.map((doc) {
-          print('getClientPlans: Diet plan - ${doc.data()}');
-          return PlanModel.fromMap(doc.data());
+          final data = doc.data();
+          data['id'] = doc.id;
+          data['title'] = data['title'] ?? 'Diet Plan ${doc.id}';
+          print('getClientPlans: Diet plan - $data');
+          return PlanModel.fromMap(data);
         }),
       ];
       print('getClientPlans: Fetched ${plans.length} plans');
@@ -109,9 +114,12 @@ class FirestoreClientService {
       print(
         'assignPlan: Assigning plan for userId: $userId, type: ${plan.type}',
       );
-      final collection = plan.type == 'workout' ? 'workouts' : 'diets';
-      await _firestore.collection(collection).add(plan.toMap());
-      print('assignPlan: Plan assigned successfully for userId: $userId');
+      final collection = plan.type == 'diet' ? 'diets' : 'workouts';
+      final docRef = await firestore.collection(collection).add(plan.toMap());
+      await docRef.update({'id': docRef.id});
+      print(
+        'assignPlan: Plan assigned successfully for userId: $userId, ID: ${docRef.id}',
+      );
       return true;
     } catch (e) {
       print('assignPlan: Error assigning plan for userId: $userId - $e');
