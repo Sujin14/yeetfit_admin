@@ -5,7 +5,7 @@ class PlanModel {
   final String title;
   final String type;
   final String userId;
-  final String? assignedBy; // Added to support assignedBy field
+  final String? assignedBy;
   final Map<String, dynamic> details;
   final Timestamp createdAt;
 

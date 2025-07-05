@@ -16,7 +16,7 @@ class WorkoutFormFields extends GetView<PlanController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-            controller: controller.workoutTitleController,
+            controller: controller.titleController,
             labelText: 'Workout Plan Title',
             validator: FormValidators.validatePlanDetails,
           ),
@@ -120,9 +120,9 @@ class WorkoutFormFields extends GetView<PlanController> {
                 SizedBox(height: 8.h),
                 CustomTextField(
                   controller: videoUrlController,
-                  labelText: 'YouTube Video URL',
+                  labelText: 'YouTube Video URL (Optional)',
                   validator: (value) {
-                    if (value == null || value.isEmpty) return null; // Optional
+                    if (value == null || value.isEmpty) return null;
                     if (!RegExp(
                       r'^https?://(www\.)?(youtube\.com|youtu\.be)/.+$',
                     ).hasMatch(value)) {
@@ -138,7 +138,7 @@ class WorkoutFormFields extends GetView<PlanController> {
                 ),
               ],
             );
-          }).toList(),
+          }),
           SizedBox(height: 8.h),
           TextButton(
             onPressed: controller.addExercise,

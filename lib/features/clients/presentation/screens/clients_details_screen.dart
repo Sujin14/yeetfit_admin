@@ -11,9 +11,7 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
 
   @override
   Widget build(BuildContext context) {
-    // Use existing controller
     final controller = Get.find<ClientDetailsController>();
-    // Trigger reinitialize only once
     if (controller.uid.value.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         print('ClientDetailsScreen: Triggering reinitialize');
@@ -64,14 +62,14 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
                         print('ClientDetailsScreen: Going back');
                         Get.back();
                       },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AdminTheme.colors['primary'],
+                      ),
                       child: Text(
                         'Go Back',
                         style: AdminTheme.textStyles['body']!.copyWith(
                           color: AdminTheme.colors['textPrimary'],
                         ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AdminTheme.colors['primary'],
                       ),
                     ),
                   ],

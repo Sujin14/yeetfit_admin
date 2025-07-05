@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/theme.dart';
-import '../controllers/client_details_controller.dart';
+import '../controllers/plan_controller.dart';
 
 class ClientPlanActions extends StatelessWidget {
   final String uid;
@@ -11,8 +11,6 @@ class ClientPlanActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ClientDetailsController>();
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -49,7 +47,17 @@ class ClientPlanActions extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                onPressed: () => controller.navigateToAddDietPlan(),
+                onPressed: () {
+                  print('ClientPlanActions: Deleting PlanController instance');
+                  Get.delete<PlanController>(force: true);
+                  print(
+                    'ClientPlanActions: Navigating to /home/plan-form with type: diet, uid: $uid',
+                  );
+                  Get.toNamed(
+                    '/home/plan-form',
+                    arguments: {'uid': uid, 'mode': 'add', 'type': 'diet'},
+                  );
+                },
               ),
             ),
             SizedBox(width: 8.w),
@@ -76,7 +84,15 @@ class ClientPlanActions extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                onPressed: () => controller.navigateToManageDietPlans(),
+                onPressed: () {
+                  print(
+                    'ClientPlanActions: Navigating to /home/diet-plan-management with uid: $uid',
+                  );
+                  Get.toNamed(
+                    '/home/diet-plan-management',
+                    arguments: {'uid': uid, 'type': 'diet'},
+                  );
+                },
               ),
             ),
           ],
@@ -108,7 +124,17 @@ class ClientPlanActions extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                onPressed: () => controller.navigateToAddWorkoutPlan(),
+                onPressed: () {
+                  print('ClientPlanActions: Deleting PlanController instance');
+                  Get.delete<PlanController>(force: true);
+                  print(
+                    'ClientPlanActions: Navigating to /home/plan-form with type: workout, uid: $uid',
+                  );
+                  Get.toNamed(
+                    '/home/plan-form',
+                    arguments: {'uid': uid, 'mode': 'add', 'type': 'workout'},
+                  );
+                },
               ),
             ),
             SizedBox(width: 8.w),
@@ -135,7 +161,15 @@ class ClientPlanActions extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                onPressed: () => controller.navigateToManageWorkoutPlans(),
+                onPressed: () {
+                  print(
+                    'ClientPlanActions: Navigating to /home/workout-plan-management with uid: $uid',
+                  );
+                  Get.toNamed(
+                    '/home/workout-plan-management',
+                    arguments: {'uid': uid, 'type': 'workout'},
+                  );
+                },
               ),
             ),
           ],

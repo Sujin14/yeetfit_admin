@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../../../../core/theme/theme.dart';
 import '../../data/datasources/firestore_client_service.dart';
 import '../../data/models/plan_model.dart';
 import '../../data/repositories/client_repository_impl.dart';
@@ -15,16 +16,10 @@ class PlanController extends GetxController {
   final isLoading = false.obs;
   final error = ''.obs;
 
-  // Form fields for diet
-  final dietTitleController = TextEditingController();
-  final meals = <Map<String, dynamic>>[]
-      .obs; // [{name: String, foods: [{name: String, quantity: String, calories: String}]}]
-
-  // Form fields for workout
-  final workoutTitleController = TextEditingController();
-  final exercises = <Map<String, dynamic>>[]
-      .obs; // [{name: String, reps: String, sets: String, description: String, instructions: String, videoUrl: String}]
-
+  // Form fields
+  final titleController = TextEditingController();
+  final meals = <Map<String, dynamic>>[].obs; // For diet plans
+  final exercises = <Map<String, dynamic>>[].obs; // For workout plans
   final formKey = GlobalKey<FormState>();
   final isEditMode = false.obs;
   final planId = ''.obs;
@@ -37,18 +32,21 @@ class PlanController extends GetxController {
       ),
       getClientPlans = GetClientPlans(
         ClientRepositoryImpl(service: FirestoreClientService()),
-      );
+      ) {
+    print('PlanController: New instance created');
+  }
 
   @override
   void onInit() {
     super.onInit();
+    print('PlanController: onInit called');
     initializeForm();
   }
 
   @override
   void onClose() {
-    dietTitleController.dispose();
-    workoutTitleController.dispose();
+    print('PlanController: onClose called');
+    titleController.dispose();
     super.onClose();
   }
 
@@ -56,14 +54,30 @@ class PlanController extends GetxController {
     final args = Get.arguments;
     print('PlanController: Arguments received: $args');
     userId.value = args?['uid'] as String? ?? '';
-    planType.value = args?['type'] as String? ?? 'diet';
+    planType.value = args?['type'] as String? ?? '';
     isEditMode.value = (args?['mode'] as String?) == 'edit';
     planId.value = args?['planId'] as String? ?? '';
 
-    if (isEditMode.value && planId.value.isNotEmpty) {
-      fetchPlanForEdit(planId.value);
-    } else {
-      // Initialize with one empty meal/exercise
+    if (planType.value.isEmpty) {
+      print('PlanController: Error - planType is empty, defaulting to diet');
+      planType.value = 'diet'; // Fallback
+    } else if (planType.value != 'diet' && planType.value != 'workout') {
+      print(
+        'PlanController: Error - Invalid planType: ${planType.value}, defaulting to diet',
+      );
+      planType.value = 'diet'; // Fallback for invalid type
+    }
+    print(
+      'PlanController: Initialized with planType: ${planType.value}, userId: ${userId.value}, mode: ${isEditMode.value ? 'edit' : 'add'}',
+    );
+
+    // Reset form fields
+    titleController.clear();
+    meals.clear();
+    exercises.clear();
+
+    // Initialize with one empty entry
+    if (!isEditMode.value) {
       if (planType.value == 'diet') {
         meals.add({
           'name': '',
@@ -71,7 +85,8 @@ class PlanController extends GetxController {
             {'name': '', 'quantity': '', 'calories': ''},
           ],
         });
-      } else {
+        print('PlanController: Initialized empty diet meal');
+      } else if (planType.value == 'workout') {
         exercises.add({
           'name': '',
           'reps': '',
@@ -80,6 +95,7 @@ class PlanController extends GetxController {
           'instructions': '',
           'videoUrl': '',
         });
+        print('PlanController: Initialized empty workout exercise');
       }
     }
   }
@@ -91,11 +107,14 @@ class PlanController extends GetxController {
         {'name': '', 'quantity': '', 'calories': ''},
       ],
     });
+    meals.refresh();
+    print('PlanController: Added new meal');
   }
 
   void addFood(int mealIndex) {
     meals[mealIndex]['foods'].add({'name': '', 'quantity': '', 'calories': ''});
     meals.refresh();
+    print('PlanController: Added new food to meal at index $mealIndex');
   }
 
   void addExercise() {
@@ -107,53 +126,51 @@ class PlanController extends GetxController {
       'instructions': '',
       'videoUrl': '',
     });
+    exercises.refresh();
+    print('PlanController: Added new exercise');
   }
 
   void removeMeal(int index) {
     meals.removeAt(index);
+    meals.refresh();
+    print('PlanController: Removed meal at index $index');
   }
 
   void removeFood(int mealIndex, int foodIndex) {
     meals[mealIndex]['foods'].removeAt(foodIndex);
     meals.refresh();
+    print(
+      'PlanController: Removed food at mealIndex $mealIndex, foodIndex $foodIndex',
+    );
   }
 
   void removeExercise(int index) {
     exercises.removeAt(index);
-  }
-
-  Future<void> fetchPlanForEdit(String planId) async {
-    isLoading.value = true;
-    try {
-      final planList = await getClientPlans(userId.value);
-      final plan = planList.firstWhereOrNull((p) => p.id == planId);
-      if (plan != null) {
-        if (planType.value == 'diet') {
-          dietTitleController.text = plan.title;
-          meals.assignAll(plan.details['meals'] ?? []);
-        } else {
-          workoutTitleController.text = plan.title;
-          exercises.assignAll(plan.details['exercises'] ?? []);
-        }
-      } else {
-        error.value = 'Plan not found';
-      }
-    } catch (e) {
-      error.value = 'Failed to load plan: $e';
-    } finally {
-      isLoading.value = false;
-    }
+    exercises.refresh();
+    print('PlanController: Removed exercise at index $index');
   }
 
   Future<bool> savePlan() async {
-    if (!formKey.currentState!.validate()) return false;
+    print('PlanController: Saving plan with planType: ${planType.value}');
+    if (!formKey.currentState!.validate()) {
+      error.value = 'Please fill all required fields correctly';
+      Get.snackbar(
+        'Error',
+        error.value,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['textPrimary'],
+      );
+      print('PlanController: Form validation failed');
+      return false;
+    }
     isLoading.value = true;
+    error.value = '';
     try {
       final plan = PlanModel(
         id: isEditMode.value ? planId.value : null,
-        title: planType.value == 'diet'
-            ? dietTitleController.text
-            : workoutTitleController.text,
+        title: titleController.text.trim().isEmpty
+            ? 'Unnamed Plan'
+            : titleController.text.trim(),
         type: planType.value,
         userId: userId.value,
         assignedBy: FirebaseAuth.instance.currentUser?.uid,
@@ -161,11 +178,11 @@ class PlanController extends GetxController {
             ? {
                 'meals': meals.map((meal) {
                   return {
-                    'name': meal['name'],
+                    'name': meal['name']?.trim() ?? '',
                     'foods': (meal['foods'] as List).map((food) {
                       return {
-                        'name': food['name'],
-                        'quantity': food['quantity'],
+                        'name': food['name']?.trim() ?? '',
+                        'quantity': food['quantity']?.trim() ?? '',
                         'calories': int.tryParse(food['calories'] ?? '0') ?? 0,
                       };
                     }).toList(),
@@ -175,26 +192,48 @@ class PlanController extends GetxController {
             : {
                 'exercises': exercises.map((exercise) {
                   return {
-                    'name': exercise['name'],
+                    'name': exercise['name']?.trim() ?? '',
                     'reps': int.tryParse(exercise['reps'] ?? '0') ?? 0,
                     'sets': int.tryParse(exercise['sets'] ?? '0') ?? 0,
-                    'description': exercise['description'],
-                    'instructions': exercise['instructions'],
-                    'videoUrl': exercise['videoUrl'],
+                    'description': exercise['description']?.trim() ?? '',
+                    'instructions': exercise['instructions']?.trim() ?? '',
+                    'videoUrl': exercise['videoUrl']?.trim() ?? '',
                   };
                 }).toList(),
               },
         createdAt: Timestamp.now(),
       );
+      print('PlanController: Saving plan to Firestore');
       final success = await assignPlan(userId.value, plan);
       if (success) {
         Get.back();
+        Get.snackbar(
+          'Success',
+          '${planType.value.capitalizeFirstLetter} plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
+          backgroundColor: AdminTheme.colors['primary'],
+          colorText: AdminTheme.colors['textPrimary'],
+        );
+        print('PlanController: Plan saved successfully');
       } else {
         error.value = 'Failed to save plan';
+        Get.snackbar(
+          'Error',
+          error.value,
+          backgroundColor: AdminTheme.colors['error'],
+          colorText: AdminTheme.colors['textPrimary'],
+        );
+        print('PlanController: Failed to save plan');
       }
       return success;
     } catch (e) {
       error.value = 'Error saving plan: $e';
+      Get.snackbar(
+        'Error',
+        error.value,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['textPrimary'],
+      );
+      print('PlanController: Error saving plan: $e');
       return false;
     } finally {
       isLoading.value = false;
@@ -202,6 +241,7 @@ class PlanController extends GetxController {
   }
 
   Future<bool> deletePlan(String planId) async {
+    print('PlanController: Deleting plan with ID: $planId');
     isLoading.value = true;
     try {
       final collection = planType.value == 'diet' ? 'diets' : 'workouts';
@@ -210,12 +250,33 @@ class PlanController extends GetxController {
           .doc(planId)
           .delete();
       plans.removeWhere((plan) => plan.id == planId);
+      Get.snackbar(
+        'Success',
+        '${planType.value.capitalizeFirstLetter} plan deleted successfully',
+        backgroundColor: AdminTheme.colors['primary'],
+        colorText: AdminTheme.colors['textPrimary'],
+      );
+      print('PlanController: Plan deleted successfully');
       return true;
     } catch (e) {
       error.value = 'Error deleting plan: $e';
+      Get.snackbar(
+        'Error',
+        error.value,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['textPrimary'],
+      );
+      print('PlanController: Error deleting plan: $e');
       return false;
     } finally {
       isLoading.value = false;
     }
+  }
+}
+
+extension StringExtension on String {
+  String get capitalizeFirstLetter {
+    if (isEmpty) return this;
+    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
   }
 }

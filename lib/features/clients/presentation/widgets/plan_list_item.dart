@@ -54,7 +54,7 @@ class PlanListItem extends StatelessWidget {
                     ),
                   ],
                 );
-              }).toList(),
+              }),
             ] else ...[
               ...?(plan.details['exercises'] as List?)?.map((exercise) {
                 return Column(
@@ -81,7 +81,7 @@ class PlanListItem extends StatelessWidget {
                       ),
                   ],
                 );
-              }).toList(),
+              }),
             ],
             SizedBox(height: 8.h),
             Row(

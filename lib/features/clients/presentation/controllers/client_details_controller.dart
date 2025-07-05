@@ -29,7 +29,6 @@ class ClientDetailsController extends GetxController {
   void onInit() {
     super.onInit();
     print('ClientDetailsController: onInit called');
-    // Do not call _initialize here to avoid premature execution
     ever(selectedClient, (client) {
       clientName.value = client?.name;
       print(
@@ -48,7 +47,7 @@ class ClientDetailsController extends GetxController {
       print('ClientDetailsController: Invalid or missing UID');
       return;
     }
-    isInvalidUid.value = false; // Reset isInvalidUid for valid UID
+    isInvalidUid.value = false;
     if (uid.value != argsUid) {
       uid.value = argsUid;
       print('ClientDetailsController: UID set to ${uid.value}');
@@ -81,8 +80,7 @@ class ClientDetailsController extends GetxController {
           'fetchClientDetails: Progress fetched - ${clientProgress.length} entries',
         );
         progress.assignAll(clientProgress);
-        isInvalidUid.value =
-            false; // Ensure valid client sets isInvalidUid to false
+        isInvalidUid.value = false;
       } else {
         error.value = 'Client not found for UID: $uid';
         print('fetchClientDetails: Client not found for UID: $uid');

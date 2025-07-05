@@ -16,7 +16,7 @@ class DietFormFields extends GetView<PlanController> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-            controller: controller.dietTitleController,
+            controller: controller.titleController,
             labelText: 'Diet Plan Title',
             validator: FormValidators.validatePlanDetails,
           ),
@@ -110,7 +110,7 @@ class DietFormFields extends GetView<PlanController> {
                       ),
                     ],
                   );
-                }).toList(),
+                }),
                 SizedBox(height: 8.h),
                 TextButton(
                   onPressed: () => controller.addFood(index),
@@ -127,7 +127,7 @@ class DietFormFields extends GetView<PlanController> {
                 ),
               ],
             );
-          }).toList(),
+          }),
           SizedBox(height: 8.h),
           TextButton(
             onPressed: controller.addMeal,

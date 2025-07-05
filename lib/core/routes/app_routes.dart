@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
+import '../../features/clients/presentation/controllers/plan_controller.dart';
 import '../../features/clients/presentation/screens/clients_details_screen.dart';
 import '../../features/clients/presentation/screens/clients_list_screen.dart';
 import '../../features/clients/presentation/screens/plan_form_screen.dart';
@@ -27,7 +28,14 @@ class AppRoutes {
           name: '/client-details',
           page: () => const ClientDetailsScreen(),
         ),
-        GetPage(name: '/plan-form', page: () => const PlanFormScreen()),
+        GetPage(
+          name: '/plan-form',
+          page: () => const PlanFormScreen(),
+          binding: BindingsBuilder(() {
+            print('AppRoutes: Binding PlanController for /home/plan-form');
+            Get.put(PlanController());
+          }),
+        ),
         GetPage(
           name: '/diet-plan-management',
           page: () => const PlanManagementScreen(),
