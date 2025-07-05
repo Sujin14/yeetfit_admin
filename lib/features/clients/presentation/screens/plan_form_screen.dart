@@ -1,49 +1,83 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import '../../data/models/plan_model.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:yeetfit_admin/features/clients/presentation/widgets/plan_form_fields.dart';
 import '../controllers/plan_controller.dart';
-import '../widgets/plan_form_fields.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/custom_appbar.dart';
+import '../../../../core/widgets/custom_button.dart';
+import '../widgets/diet_form_field.dart';
+import '../widgets/workout_form_field.dart';
+
+// Extension to capitalize the first letter of a string
+extension StringExtension on String {
+  String get capitalize {
+    if (isEmpty) return this;
+    return '${this[0].toUpperCase()}${substring(1).toLowerCase()}';
+  }
+}
 
 class PlanFormScreen extends GetView<PlanController> {
   const PlanFormScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final uid = Get.arguments?['uid'] as String?;
-    final mode = Get.arguments?['mode'] as String? ?? 'add';
-    final plan = Get.arguments?['plan'] as PlanModel?;
-    final type = Get.arguments?['type'] as String? ?? 'diet';
-
     return Scaffold(
-      appBar: CustomAppBar(
-        title: mode == 'add'
-            ? 'Add ${type.capitalizeFirstLetter} Plan'
-            : 'Edit ${type.capitalizeFirstLetter} Plan',
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back,
+      appBar: AppBar(
+        title: Text(
+          controller.isEditMode.value
+              ? 'Edit ${controller.planType.value.capitalizeFirstLetter} Plan'
+              : 'Add ${controller.planType.value.capitalizeFirstLetter} Plan',
+          style: AdminTheme.textStyles['title']!.copyWith(
             color: AdminTheme.colors['textPrimary'],
-            size: 24.w,
           ),
-          onPressed: () => Get.back(),
         ),
+        backgroundColor: AdminTheme.colors['surface'],
+        elevation: 2,
       ),
-      body: PlanFormFields(
-        controller: controller,
-        uid: uid ?? '',
-        mode: mode,
-        plan: plan,
-        type: type,
+      body: Obx(
+        () => controller.isLoading.value
+            ? Center(
+                child: CircularProgressIndicator(
+                  color: AdminTheme.colors['primary'],
+                ),
+              )
+            : SingleChildScrollView(
+                padding: EdgeInsets.all(16.w),
+                child: Form(
+                  key: controller.formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (controller.planType.value == 'diet') ...[
+                        const DietFormFields(),
+                      ] else ...[
+                        const WorkoutFormFields(),
+                      ],
+                      SizedBox(height: 16.h),
+                      CustomButton(
+                        text: controller.isEditMode.value
+                            ? 'Update Plan'
+                            : 'Save Plan',
+                        isLoading: controller.isLoading.value,
+                        onPressed: () async {
+                          if (controller.formKey.currentState!.validate()) {
+                            final success = await controller.savePlan();
+                            if (!success) {
+                              Get.snackbar(
+                                'Error',
+                                controller.error.value,
+                                backgroundColor: AdminTheme.colors['error'],
+                                colorText: AdminTheme.colors['textPrimary'],
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }
-}
-
-// Extension to capitalize first letter
-extension StringExtension on String {
-  String get capitalizeFirstLetter =>
-      isNotEmpty ? '${this[0].toUpperCase()}${substring(1).toLowerCase()}' : '';
 }
