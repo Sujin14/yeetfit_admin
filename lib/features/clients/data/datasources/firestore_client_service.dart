@@ -26,7 +26,7 @@ class FirestoreClientService {
       return clients;
     } catch (e) {
       print('getClientsByGoal: Error fetching clients for goal "$goal": $e');
-      return [];
+      throw Exception('Failed to fetch clients: $e');
     }
   }
 
@@ -68,7 +68,7 @@ class FirestoreClientService {
       return progress;
     } catch (e) {
       print('getClientProgress: Error fetching progress for UID: $uid - $e');
-      return [];
+      throw Exception('Failed to fetch progress: $e');
     }
   }
 
@@ -89,14 +89,14 @@ class FirestoreClientService {
         ...workouts.docs.map((doc) {
           final data = doc.data();
           data['id'] = doc.id;
-          data['title'] = data['title'] ?? 'Workout Plan ${doc.id}';
+          data['type'] = 'workout';
           print('getClientPlans: Workout plan - $data');
           return PlanModel.fromMap(data);
         }),
         ...diets.docs.map((doc) {
           final data = doc.data();
           data['id'] = doc.id;
-          data['title'] = data['title'] ?? 'Diet Plan ${doc.id}';
+          data['type'] = 'diet';
           print('getClientPlans: Diet plan - $data');
           return PlanModel.fromMap(data);
         }),
@@ -105,7 +105,7 @@ class FirestoreClientService {
       return plans;
     } catch (e) {
       print('getClientPlans: Error fetching plans for userId: $userId - $e');
-      return [];
+      throw Exception('Failed to fetch plans: $e');
     }
   }
 
@@ -115,15 +115,25 @@ class FirestoreClientService {
         'assignPlan: Assigning plan for userId: $userId, type: ${plan.type}',
       );
       final collection = plan.type == 'diet' ? 'diets' : 'workouts';
-      final docRef = await firestore.collection(collection).add(plan.toMap());
-      await docRef.update({'id': docRef.id});
-      print(
-        'assignPlan: Plan assigned successfully for userId: $userId, ID: ${docRef.id}',
-      );
+      if (plan.id == null || plan.id!.isEmpty) {
+        final docRef = await firestore.collection(collection).add(plan.toMap());
+        await docRef.update({'id': docRef.id});
+        print(
+          'assignPlan: Plan created successfully for userId: $userId, ID: ${docRef.id}',
+        );
+      } else {
+        await firestore
+            .collection(collection)
+            .doc(plan.id)
+            .update(plan.toMap());
+        print(
+          'assignPlan: Plan updated successfully for userId: $userId, ID: ${plan.id}',
+        );
+      }
       return true;
     } catch (e) {
       print('assignPlan: Error assigning plan for userId: $userId - $e');
-      return false;
+      throw Exception('Failed to assign plan: $e');
     }
   }
 }
