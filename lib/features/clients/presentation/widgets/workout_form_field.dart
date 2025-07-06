@@ -11,8 +11,9 @@ class WorkoutFormFields extends GetView<PlanController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Column(
+    return Form(
+      key: controller.formKey, // Attach formKey for validation
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
@@ -27,118 +28,125 @@ class WorkoutFormFields extends GetView<PlanController> {
               color: AdminTheme.colors['textPrimary'],
             ),
           ),
-          ...controller.exercises.asMap().entries.map((entry) {
-            final index = entry.key;
-            final exercise = entry.value;
-            final nameController = TextEditingController(
-              text: exercise['name'],
-            );
-            final repsController = TextEditingController(
-              text: exercise['reps'],
-            );
-            final setsController = TextEditingController(
-              text: exercise['sets'],
-            );
-            final descriptionController = TextEditingController(
-              text: exercise['description'],
-            );
-            final instructionsController = TextEditingController(
-              text: exercise['instructions'],
-            );
-            final videoUrlController = TextEditingController(
-              text: exercise['videoUrl'],
-            );
-            nameController.addListener(() {
-              exercise['name'] = nameController.text;
-              controller.exercises.refresh();
-            });
-            repsController.addListener(() {
-              exercise['reps'] = repsController.text;
-              controller.exercises.refresh();
-            });
-            setsController.addListener(() {
-              exercise['sets'] = setsController.text;
-              controller.exercises.refresh();
-            });
-            descriptionController.addListener(() {
-              exercise['description'] = descriptionController.text;
-              controller.exercises.refresh();
-            });
-            instructionsController.addListener(() {
-              exercise['instructions'] = instructionsController.text;
-              controller.exercises.refresh();
-            });
-            videoUrlController.addListener(() {
-              exercise['videoUrl'] = videoUrlController.text;
-              controller.exercises.refresh();
-            });
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  controller: nameController,
-                  labelText: 'Exercise Name',
-                  validator: FormValidators.validatePlanDetails,
-                ),
-                SizedBox(height: 8.h),
-                Row(
+          GetBuilder<PlanController>(
+            builder: (controller) => Column(
+              children: controller.exercises.asMap().entries.map((entry) {
+                final index = entry.key;
+                final exercise = entry.value;
+                final nameController = TextEditingController(
+                  text: exercise['name'],
+                );
+                final repsController = TextEditingController(
+                  text: exercise['reps'],
+                );
+                final setsController = TextEditingController(
+                  text: exercise['sets'],
+                );
+                final descriptionController = TextEditingController(
+                  text: exercise['description'],
+                );
+                final instructionsController = TextEditingController(
+                  text: exercise['instructions'],
+                );
+                final videoUrlController = TextEditingController(
+                  text: exercise['videoUrl'],
+                );
+                nameController.addListener(() {
+                  exercise['name'] = nameController.text;
+                  controller.exercises.refresh();
+                });
+                repsController.addListener(() {
+                  exercise['reps'] = repsController.text;
+                  controller.exercises.refresh();
+                });
+                setsController.addListener(() {
+                  exercise['sets'] = setsController.text;
+                  controller.exercises.refresh();
+                });
+                descriptionController.addListener(() {
+                  exercise['description'] = descriptionController.text;
+                  controller.exercises.refresh();
+                });
+                instructionsController.addListener(() {
+                  exercise['instructions'] = instructionsController.text;
+                  controller.exercises.refresh();
+                });
+                videoUrlController.addListener(() {
+                  exercise['videoUrl'] = videoUrlController.text;
+                  controller.exercises.refresh();
+                });
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: CustomTextField(
-                        controller: repsController,
-                        labelText: 'Reps',
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            FormValidators.validateNumber(value, 'Reps'),
-                      ),
+                    SizedBox(height: 8.h),
+                    CustomTextField(
+                      controller: nameController,
+                      labelText: 'Exercise Name',
+                      validator: FormValidators.validatePlanDetails,
                     ),
-                    SizedBox(width: 8.w),
-                    Expanded(
-                      child: CustomTextField(
-                        controller: setsController,
-                        labelText: 'Sets',
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            FormValidators.validateNumber(value, 'Sets'),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            controller: repsController,
+                            labelText: 'Reps',
+                            keyboardType: TextInputType.number,
+                            validator: (value) =>
+                                FormValidators.validateNumber(value, 'Reps'),
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
+                          child: CustomTextField(
+                            controller: setsController,
+                            labelText: 'Sets',
+                            keyboardType: TextInputType.number,
+                            validator: (value) =>
+                                FormValidators.validateNumber(value, 'Sets'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    CustomTextField(
+                      controller: descriptionController,
+                      labelText: 'Description',
+                      maxLines: 3,
+                    ),
+                    SizedBox(height: 8.h),
+                    CustomTextField(
+                      controller: instructionsController,
+                      labelText: 'Instructions',
+                      maxLines: 3,
+                    ),
+                    SizedBox(height: 8.h),
+                    CustomTextField(
+                      controller: videoUrlController,
+                      labelText: 'YouTube Video URL (Optional)',
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return null;
+                        if (!RegExp(
+                          r'^https?://(www\.)?(youtube\.com|youtu\.be)/.+$',
+                        ).hasMatch(value)) {
+                          return 'Enter a valid YouTube URL';
+                        }
+                        return null;
+                      },
+                    ),
+                    SizedBox(height: 8.h),
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: AdminTheme.colors['error'],
                       ),
+                      onPressed: () => controller.removeExercise(index),
                     ),
                   ],
-                ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  controller: descriptionController,
-                  labelText: 'Description',
-                  maxLines: 3,
-                ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  controller: instructionsController,
-                  labelText: 'Instructions',
-                  maxLines: 3,
-                ),
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  controller: videoUrlController,
-                  labelText: 'YouTube Video URL (Optional)',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) return null;
-                    if (!RegExp(
-                      r'^https?://(www\.)?(youtube\.com|youtu\.be)/.+$',
-                    ).hasMatch(value)) {
-                      return 'Enter a valid YouTube URL';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 8.h),
-                IconButton(
-                  icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-                  onPressed: () => controller.removeExercise(index),
-                ),
-              ],
-            );
-          }),
+                );
+              }).toList(),
+            ),
+          ),
           SizedBox(height: 8.h),
           TextButton(
             onPressed: controller.addExercise,
@@ -146,6 +154,23 @@ class WorkoutFormFields extends GetView<PlanController> {
               'Add More Exercise',
               style: AdminTheme.textStyles['body']!.copyWith(
                 color: AdminTheme.colors['primary'],
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          ElevatedButton(
+            onPressed: controller.savePlan,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AdminTheme.colors['primary'],
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            child: Text(
+              'Save Plan',
+              style: AdminTheme.textStyles['body']!.copyWith(
+                color: AdminTheme.colors['textPrimary'],
               ),
             ),
           ),

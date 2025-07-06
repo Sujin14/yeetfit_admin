@@ -11,8 +11,9 @@ class DietFormFields extends GetView<PlanController> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Column(
+    return Form(
+      key: controller.formKey, // Attach formKey for validation
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
@@ -27,107 +28,116 @@ class DietFormFields extends GetView<PlanController> {
               color: AdminTheme.colors['textPrimary'],
             ),
           ),
-          ...controller.meals.asMap().entries.map((entry) {
-            final index = entry.key;
-            final meal = entry.value;
-            final mealNameController = TextEditingController(
-              text: meal['name'],
-            );
-            mealNameController.addListener(() {
-              meal['name'] = mealNameController.text;
-              controller.meals.refresh();
-            });
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 8.h),
-                CustomTextField(
-                  controller: mealNameController,
-                  labelText: 'Meal Name (e.g., Breakfast)',
-                  validator: FormValidators.validatePlanDetails,
-                ),
-                SizedBox(height: 8.h),
-                Text(
-                  'Foods',
-                  style: AdminTheme.textStyles['body']!.copyWith(
-                    color: AdminTheme.colors['textPrimary'],
-                  ),
-                ),
-                ...(meal['foods'] as List).asMap().entries.map((foodEntry) {
-                  final foodIndex = foodEntry.key;
-                  final food = foodEntry.value;
-                  final foodNameController = TextEditingController(
-                    text: food['name'],
-                  );
-                  final quantityController = TextEditingController(
-                    text: food['quantity'],
-                  );
-                  final caloriesController = TextEditingController(
-                    text: food['calories'],
-                  );
-                  foodNameController.addListener(() {
-                    food['name'] = foodNameController.text;
-                    controller.meals.refresh();
-                  });
-                  quantityController.addListener(() {
-                    food['quantity'] = quantityController.text;
-                    controller.meals.refresh();
-                  });
-                  caloriesController.addListener(() {
-                    food['calories'] = caloriesController.text;
-                    controller.meals.refresh();
-                  });
-                  return Column(
-                    children: [
-                      SizedBox(height: 8.h),
-                      CustomTextField(
-                        controller: foodNameController,
-                        labelText: 'Food Name (e.g., Dosa)',
-                        validator: FormValidators.validatePlanDetails,
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomTextField(
-                        controller: quantityController,
-                        labelText: 'Quantity (e.g., 100g)',
-                        validator: FormValidators.validatePlanDetails,
-                      ),
-                      SizedBox(height: 8.h),
-                      CustomTextField(
-                        controller: caloriesController,
-                        labelText: 'Calories',
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            FormValidators.validateNumber(value, 'Calories'),
-                      ),
-                      SizedBox(height: 8.h),
-                      IconButton(
-                        icon: Icon(
-                          Icons.delete,
-                          color: AdminTheme.colors['error'],
-                        ),
-                        onPressed: () =>
-                            controller.removeFood(index, foodIndex),
-                      ),
-                    ],
-                  );
-                }),
-                SizedBox(height: 8.h),
-                TextButton(
-                  onPressed: () => controller.addFood(index),
-                  child: Text(
-                    'Add Food',
-                    style: AdminTheme.textStyles['body']!.copyWith(
-                      color: AdminTheme.colors['primary'],
+          GetBuilder<PlanController>(
+            builder: (controller) => Column(
+              children: controller.meals.asMap().entries.map((entry) {
+                final index = entry.key;
+                final meal = entry.value;
+                final mealNameController = TextEditingController(
+                  text: meal['name'],
+                );
+                mealNameController.addListener(() {
+                  meal['name'] = mealNameController.text;
+                  controller.meals.refresh();
+                });
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8.h),
+                    CustomTextField(
+                      controller: mealNameController,
+                      labelText: 'Meal Name (e.g., Breakfast)',
+                      validator: FormValidators.validatePlanDetails,
                     ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-                  onPressed: () => controller.removeMeal(index),
-                ),
-              ],
-            );
-          }),
+                    SizedBox(height: 8.h),
+                    Text(
+                      'Foods',
+                      style: AdminTheme.textStyles['body']!.copyWith(
+                        color: AdminTheme.colors['textPrimary'],
+                      ),
+                    ),
+                    ...(meal['foods'] as List).asMap().entries.map((foodEntry) {
+                      final foodIndex = foodEntry.key;
+                      final food = foodEntry.value;
+                      final foodNameController = TextEditingController(
+                        text: food['name'],
+                      );
+                      final quantityController = TextEditingController(
+                        text: food['quantity'],
+                      );
+                      final caloriesController = TextEditingController(
+                        text: food['calories'],
+                      );
+                      foodNameController.addListener(() {
+                        food['name'] = foodNameController.text;
+                        controller.meals.refresh();
+                      });
+                      quantityController.addListener(() {
+                        food['quantity'] = quantityController.text;
+                        controller.meals.refresh();
+                      });
+                      caloriesController.addListener(() {
+                        food['calories'] = caloriesController.text;
+                        controller.meals.refresh();
+                      });
+                      return Column(
+                        children: [
+                          SizedBox(height: 8.h),
+                          CustomTextField(
+                            controller: foodNameController,
+                            labelText: 'Food Name (e.g., Dosa)',
+                            validator: FormValidators.validatePlanDetails,
+                          ),
+                          SizedBox(height: 8.h),
+                          CustomTextField(
+                            controller: quantityController,
+                            labelText: 'Quantity (e.g., 100g)',
+                            validator: FormValidators.validatePlanDetails,
+                          ),
+                          SizedBox(height: 8.h),
+                          CustomTextField(
+                            controller: caloriesController,
+                            labelText: 'Calories',
+                            keyboardType: TextInputType.number,
+                            validator: (value) => FormValidators.validateNumber(
+                              value,
+                              'Calories',
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          IconButton(
+                            icon: Icon(
+                              Icons.delete,
+                              color: AdminTheme.colors['error'],
+                            ),
+                            onPressed: () =>
+                                controller.removeFood(index, foodIndex),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                    SizedBox(height: 8.h),
+                    TextButton(
+                      onPressed: () => controller.addFood(index),
+                      child: Text(
+                        'Add Food',
+                        style: AdminTheme.textStyles['body']!.copyWith(
+                          color: AdminTheme.colors['primary'],
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.delete,
+                        color: AdminTheme.colors['error'],
+                      ),
+                      onPressed: () => controller.removeMeal(index),
+                    ),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
           SizedBox(height: 8.h),
           TextButton(
             onPressed: controller.addMeal,
@@ -135,6 +145,23 @@ class DietFormFields extends GetView<PlanController> {
               'Add More Meal',
               style: AdminTheme.textStyles['body']!.copyWith(
                 color: AdminTheme.colors['primary'],
+              ),
+            ),
+          ),
+          SizedBox(height: 16.h),
+          ElevatedButton(
+            onPressed: controller.savePlan,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AdminTheme.colors['primary'],
+              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
+            ),
+            child: Text(
+              'Save Plan',
+              style: AdminTheme.textStyles['body']!.copyWith(
+                color: AdminTheme.colors['textPrimary'],
               ),
             ),
           ),

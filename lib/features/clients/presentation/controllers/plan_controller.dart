@@ -108,12 +108,14 @@ class PlanController extends GetxController {
       ],
     });
     meals.refresh();
+    update(); // Trigger GetBuilder rebuild
     print('PlanController: Added new meal');
   }
 
   void addFood(int mealIndex) {
     meals[mealIndex]['foods'].add({'name': '', 'quantity': '', 'calories': ''});
     meals.refresh();
+    update(); // Trigger GetBuilder rebuild
     print('PlanController: Added new food to meal at index $mealIndex');
   }
 
@@ -127,18 +129,21 @@ class PlanController extends GetxController {
       'videoUrl': '',
     });
     exercises.refresh();
+    update(); // Trigger GetBuilder rebuild
     print('PlanController: Added new exercise');
   }
 
   void removeMeal(int index) {
     meals.removeAt(index);
     meals.refresh();
+    update(); // Trigger GetBuilder rebuild
     print('PlanController: Removed meal at index $index');
   }
 
   void removeFood(int mealIndex, int foodIndex) {
     meals[mealIndex]['foods'].removeAt(foodIndex);
     meals.refresh();
+    update(); // Trigger GetBuilder rebuild
     print(
       'PlanController: Removed food at mealIndex $mealIndex, foodIndex $foodIndex',
     );
@@ -147,12 +152,13 @@ class PlanController extends GetxController {
   void removeExercise(int index) {
     exercises.removeAt(index);
     exercises.refresh();
+    update(); // Trigger GetBuilder rebuild
     print('PlanController: Removed exercise at index $index');
   }
 
   Future<bool> savePlan() async {
     print('PlanController: Saving plan with planType: ${planType.value}');
-    if (!formKey.currentState!.validate()) {
+    if (formKey.currentState == null || !formKey.currentState!.validate()) {
       error.value = 'Please fill all required fields correctly';
       Get.snackbar(
         'Error',
