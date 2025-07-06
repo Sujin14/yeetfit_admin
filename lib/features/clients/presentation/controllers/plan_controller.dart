@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../../../core/theme/theme.dart';
 import '../../data/datasources/firestore_client_service.dart';
 import '../../data/models/plan_model.dart';
 import '../../data/repositories/client_repository_impl.dart';
 import '../../domain/usecases/assign_plan.dart';
 import '../../domain/usecases/get_client_plans.dart';
+import '../../../../core/theme/theme.dart';
 
 class PlanController extends GetxController {
   final AssignPlan assignPlan;
@@ -41,6 +41,7 @@ class PlanController extends GetxController {
     super.onInit();
     print('PlanController: onInit called');
     initializeForm();
+    fetchPlans(); // Fetch plans when controller is initialized
   }
 
   @override
@@ -97,6 +98,93 @@ class PlanController extends GetxController {
         });
         print('PlanController: Initialized empty workout exercise');
       }
+    } else {
+      // Populate form fields for edit mode
+      if (args?['plan'] != null) {
+        final PlanModel plan = args['plan'];
+        titleController.text = plan.title;
+        if (planType.value == 'diet') {
+          meals.assignAll(
+            plan.details['meals']
+                    ?.map(
+                      (meal) => {
+                        'name': meal['name'] ?? '',
+                        'foods': (meal['foods'] as List)
+                            .map(
+                              (food) => {
+                                'name': food['name'] ?? '',
+                                'quantity': food['quantity'] ?? '',
+                                'calories': food['calories']?.toString() ?? '',
+                              },
+                            )
+                            .toList(),
+                      },
+                    )
+                    .toList() ??
+                [],
+          );
+        } else if (planType.value == 'workout') {
+          exercises.assignAll(
+            plan.details['exercises']
+                    ?.map(
+                      (exercise) => {
+                        'name': exercise['name'] ?? '',
+                        'reps': exercise['reps']?.toString() ?? '',
+                        'sets': exercise['sets']?.toString() ?? '',
+                        'description': exercise['description'] ?? '',
+                        'instructions': exercise['instructions'] ?? '',
+                        'videoUrl': exercise['videoUrl'] ?? '',
+                      },
+                    )
+                    .toList() ??
+                [],
+          );
+        }
+        print(
+          'PlanController: Populated form for edit mode with plan: ${plan.title}',
+        );
+      }
+    }
+  }
+
+  Future<void> fetchPlans() async {
+    if (userId.value.isEmpty || planType.value.isEmpty) {
+      print('PlanController: Cannot fetch plans, userId or planType is empty');
+      return;
+    }
+    isLoading.value = true;
+    error.value = '';
+    try {
+      print(
+        'PlanController: Fetching plans for userId: ${userId.value}, type: ${planType.value}',
+      );
+      final fetchedPlans = await getClientPlans(userId.value);
+      print(
+        'PlanController: Raw fetched plans: ${fetchedPlans.map((p) => p.toMap()).toList()}',
+      );
+      plans.assignAll(
+        fetchedPlans.where((plan) => plan.type == planType.value).toList(),
+      );
+      print(
+        'PlanController: Filtered plans: ${plans.map((p) => p.toMap()).toList()}',
+      );
+      print('PlanController: Fetched ${plans.length} plans');
+      if (plans.isEmpty) {
+        print(
+          'PlanController: No plans found for userId: ${userId.value}, type: ${planType.value}',
+        );
+      }
+    } catch (e) {
+      error.value = 'Failed to load plans: $e';
+      Get.snackbar(
+        'Error',
+        'Unable to fetch plans. Please try again.',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['textPrimary'],
+      );
+      print('PlanController: Error fetching plans: $e');
+    } finally {
+      isLoading.value = false;
     }
   }
 
@@ -179,7 +267,7 @@ class PlanController extends GetxController {
             : titleController.text.trim(),
         type: planType.value,
         userId: userId.value,
-        assignedBy: FirebaseAuth.instance.currentUser?.uid,
+        assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
         details: planType.value == 'diet'
             ? {
                 'meals': meals.map((meal) {
@@ -209,9 +297,15 @@ class PlanController extends GetxController {
               },
         createdAt: Timestamp.now(),
       );
-      print('PlanController: Saving plan to Firestore');
+      print(
+        'PlanController: Saving plan with ID: ${plan.id ?? "new"}, userId: ${plan.userId}, type: ${plan.type}',
+      );
       final success = await assignPlan(userId.value, plan);
       if (success) {
+        print(
+          'PlanController: Plan saved successfully, fetching updated plans',
+        );
+        await fetchPlans();
         Get.back();
         Get.snackbar(
           'Success',
@@ -219,7 +313,6 @@ class PlanController extends GetxController {
           backgroundColor: AdminTheme.colors['primary'],
           colorText: AdminTheme.colors['textPrimary'],
         );
-        print('PlanController: Plan saved successfully');
       } else {
         error.value = 'Failed to save plan';
         Get.snackbar(

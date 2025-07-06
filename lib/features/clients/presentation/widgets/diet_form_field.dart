@@ -115,7 +115,7 @@ class DietFormFields extends GetView<PlanController> {
                           ),
                         ],
                       );
-                    }).toList(),
+                    }),
                     SizedBox(height: 8.h),
                     TextButton(
                       onPressed: () => controller.addFood(index),

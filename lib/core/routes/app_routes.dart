@@ -39,10 +39,22 @@ class AppRoutes {
         GetPage(
           name: '/diet-plan-management',
           page: () => const PlanManagementScreen(),
+          binding: BindingsBuilder(() {
+            print(
+              'AppRoutes: Binding PlanController for /home/diet-plan-management',
+            );
+            Get.put(PlanController());
+          }),
         ),
         GetPage(
           name: '/workout-plan-management',
           page: () => const PlanManagementScreen(),
+          binding: BindingsBuilder(() {
+            print(
+              'AppRoutes: Binding PlanController for /home/workout-plan-management',
+            );
+            Get.put(PlanController());
+          }),
         ),
       ],
     ),
@@ -71,13 +83,11 @@ class AppRoutes {
       return '/';
     }
 
-    // Redirect only for root routes '/' or '/signup'
     if (currentRoute == '/' || currentRoute == '/signup') {
       print('AppRoutes.redirect: Admin user, redirecting to /home');
       return '/home';
     }
 
-    // Allow nested routes to proceed without interference
     print(
       'AppRoutes.redirect: Allowing navigation to $currentRoute with arguments: $arguments',
     );
