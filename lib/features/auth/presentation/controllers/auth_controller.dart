@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/form_validators.dart';
 import '../../data/datasources/email_auth_service.dart';
@@ -75,5 +75,27 @@ class AuthController extends GetxController {
 
   Future<bool> isAdmin(String uid) async {
     return await EmailAuthService().isAdmin(uid);
+  }
+
+  Future<bool> logout() async {
+    print('AuthController: Attempting to logout');
+    isLoading.value = true;
+    try {
+      await FirebaseAuth.instance.signOut();
+      Get.offAllNamed('/');
+      print('AuthController: Logout successful');
+      return true;
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to log out: $e',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+      print('AuthController: Error during logout: $e');
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

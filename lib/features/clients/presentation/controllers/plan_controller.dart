@@ -340,7 +340,39 @@ class PlanController extends GetxController {
   }
 
   Future<bool> deletePlan(String planId) async {
-    print('PlanController: Deleting plan with ID: $planId');
+    print('PlanController: Attempting to delete plan with ID: $planId');
+    final confirmed =
+        await Get.dialog<bool>(
+          AlertDialog(
+            title: Text('Confirm Delete'),
+            content: Text(
+              'Are you sure you want to delete this ${planType.value} plan? This action cannot be undone.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: Text(
+                  'Cancel',
+                  style: TextStyle(color: AdminTheme.colors['textSecondary']),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true),
+                child: Text(
+                  'Delete',
+                  style: TextStyle(color: AdminTheme.colors['error']),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+
+    if (!confirmed) {
+      print('PlanController: Deletion cancelled for plan ID: $planId');
+      return false;
+    }
+
     isLoading.value = true;
     try {
       final collection = planType.value == 'diet' ? 'diets' : 'workouts';
