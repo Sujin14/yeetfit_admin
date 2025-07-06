@@ -41,7 +41,7 @@ class PlanController extends GetxController {
     super.onInit();
     print('PlanController: onInit called');
     initializeForm();
-    fetchPlans(); // Fetch plans when controller is initialized
+    fetchPlans();
   }
 
   @override
@@ -61,23 +61,21 @@ class PlanController extends GetxController {
 
     if (planType.value.isEmpty) {
       print('PlanController: Error - planType is empty, defaulting to diet');
-      planType.value = 'diet'; // Fallback
+      planType.value = 'diet';
     } else if (planType.value != 'diet' && planType.value != 'workout') {
       print(
         'PlanController: Error - Invalid planType: ${planType.value}, defaulting to diet',
       );
-      planType.value = 'diet'; // Fallback for invalid type
+      planType.value = 'diet';
     }
     print(
       'PlanController: Initialized with planType: ${planType.value}, userId: ${userId.value}, mode: ${isEditMode.value ? 'edit' : 'add'}',
     );
 
-    // Reset form fields
     titleController.clear();
     meals.clear();
     exercises.clear();
 
-    // Initialize with one empty entry
     if (!isEditMode.value) {
       if (planType.value == 'diet') {
         meals.add({
@@ -90,6 +88,7 @@ class PlanController extends GetxController {
       } else if (planType.value == 'workout') {
         exercises.add({
           'name': '',
+          'repsType': 'reps', // Default to reps
           'reps': '',
           'sets': '',
           'description': '',
@@ -99,7 +98,6 @@ class PlanController extends GetxController {
         print('PlanController: Initialized empty workout exercise');
       }
     } else {
-      // Populate form fields for edit mode
       if (args?['plan'] != null) {
         final PlanModel plan = args['plan'];
         titleController.text = plan.title;
@@ -129,6 +127,7 @@ class PlanController extends GetxController {
                     ?.map(
                       (exercise) => {
                         'name': exercise['name'] ?? '',
+                        'repsType': exercise['repsType'] ?? 'reps',
                         'reps': exercise['reps']?.toString() ?? '',
                         'sets': exercise['sets']?.toString() ?? '',
                         'description': exercise['description'] ?? '',
@@ -196,20 +195,21 @@ class PlanController extends GetxController {
       ],
     });
     meals.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print('PlanController: Added new meal');
   }
 
   void addFood(int mealIndex) {
     meals[mealIndex]['foods'].add({'name': '', 'quantity': '', 'calories': ''});
     meals.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print('PlanController: Added new food to meal at index $mealIndex');
   }
 
   void addExercise() {
     exercises.add({
       'name': '',
+      'repsType': 'reps',
       'reps': '',
       'sets': '',
       'description': '',
@@ -217,21 +217,21 @@ class PlanController extends GetxController {
       'videoUrl': '',
     });
     exercises.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print('PlanController: Added new exercise');
   }
 
   void removeMeal(int index) {
     meals.removeAt(index);
     meals.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print('PlanController: Removed meal at index $index');
   }
 
   void removeFood(int mealIndex, int foodIndex) {
     meals[mealIndex]['foods'].removeAt(foodIndex);
     meals.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print(
       'PlanController: Removed food at mealIndex $mealIndex, foodIndex $foodIndex',
     );
@@ -240,8 +240,16 @@ class PlanController extends GetxController {
   void removeExercise(int index) {
     exercises.removeAt(index);
     exercises.refresh();
-    update(); // Trigger GetBuilder rebuild
+    update();
     print('PlanController: Removed exercise at index $index');
+  }
+
+  void updateRepsType(int index, String repsType) {
+    exercises[index]['repsType'] = repsType;
+    exercises[index]['reps'] = ''; // Reset reps when type changes
+    exercises.refresh();
+    update();
+    print('PlanController: Updated repsType to $repsType at index $index');
   }
 
   Future<bool> savePlan() async {
@@ -287,8 +295,9 @@ class PlanController extends GetxController {
                 'exercises': exercises.map((exercise) {
                   return {
                     'name': exercise['name']?.trim() ?? '',
-                    'reps': int.tryParse(exercise['reps'] ?? '0') ?? 0,
-                    'sets': int.tryParse(exercise['sets'] ?? '0') ?? 0,
+                    'repsType': exercise['repsType'] ?? 'reps',
+                    'reps': exercise['reps']?.trim() ?? '',
+                    'sets': exercise['sets']?.trim() ?? '',
                     'description': exercise['description']?.trim() ?? '',
                     'instructions': exercise['instructions']?.trim() ?? '',
                     'videoUrl': exercise['videoUrl']?.trim() ?? '',

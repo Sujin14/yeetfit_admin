@@ -78,12 +78,10 @@ class AuthController extends GetxController {
   }
 
   Future<bool> logout() async {
-    print('AuthController: Attempting to logout');
     isLoading.value = true;
     try {
       await FirebaseAuth.instance.signOut();
       Get.offAllNamed('/');
-      print('AuthController: Logout successful');
       return true;
     } catch (e) {
       Get.snackbar(
@@ -92,7 +90,6 @@ class AuthController extends GetxController {
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );
-      print('AuthController: Error during logout: $e');
       return false;
     } finally {
       isLoading.value = false;

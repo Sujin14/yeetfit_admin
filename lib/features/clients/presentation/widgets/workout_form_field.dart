@@ -12,7 +12,7 @@ class WorkoutFormFields extends GetView<PlanController> {
   @override
   Widget build(BuildContext context) {
     return Form(
-      key: controller.formKey, // Attach formKey for validation
+      key: controller.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -79,6 +79,24 @@ class WorkoutFormFields extends GetView<PlanController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(height: 8.h),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Exercise ${index + 1}',
+                          style: AdminTheme.textStyles['title']!.copyWith(
+                            color: AdminTheme.colors['textPrimary'],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(
+                            Icons.delete,
+                            color: AdminTheme.colors['error'],
+                          ),
+                          onPressed: () => controller.removeExercise(index),
+                        ),
+                      ],
+                    ),
                     CustomTextField(
                       controller: nameController,
                       labelText: 'Exercise Name',
@@ -88,22 +106,94 @@ class WorkoutFormFields extends GetView<PlanController> {
                     Row(
                       children: [
                         Expanded(
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'Reps/Time',
+                              labelStyle: TextStyle(
+                                color: AdminTheme.colors['textSecondary'],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
+                            value: exercise['repsType'] ?? 'reps',
+                            items: ['reps', 'time'].map((type) {
+                              return DropdownMenuItem(
+                                value: type,
+                                child: Text(type.capitalizeFirstLetter),
+                              );
+                            }).toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                controller.updateRepsType(index, value);
+                                repsController.clear();
+                              }
+                            },
+                          ),
+                        ),
+                        SizedBox(width: 8.w),
+                        Expanded(
                           child: CustomTextField(
                             controller: repsController,
-                            labelText: 'Reps',
-                            keyboardType: TextInputType.number,
+                            labelText: exercise['repsType'] == 'reps'
+                                ? 'Reps'
+                                : 'Time',
+                            keyboardType: exercise['repsType'] == 'reps'
+                                ? TextInputType.number
+                                : TextInputType.text,
                             validator: (value) =>
-                                FormValidators.validateNumber(value, 'Reps'),
+                                FormValidators.validatePlanDetails(value),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: DropdownButtonFormField<String>(
+                            decoration: InputDecoration(
+                              labelText: 'Sets',
+                              labelStyle: TextStyle(
+                                color: AdminTheme.colors['textSecondary'],
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.r),
+                              ),
+                            ),
+                            value: exercise['sets']?.isNotEmpty ?? false
+                                ? exercise['sets']
+                                : null,
+                            hint: Text(
+                              'Select sets',
+                              style: TextStyle(
+                                color: AdminTheme.colors['textSecondary'],
+                              ),
+                            ),
+                            items: List.generate(10, (i) => (i + 1).toString())
+                                .map((set) {
+                                  return DropdownMenuItem(
+                                    value: set,
+                                    child: Text(set),
+                                  );
+                                })
+                                .toList(),
+                            onChanged: (value) {
+                              if (value != null) {
+                                exercise['sets'] = value;
+                                setsController.text = value;
+                                controller.exercises.refresh();
+                              }
+                            },
                           ),
                         ),
                         SizedBox(width: 8.w),
                         Expanded(
                           child: CustomTextField(
                             controller: setsController,
-                            labelText: 'Sets',
+                            labelText: 'Custom Sets',
                             keyboardType: TextInputType.number,
-                            validator: (value) =>
-                                FormValidators.validateNumber(value, 'Sets'),
+                            validator: (value) => null, // Optional field
                           ),
                         ),
                       ],
@@ -133,14 +223,6 @@ class WorkoutFormFields extends GetView<PlanController> {
                         }
                         return null;
                       },
-                    ),
-                    SizedBox(height: 8.h),
-                    IconButton(
-                      icon: Icon(
-                        Icons.delete,
-                        color: AdminTheme.colors['error'],
-                      ),
-                      onPressed: () => controller.removeExercise(index),
                     ),
                   ],
                 );
