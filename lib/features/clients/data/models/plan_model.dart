@@ -7,6 +7,7 @@ class PlanModel {
   final String userId;
   final String? assignedBy;
   final Map<String, dynamic> details;
+  final bool isFavorite;
   final Timestamp createdAt;
 
   PlanModel({
@@ -16,6 +17,7 @@ class PlanModel {
     required this.userId,
     this.assignedBy,
     required this.details,
+    required this.isFavorite,
     required this.createdAt,
   });
 
@@ -27,6 +29,7 @@ class PlanModel {
       userId: map['userId'] as String,
       assignedBy: map['assignedBy'] as String?,
       details: Map<String, dynamic>.from(map['details'] ?? {}),
+      isFavorite: map['isFavorite'] as bool? ?? false,
       createdAt: map['createdAt'] as Timestamp? ?? Timestamp.now(),
     );
   }
@@ -39,6 +42,7 @@ class PlanModel {
       'userId': userId,
       'assignedBy': assignedBy,
       'details': details,
+      'isFavorite': isFavorite,
       'createdAt': createdAt,
     };
   }

@@ -20,6 +20,8 @@ class PlanController extends GetxController {
   final titleController = TextEditingController();
   final meals = <Map<String, dynamic>>[].obs; // For diet plans
   final exercises = <Map<String, dynamic>>[].obs; // For workout plans
+  final descriptionController =
+      TextEditingController(); // For plan-level description
   final formKey = GlobalKey<FormState>();
   final isEditMode = false.obs;
   final planId = ''.obs;
@@ -48,6 +50,7 @@ class PlanController extends GetxController {
   void onClose() {
     print('PlanController: onClose called');
     titleController.dispose();
+    descriptionController.dispose();
     super.onClose();
   }
 
@@ -73,6 +76,7 @@ class PlanController extends GetxController {
     );
 
     titleController.clear();
+    descriptionController.clear();
     meals.clear();
     exercises.clear();
 
@@ -81,14 +85,14 @@ class PlanController extends GetxController {
         meals.add({
           'name': '',
           'foods': [
-            {'name': '', 'quantity': '', 'calories': ''},
+            {'name': '', 'quantity': '', 'calories': '', 'description': ''},
           ],
         });
         print('PlanController: Initialized empty diet meal');
       } else if (planType.value == 'workout') {
         exercises.add({
           'name': '',
-          'repsType': 'reps', // Default to reps
+          'repsType': 'reps',
           'reps': '',
           'sets': '',
           'description': '',
@@ -101,6 +105,8 @@ class PlanController extends GetxController {
       if (args?['plan'] != null) {
         final PlanModel plan = args['plan'];
         titleController.text = plan.title;
+        descriptionController.text =
+            plan.details['description']?.toString() ?? '';
         if (planType.value == 'diet') {
           meals.assignAll(
             plan.details['meals']
@@ -113,6 +119,8 @@ class PlanController extends GetxController {
                                 'name': food['name'] ?? '',
                                 'quantity': food['quantity'] ?? '',
                                 'calories': food['calories']?.toString() ?? '',
+                                'description':
+                                    food['description']?.toString() ?? '',
                               },
                             )
                             .toList(),
@@ -130,9 +138,11 @@ class PlanController extends GetxController {
                         'repsType': exercise['repsType'] ?? 'reps',
                         'reps': exercise['reps']?.toString() ?? '',
                         'sets': exercise['sets']?.toString() ?? '',
-                        'description': exercise['description'] ?? '',
-                        'instructions': exercise['instructions'] ?? '',
-                        'videoUrl': exercise['videoUrl'] ?? '',
+                        'description':
+                            exercise['description']?.toString() ?? '',
+                        'instructions':
+                            exercise['instructions']?.toString() ?? '',
+                        'videoUrl': exercise['videoUrl']?.toString() ?? '',
                       },
                     )
                     .toList() ??
@@ -191,7 +201,7 @@ class PlanController extends GetxController {
     meals.add({
       'name': '',
       'foods': [
-        {'name': '', 'quantity': '', 'calories': ''},
+        {'name': '', 'quantity': '', 'calories': '', 'description': ''},
       ],
     });
     meals.refresh();
@@ -200,7 +210,12 @@ class PlanController extends GetxController {
   }
 
   void addFood(int mealIndex) {
-    meals[mealIndex]['foods'].add({'name': '', 'quantity': '', 'calories': ''});
+    meals[mealIndex]['foods'].add({
+      'name': '',
+      'quantity': '',
+      'calories': '',
+      'description': '',
+    });
     meals.refresh();
     update();
     print('PlanController: Added new food to meal at index $mealIndex');
@@ -278,6 +293,7 @@ class PlanController extends GetxController {
         assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
         details: planType.value == 'diet'
             ? {
+                'description': descriptionController.text.trim(),
                 'meals': meals.map((meal) {
                   return {
                     'name': meal['name']?.trim() ?? '',
@@ -286,12 +302,14 @@ class PlanController extends GetxController {
                         'name': food['name']?.trim() ?? '',
                         'quantity': food['quantity']?.trim() ?? '',
                         'calories': int.tryParse(food['calories'] ?? '0') ?? 0,
+                        'description': food['description']?.trim() ?? '',
                       };
                     }).toList(),
                   };
                 }).toList(),
               }
             : {
+                'description': descriptionController.text.trim(),
                 'exercises': exercises.map((exercise) {
                   return {
                     'name': exercise['name']?.trim() ?? '',
@@ -304,10 +322,26 @@ class PlanController extends GetxController {
                   };
                 }).toList(),
               },
+        isFavorite: isEditMode.value
+            ? plans
+                  .firstWhere(
+                    (p) => p.id == planId.value,
+                    orElse: () => PlanModel(
+                      id: null,
+                      title: '',
+                      type: planType.value,
+                      userId: userId.value,
+                      details: {},
+                      isFavorite: false,
+                      createdAt: Timestamp.now(),
+                    ),
+                  )
+                  .isFavorite
+            : false,
         createdAt: Timestamp.now(),
       );
       print(
-        'PlanController: Saving plan with ID: ${plan.id ?? "new"}, userId: ${plan.userId}, type: ${plan.type}',
+        'PlanController: Saving plan with ID: ${plan.id ?? "new"}, userId: ${plan.userId}, type: ${plan.type}, isFavorite: ${plan.isFavorite}',
       );
       final success = await assignPlan(userId.value, plan);
       if (success) {
