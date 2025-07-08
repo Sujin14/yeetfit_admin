@@ -80,7 +80,60 @@ class PlanController extends GetxController {
     meals.clear();
     exercises.clear();
 
-    if (!isEditMode.value) {
+    if (isEditMode.value && args?['plan'] != null) {
+      final PlanModel plan = args['plan'];
+      titleController.text = plan.title;
+      descriptionController.text =
+          plan.details['description']?.toString() ?? '';
+      if (planType.value == 'diet') {
+        meals.assignAll(
+          (plan.details['meals'] as List?)
+                  ?.map(
+                    (meal) => {
+                      'name': meal['name']?.toString() ?? '',
+                      'foods':
+                          (meal['foods'] as List?)
+                              ?.map(
+                                (food) => {
+                                  'name': food['name']?.toString() ?? '',
+                                  'quantity':
+                                      food['quantity']?.toString() ?? '',
+                                  'calories':
+                                      food['calories']?.toString() ?? '',
+                                  'description':
+                                      food['description']?.toString() ?? '',
+                                },
+                              )
+                              .toList() ??
+                          [],
+                    },
+                  )
+                  .toList() ??
+              [],
+        );
+      } else if (planType.value == 'workout') {
+        exercises.assignAll(
+          (plan.details['exercises'] as List?)
+                  ?.map(
+                    (exercise) => {
+                      'name': exercise['name']?.toString() ?? '',
+                      'repsType': exercise['repsType']?.toString() ?? 'reps',
+                      'reps': exercise['reps']?.toString() ?? '',
+                      'sets': exercise['sets']?.toString() ?? '',
+                      'description': exercise['description']?.toString() ?? '',
+                      'instructions':
+                          exercise['instructions']?.toString() ?? '',
+                      'videoUrl': exercise['videoUrl']?.toString() ?? '',
+                    },
+                  )
+                  .toList() ??
+              [],
+        );
+      }
+      print(
+        'PlanController: Populated form for edit mode with plan: ${plan.title}, meals: ${meals.length}, exercises: ${exercises.length}',
+      );
+    } else {
       if (planType.value == 'diet') {
         meals.add({
           'name': '',
@@ -100,58 +153,6 @@ class PlanController extends GetxController {
           'videoUrl': '',
         });
         print('PlanController: Initialized empty workout exercise');
-      }
-    } else {
-      if (args?['plan'] != null) {
-        final PlanModel plan = args['plan'];
-        titleController.text = plan.title;
-        descriptionController.text =
-            plan.details['description']?.toString() ?? '';
-        if (planType.value == 'diet') {
-          meals.assignAll(
-            plan.details['meals']
-                    ?.map(
-                      (meal) => {
-                        'name': meal['name'] ?? '',
-                        'foods': (meal['foods'] as List)
-                            .map(
-                              (food) => {
-                                'name': food['name'] ?? '',
-                                'quantity': food['quantity'] ?? '',
-                                'calories': food['calories']?.toString() ?? '',
-                                'description':
-                                    food['description']?.toString() ?? '',
-                              },
-                            )
-                            .toList(),
-                      },
-                    )
-                    .toList() ??
-                [],
-          );
-        } else if (planType.value == 'workout') {
-          exercises.assignAll(
-            plan.details['exercises']
-                    ?.map(
-                      (exercise) => {
-                        'name': exercise['name'] ?? '',
-                        'repsType': exercise['repsType'] ?? 'reps',
-                        'reps': exercise['reps']?.toString() ?? '',
-                        'sets': exercise['sets']?.toString() ?? '',
-                        'description':
-                            exercise['description']?.toString() ?? '',
-                        'instructions':
-                            exercise['instructions']?.toString() ?? '',
-                        'videoUrl': exercise['videoUrl']?.toString() ?? '',
-                      },
-                    )
-                    .toList() ??
-                [],
-          );
-        }
-        print(
-          'PlanController: Populated form for edit mode with plan: ${plan.title}',
-        );
       }
     }
   }
@@ -313,12 +314,12 @@ class PlanController extends GetxController {
                 'exercises': exercises.map((exercise) {
                   return {
                     'name': exercise['name']?.trim() ?? '',
-                    'repsType': exercise['repsType'] ?? 'reps',
-                    'reps': exercise['reps']?.trim() ?? '',
-                    'sets': exercise['sets']?.trim() ?? '',
-                    'description': exercise['description']?.trim() ?? '',
-                    'instructions': exercise['instructions']?.trim() ?? '',
-                    'videoUrl': exercise['videoUrl']?.trim() ?? '',
+                    'repsType': exercise['repsType']?.toString() ?? 'reps',
+                    'reps': exercise['reps']?.toString() ?? '',
+                    'sets': exercise['sets']?.toString() ?? '',
+                    'description': exercise['description']?.toString() ?? '',
+                    'instructions': exercise['instructions']?.toString() ?? '',
+                    'videoUrl': exercise['videoUrl']?.toString() ?? '',
                   };
                 }).toList(),
               },

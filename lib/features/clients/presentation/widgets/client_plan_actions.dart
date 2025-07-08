@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../controllers/plan_controller.dart';
 
@@ -11,6 +11,13 @@ class ClientPlanActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure PlanController is initialized or reused
+    final PlanController controller = Get.put(
+      PlanController(),
+      tag:
+          'plan-$uid', // Use a unique tag to reuse the controller for this user
+    );
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -48,11 +55,11 @@ class ClientPlanActions extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  print('ClientPlanActions: Deleting PlanController instance');
-                  Get.delete<PlanController>(force: true);
                   print(
                     'ClientPlanActions: Navigating to /home/plan-form with type: diet, uid: $uid',
                   );
+                  // Initialize form with correct arguments
+                  controller.initializeForm();
                   Get.toNamed(
                     '/home/plan-form',
                     arguments: {'uid': uid, 'mode': 'add', 'type': 'diet'},
@@ -88,6 +95,10 @@ class ClientPlanActions extends StatelessWidget {
                   print(
                     'ClientPlanActions: Navigating to /home/diet-plan-management with uid: $uid',
                   );
+                  // Ensure controller is initialized with correct userId and type
+                  controller.userId.value = uid;
+                  controller.planType.value = 'diet';
+                  controller.fetchPlans();
                   Get.toNamed(
                     '/home/diet-plan-management',
                     arguments: {'uid': uid, 'type': 'diet'},
@@ -125,11 +136,11 @@ class ClientPlanActions extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  print('ClientPlanActions: Deleting PlanController instance');
-                  Get.delete<PlanController>(force: true);
                   print(
                     'ClientPlanActions: Navigating to /home/plan-form with type: workout, uid: $uid',
                   );
+                  // Initialize form with correct arguments
+                  controller.initializeForm();
                   Get.toNamed(
                     '/home/plan-form',
                     arguments: {'uid': uid, 'mode': 'add', 'type': 'workout'},
@@ -165,6 +176,10 @@ class ClientPlanActions extends StatelessWidget {
                   print(
                     'ClientPlanActions: Navigating to /home/workout-plan-management with uid: $uid',
                   );
+                  // Ensure controller is initialized with correct userId and type
+                  controller.userId.value = uid;
+                  controller.planType.value = 'workout';
+                  controller.fetchPlans();
                   Get.toNamed(
                     '/home/workout-plan-management',
                     arguments: {'uid': uid, 'type': 'workout'},
