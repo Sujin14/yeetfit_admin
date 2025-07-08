@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/client_model.dart';
 import '../models/plan_model.dart';
-import '../models/progress_model.dart';
 
 class FirestoreClientService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -50,39 +49,19 @@ class FirestoreClientService {
     }
   }
 
-  Future<List<ProgressModel>> getClientProgress(String uid) async {
-    try {
-      print('getClientProgress: Fetching progress for UID: $uid');
-      final query = await firestore
-          .collection('users')
-          .doc(uid)
-          .collection('progress')
-          .orderBy('date', descending: true)
-          .get();
-      final progress = query.docs.map((doc) {
-        final data = doc.data();
-        print('getClientProgress: Progress entry - Date: ${data['date']}');
-        return ProgressModel.fromMap(data);
-      }).toList();
-      print('getClientProgress: Fetched ${progress.length} progress entries');
-      return progress;
-    } catch (e) {
-      print('getClientProgress: Error fetching progress for UID: $uid - $e');
-      throw Exception('Failed to fetch progress: $e');
-    }
-  }
-
   Future<List<PlanModel>> getClientPlans(String userId) async {
     try {
       print('getClientPlans: Fetching plans for userId: $userId');
       final workouts = await firestore
+          .collection('users')
+          .doc(userId)
           .collection('workouts')
-          .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
       final diets = await firestore
+          .collection('users')
+          .doc(userId)
           .collection('diets')
-          .where('userId', isEqualTo: userId)
           .orderBy('createdAt', descending: true)
           .get();
       final plans = [
@@ -115,25 +94,39 @@ class FirestoreClientService {
         'assignPlan: Assigning plan for userId: $userId, type: ${plan.type}',
       );
       final collection = plan.type == 'diet' ? 'diets' : 'workouts';
-      if (plan.id == null || plan.id!.isEmpty) {
-        final docRef = await firestore.collection(collection).add(plan.toMap());
-        await docRef.update({'id': docRef.id});
-        print(
-          'assignPlan: Plan created successfully for userId: $userId, ID: ${docRef.id}',
-        );
-      } else {
-        await firestore
-            .collection(collection)
-            .doc(plan.id)
-            .update(plan.toMap());
-        print(
-          'assignPlan: Plan updated successfully for userId: $userId, ID: ${plan.id}',
-        );
-      }
+      final docRef = firestore
+          .collection('users')
+          .doc(userId)
+          .collection(collection)
+          .doc(plan.id);
+      await docRef.set(plan.toMap());
+      print(
+        'assignPlan: Plan ${plan.id == null ? "created" : "updated"} successfully for userId: $userId, ID: ${plan.id ?? docRef.id}',
+      );
       return true;
     } catch (e) {
       print('assignPlan: Error assigning plan for userId: $userId - $e');
       throw Exception('Failed to assign plan: $e');
+    }
+  }
+
+  Future<bool> deletePlan(String userId, String planId, String type) async {
+    try {
+      print(
+        'deletePlan: Deleting plan for userId: $userId, planId: $planId, type: $type',
+      );
+      final collection = type == 'diet' ? 'diets' : 'workouts';
+      await firestore
+          .collection('users')
+          .doc(userId)
+          .collection(collection)
+          .doc(planId)
+          .delete();
+      print('deletePlan: Plan deleted successfully');
+      return true;
+    } catch (e) {
+      print('deletePlan: Error deleting plan: $e');
+      throw Exception('Failed to delete plan: $e');
     }
   }
 }

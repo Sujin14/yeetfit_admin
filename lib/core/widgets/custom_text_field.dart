@@ -10,6 +10,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final int? maxLines;
   final String? hintText;
+    final void Function(String)? onChanged;
+
 
   const CustomTextField({
     super.key,
@@ -20,6 +22,7 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.maxLines = 1,
     this.hintText,
+    this.onChanged
   });
 
   @override

@@ -2,8 +2,6 @@ import '../../domain/repositories/client_repository.dart';
 import '../datasources/firestore_client_service.dart';
 import '../models/client_model.dart';
 import '../models/plan_model.dart';
-import '../models/progress_model.dart';
-
 class ClientRepositoryImpl implements ClientRepository {
   final FirestoreClientService service;
 
@@ -19,10 +17,6 @@ class ClientRepositoryImpl implements ClientRepository {
     return service.getClientDetails(uid);
   }
 
-  @override
-  Future<List<ProgressModel>> getClientProgress(String uid) {
-    return service.getClientProgress(uid);
-  }
 
   @override
   Future<List<PlanModel>> getClientPlans(String userId) {
@@ -32,5 +26,10 @@ class ClientRepositoryImpl implements ClientRepository {
   @override
   Future<bool> assignPlan(String userId, PlanModel plan) {
     return service.assignPlan(userId, plan);
+  }
+
+  @override
+  Future<bool> deletePlan(String userId, String planId, String type) {
+    return service.deletePlan(userId, planId, type);
   }
 }

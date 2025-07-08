@@ -3,13 +3,14 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AdminTheme {
   static const colors = {
-    'primary': Color(0xFF1976D2),
-    'secondary': Color(0xFF4CAF50),
+    'primary': Color(0xFF0288D1), // Vibrant blue
+    'secondary': Color(0xFF388E3C), // Vibrant green
     'background': Color(0xFFF5F7FA),
     'surface': Color(0xFFFFFFFF),
     'textPrimary': Color(0xFF212121),
     'textSecondary': Color(0xFF757575),
     'error': Color(0xFFD32F2F),
+    'accent': Color(0xFFFFA000), // Vibrant amber for highlights
   };
 
   static final textStyles = {

@@ -1,71 +1,88 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../theme/theme.dart';
-import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/clients/presentation/screens/clients_list_screen.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../theme/theme.dart';
+import '../controllers/bottom_nav_controller.dart';
 
 class BottomNavBar extends StatelessWidget {
   const BottomNavBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final selectedIndex = 0.obs;
+    final controller = Get.find<BottomNavController>();
 
     Widget getSelectedScreen(int index) {
       switch (index) {
         case 0:
-          return const DashboardScreen();
+          return const ClientsListScreen(goal: 'Weight Loss');
         case 1:
-          return const ClientsListScreen();
+          return const ClientsListScreen(goal: 'Weight Gain');
         case 2:
-          return const SettingsScreen();
+          return const ClientsListScreen(goal: 'Muscle Building');
         default:
-          return const DashboardScreen();
+          return const ClientsListScreen(goal: 'Weight Loss');
       }
     }
 
     return Obx(
       () => Scaffold(
-        body: getSelectedScreen(selectedIndex.value),
+        appBar: AppBar(
+          title: Text(
+            controller.selectedIndex.value == 0
+                ? 'Weight Loss Clients'
+                : controller.selectedIndex.value == 1
+                ? 'Weight Gain Clients'
+                : 'Muscle Building Clients',
+            style: AdminTheme.textStyles['title'],
+          ),
+          backgroundColor: AdminTheme.colors['surface'],
+          elevation: 2,
+          actions: [
+            IconButton(
+              icon: Icon(Icons.person, color: AdminTheme.colors['primary']),
+              onPressed: () => Get.toNamed('/settings'),
+            ),
+          ],
+        ),
+        body: getSelectedScreen(controller.selectedIndex.value),
         bottomNavigationBar: NavigationBar(
-          selectedIndex: selectedIndex.value,
-          onDestinationSelected: (index) => selectedIndex.value = index,
+          selectedIndex: controller.selectedIndex.value,
+          onDestinationSelected: (index) => controller.changeIndex(index),
           backgroundColor: AdminTheme.colors['surface'],
           elevation: 2,
           destinations: [
             NavigationDestination(
               icon: Icon(
-                Icons.dashboard,
+                Icons.fitness_center,
                 color: AdminTheme.colors['textSecondary'],
               ),
               selectedIcon: Icon(
-                Icons.dashboard,
+                Icons.fitness_center,
                 color: AdminTheme.colors['primary'],
               ),
-              label: 'Dashboard',
+              label: 'Weight Loss',
             ),
             NavigationDestination(
               icon: Icon(
-                Icons.people,
+                Icons.trending_up,
                 color: AdminTheme.colors['textSecondary'],
               ),
               selectedIcon: Icon(
-                Icons.people,
+                Icons.trending_up,
                 color: AdminTheme.colors['primary'],
               ),
-              label: 'Clients',
+              label: 'Weight Gain',
             ),
             NavigationDestination(
               icon: Icon(
-                Icons.settings,
+                Icons.accessibility_new,
                 color: AdminTheme.colors['textSecondary'],
               ),
               selectedIcon: Icon(
-                Icons.settings,
+                Icons.accessibility_new,
                 color: AdminTheme.colors['primary'],
               ),
-              label: 'Settings',
+              label: 'Muscle Building',
             ),
           ],
         ),
