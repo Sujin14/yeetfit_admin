@@ -111,7 +111,7 @@ class PlanFormScreen extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -160,7 +160,7 @@ class PlanFormScreen extends StatelessWidget {
               ),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
