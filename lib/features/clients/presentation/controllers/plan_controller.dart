@@ -329,117 +329,119 @@ class PlanController extends GetxController {
   }
 
   Future<bool> savePlan() async {
-    if (userId.value.isEmpty) {
-      error.value = 'No client selected. Please try again.';
-      Get.snackbar(
-        'Error',
-        error.value,
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    }
-    if (formKey.currentState == null || !formKey.currentState!.validate()) {
-      error.value = 'Please fill all required fields correctly';
-      Get.snackbar(
-        'Error',
-        error.value,
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    }
-
-    isLoading.value = true;
-    error.value = '';
-    try {
-      final plan = PlanModel(
-        id: isEditMode.value ? planId.value : null,
-        title: titleController.text.trim().isEmpty
-            ? 'Unnamed Plan'
-            : titleController.text.trim(),
-        type: planType.value,
-        userId: userId.value,
-        assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-        details: planType.value == 'diet'
-            ? {
-                'description': descriptionController.text.trim(),
-                'meals': meals.map((meal) {
-                  return {
-                    'name': meal['controllers']['name'].text.trim(),
-                    'foods': (meal['foods'] as List).map((food) {
-                      return {
-                        'name': food['controllers']['name'].text.trim(),
-                        'quantity': food['controllers']['quantity'].text.trim(),
-                        'unit': food['unit'] ?? 'g',
-                        'calories':
-                            int.tryParse(
-                              food['controllers']['calories'].text.trim(),
-                            ) ??
-                            0,
-                        'description': food['controllers']['description'].text
-                            .trim(),
-                      };
-                    }).toList(),
-                  };
-                }).toList(),
-              }
-            : {
-                'description': descriptionController.text.trim(),
-                'exercises': exercises.map((exercise) {
-                  return {
-                    'name': exercise['controllers']['name'].text.trim(),
-                    'repsType': exercise['repsType'],
-                    'reps': exercise['controllers']['reps'].text.trim(),
-                    'sets': exercise['controllers']['sets'].text.trim(),
-                    'description': exercise['controllers']['description'].text
-                        .trim(),
-                    'instructions': exercise['controllers']['instructions'].text
-                        .trim(),
-                    'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
-                  };
-                }).toList(),
-              },
-        isFavorite: isEditMode.value
-            ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ??
-                  false
-            : false,
-        createdAt: Timestamp.now(),
-      );
-
-      final success = await assignPlan(userId.value, plan);
-      if (success) {
-        await fetchPlans();
-        Get.back();
-        Get.snackbar(
-          'Success',
-          '${planType.value.capitalizeFirstLetter} plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
-          backgroundColor: AdminTheme.colors['primary'],
-          colorText: AdminTheme.colors['surface'],
-        );
-      } else {
-        error.value = 'Failed to save plan';
-        Get.snackbar(
-          'Error',
-          error.value,
-          backgroundColor: AdminTheme.colors['error'],
-          colorText: AdminTheme.colors['surface'],
-        );
-      }
-      return success;
-    } catch (e) {
-      error.value = 'Error saving plan: $e';
-      Get.snackbar(
-        'Error',
-        error.value,
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
+  if (userId.value.isEmpty) {
+    error.value = 'No client selected. Please try again.';
+    Get.snackbar(
+      'Error',
+      error.value,
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
   }
+
+  if (formKey.currentState == null || !formKey.currentState!.validate()) {
+    error.value = 'Please fill all required fields correctly';
+    Get.snackbar(
+      'Error',
+      error.value,
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
+  }
+
+  isLoading.value = true;
+  error.value = '';
+  try {
+    final plan = PlanModel(
+      id: isEditMode.value ? planId.value : null,
+      title: titleController.text.trim().isEmpty
+          ? 'Unnamed Plan'
+          : titleController.text.trim(),
+      type: planType.value,
+      userId: userId.value,
+      assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+      details: planType.value == 'diet'
+          ? {
+              'description': descriptionController.text.trim(),
+              'meals': meals.map((meal) {
+                return {
+                  'name': meal['controllers']['name'].text.trim(),
+                  'foods': (meal['foods'] as List).map((food) {
+                    return {
+                      'name': food['controllers']['name'].text.trim(),
+                      'quantity': food['controllers']['quantity'].text.trim(),
+                      'unit': food['unit'] ?? 'g',
+                      'calories': int.tryParse(
+                            food['controllers']['calories'].text.trim(),
+                          ) ??
+                          0,
+                      'description':
+                          food['controllers']['description'].text.trim(),
+                    };
+                  }).toList(),
+                };
+              }).toList(),
+            }
+          : {
+              'description': descriptionController.text.trim(),
+              'exercises': exercises.map((exercise) {
+                return {
+                  'name': exercise['controllers']['name'].text.trim(),
+                  'repsType': exercise['repsType'],
+                  'reps': exercise['controllers']['reps'].text.trim(),
+                  'sets': exercise['controllers']['sets'].text.trim(),
+                  'description':
+                      exercise['controllers']['description'].text.trim(),
+                  'instructions':
+                      exercise['controllers']['instructions'].text.trim(),
+                  'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
+                };
+              }).toList(),
+            },
+      isFavorite: isEditMode.value
+          ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ??
+              false
+          : false,
+      createdAt: Timestamp.now(),
+    );
+
+    final success = await assignPlan(userId.value, plan);
+
+    if (success) {
+      await fetchPlans(); // 🔁 Update list
+      Get.back(result: true); // ✅ Trigger refresh when returning
+      Get.snackbar(
+        'Success',
+        '${planType.value.capitalizeFirstLetter} plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
+        backgroundColor: AdminTheme.colors['primary'],
+        colorText: AdminTheme.colors['surface'],
+      );
+    } else {
+      error.value = 'Failed to save plan';
+      Get.snackbar(
+        'Error',
+        error.value,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+    }
+    return success;
+  } catch (e) {
+    error.value = 'Error saving plan: $e';
+    Get.snackbar(
+      'Error',
+      error.value,
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 
   Future<bool> removePlan(String planId) async {
     final confirmed =
@@ -505,6 +507,25 @@ class PlanController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<void> openPlanForm({required String mode, PlanModel? plan}) async {
+  final result = await Get.toNamed(
+    planType.value == 'diet'
+        ? '/home/diet-plan-management'
+        : '/home/workout-plan-management',
+    arguments: {
+      'uid': userId.value,
+      'type': planType.value,
+      'mode': mode,
+      'planId': plan?.id,
+      'plan': plan,
+    },
+  );
+  if (result == true) {
+    await fetchPlans();
+  }
+}
+
 }
 
 extension StringExtension on String {

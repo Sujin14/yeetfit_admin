@@ -45,12 +45,13 @@ class PlanListScreen extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () => controller.editPlan(plan),
+                        onPressed: () =>
+                            controller.openPlanForm(mode: 'edit', plan: plan),
                         tooltip: 'Edit',
                       ),
                       IconButton(
                         icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () => controller.removePlan(uid),
+                        onPressed: () => controller.removePlan(plan.id!),
                         tooltip: 'Delete',
                       ),
                     ],
@@ -62,14 +63,7 @@ class PlanListScreen extends StatelessWidget {
         );
       }),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Get.toNamed(
-            type == 'diet'
-                ? '/home/diet-plan-management'
-                : '/home/workout-plan-management',
-            arguments: {'uid': uid, 'type': type, 'mode': 'add'},
-          );
-        },
+        onPressed: () => controller.openPlanForm(mode: 'add'),
         backgroundColor: AdminTheme.colors['primary'],
         child: const Icon(Icons.add),
       ),

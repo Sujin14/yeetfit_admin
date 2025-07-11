@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/widgets/custom_button.dart';
+import '../../../../core/widgets/custom_text_field.dart';
+import '../../../../core/utils/form_validators.dart';
 import '../../presentation/controllers/plan_controller.dart';
 
 class WorkoutFormFields extends StatelessWidget {
@@ -9,55 +13,75 @@ class WorkoutFormFields extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<PlanController>(
-      tag: controllerTag,
-      builder: (controller) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              controller: controller.titleController,
-              decoration: const InputDecoration(labelText: 'Plan Title'),
-              validator: (val) =>
-                  val == null || val.trim().isEmpty ? 'Enter a title' : null,
+    final controller = Get.find<PlanController>(tag: controllerTag);
+
+    return Form(
+      key: controller.formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CustomTextField(
+            controller: controller.titleController,
+            labelText: 'Workout Plan Title',
+            validator: FormValidators.validatePlanDetails,
+          ),
+          SizedBox(height: 16.h),
+          CustomTextField(
+            controller: controller.descriptionController,
+            labelText: 'Plan Description (Optional)',
+            maxLines: 3,
+          ),
+          SizedBox(height: 16.h),
+          Text(
+            'Exercises',
+            style: AdminTheme.textStyles['title']!.copyWith(
+              color: AdminTheme.colors['textPrimary'],
             ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: controller.descriptionController,
-              maxLines: 2,
-              decoration: const InputDecoration(labelText: 'Plan Description'),
-            ),
-            const SizedBox(height: 16),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.exercises.length,
-              itemBuilder: (context, index) {
-                final exercise = controller.exercises[index];
+          ),
+          GetBuilder<PlanController>(
+            tag: controllerTag,
+            builder: (_) => Column(
+              children: controller.exercises.asMap().entries.map((entry) {
+                final index = entry.key;
+                final exercise = entry.value;
                 final exCtrl =
                     exercise['controllers']
                         as Map<String, TextEditingController>;
 
                 return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 2,
+                  margin: EdgeInsets.symmetric(vertical: 8.h),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
                   child: Padding(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(16.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Exercise ${index + 1}',
-                          style: Theme.of(context).textTheme.titleMedium,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Exercise ${index + 1}',
+                              style: AdminTheme.textStyles['body'],
+                            ),
+                            IconButton(
+                              onPressed: () => controller.removeExercise(index),
+                              icon: Icon(
+                                Icons.delete,
+                                color: AdminTheme.colors['error'],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: exCtrl['name'],
-                          decoration: const InputDecoration(
-                            labelText: 'Exercise Name',
-                          ),
-                          onChanged: (v) => exercise['name'] = v,
+                        SizedBox(height: 8.h),
+                        CustomTextField(
+                          controller: exCtrl['name']!,
+                          labelText: 'Exercise Name',
+                          validator: FormValidators.validatePlanDetails,
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8.h),
                         DropdownButtonFormField<String>(
                           value: exercise['repsType'],
                           items: const [
@@ -75,94 +99,98 @@ class WorkoutFormFields extends StatelessWidget {
                               controller.updateRepsType(index, value);
                             }
                           },
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Reps Type',
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (exercise['repsType'] == 'reps')
-                          TextFormField(
-                            controller: exCtrl['reps'],
-                            decoration: const InputDecoration(
-                              labelText: 'Reps',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.r),
                             ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) => exercise['reps'] = v,
-                          )
-                        else
-                          TextFormField(
-                            controller: exCtrl['reps'],
-                            decoration: const InputDecoration(
-                              labelText: 'Duration (in minutes)',
-                            ),
-                            keyboardType: TextInputType.number,
-                            onChanged: (v) => exercise['reps'] = v,
                           ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: exCtrl['sets'],
-                          decoration: const InputDecoration(labelText: 'Sets'),
-                          keyboardType: TextInputType.number,
-                          onChanged: (v) => exercise['sets'] = v,
                         ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: exCtrl['description'],
-                          decoration: const InputDecoration(
-                            labelText: 'Description',
-                          ),
-                          onChanged: (v) => exercise['description'] = v,
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: exCtrl['instructions'],
-                          decoration: const InputDecoration(
-                            labelText: 'Instructions',
-                          ),
-                          onChanged: (v) => exercise['instructions'] = v,
-                        ),
-                        const SizedBox(height: 8),
-                        TextFormField(
-                          controller: exCtrl['videoUrl'],
-                          decoration: const InputDecoration(
-                            labelText: 'Video URL',
-                          ),
-                          onChanged: (v) => exercise['videoUrl'] = v,
-                        ),
-                        const SizedBox(height: 8),
-                        Align(
+                        SizedBox(height: 8.h),
+                        exercise['repsType'] == 'reps'
+                            ? CustomTextField(
+                                controller: exCtrl['reps']!,
+                                labelText: 'Reps',
+                                keyboardType: TextInputType.number,
+                                validator: (value) =>
+                                    FormValidators.validateNumber(
+                                      value,
+                                      'Reps',
+                                    ),
+                              )
+                            : CustomTextField(
+                                controller: exCtrl['reps']!,
+                                labelText: 'Duration (min)',
+                                keyboardType: TextInputType.number,
+                                validator: (value) =>
+                                    FormValidators.validateNumber(value, ''),
+                              ),
+                        SizedBox(height: 8.h),
+                        Stack(
                           alignment: Alignment.centerRight,
-                          child: TextButton.icon(
-                            onPressed: () => controller.removeExercise(index),
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            label: const Text(
-                              'Remove',
-                              style: TextStyle(color: Colors.red),
+                          children: [
+                            CustomTextField(
+                              controller: exCtrl['sets']!,
+                              labelText: 'Sets',
+                              keyboardType: TextInputType.number,
+                              validator: (value) =>
+                                  FormValidators.validateNumber(value, 'Sets'),
                             ),
-                          ),
+                            PopupMenuButton<String>(
+                              icon: Icon(Icons.arrow_drop_down),
+                              onSelected: (value) {
+                                exCtrl['sets']!.text = value;
+                              },
+                              itemBuilder: (_) => List.generate(10, (i) {
+                                final value = (i + 1).toString();
+                                return PopupMenuItem(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 8.h),
+                        CustomTextField(
+                          controller: exCtrl['description']!,
+                          labelText: 'Description (Optional)',
+                        ),
+                        SizedBox(height: 8.h),
+                        CustomTextField(
+                          controller: exCtrl['instructions']!,
+                          labelText: 'Instructions (Optional)',
+                        ),
+                        SizedBox(height: 8.h),
+                        CustomTextField(
+                          controller: exCtrl['videoUrl']!,
+                          labelText: 'Video URL (Optional)',
                         ),
                       ],
                     ),
                   ),
                 );
-              },
+              }).toList(),
             ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton.icon(
-                onPressed: controller.addExercise,
-                icon: const Icon(Icons.add),
-                label: const Text('Add Exercise'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AdminTheme.colors['primary'],
-                  foregroundColor: AdminTheme.colors['onPrimary'],
-                ),
+          ),
+          SizedBox(height: 8.h),
+          CustomButton(
+            text: 'Add More Exercise',
+            onPressed: controller.addExercise,
+          ),
+          SizedBox(height: 16.h),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Obx(
+              () => CustomButton(
+                text: 'Save Plan',
+                isLoading: controller.isLoading.value,
+                onPressed: controller.savePlan,
               ),
             ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }
