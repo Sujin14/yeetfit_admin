@@ -3,14 +3,17 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AdminTheme {
   static const colors = {
-    'primary': Color(0xFF0288D1), // Vibrant blue
-    'secondary': Color(0xFF388E3C), // Vibrant green
-    'background': Color(0xFFF5F7FA),
+    'primary': Color(0xFF6A1B9A),
+    'primaryDark': Color(0xFF4A148C),
+    'accent': Color(0xFF9575CD),
+    'secondary': Color(0xFFCE93D8),
+    'success': Color(0xFF4CAF50),
+    'background': Color(0xFFF3E5F5),
     'surface': Color(0xFFFFFFFF),
-    'textPrimary': Color(0xFF212121),
-    'textSecondary': Color(0xFF757575),
+    'textPrimary': Color(0xFF311B92),
+    'textSecondary': Color(0xFF5E35B1),
     'error': Color(0xFFD32F2F),
-    'accent': Color(0xFFFFA000), // Vibrant amber for highlights
+    'inputBackground': Color(0xFFF5F5F5),
   };
 
   static final textStyles = {
@@ -31,7 +34,7 @@ class AdminTheme {
         surface: colors['surface']!,
         error: colors['error']!,
         onPrimary: Colors.white,
-        onSecondary: Colors.white,
+        onSecondary: Colors.black,
         onSurface: colors['textPrimary']!,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -39,7 +42,7 @@ class AdminTheme {
           backgroundColor: colors['primary'],
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
       ),
       cardTheme: CardThemeData(
@@ -58,14 +61,6 @@ class AdminTheme {
         bodySmall: textStyles['caption']!.copyWith(
           color: colors['textSecondary'],
         ),
-      ),
-      appBarTheme: AppBarTheme(
-        backgroundColor: colors['surface'],
-        elevation: 2,
-        titleTextStyle: textStyles['title']!.copyWith(
-          color: colors['textPrimary'],
-        ),
-        iconTheme: IconThemeData(color: colors['textPrimary']),
       ),
     );
   }

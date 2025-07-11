@@ -46,32 +46,47 @@ class AuthController extends GetxController {
     return success;
   }
 
-  Future<bool> signUp(String email, String password, String name) async {
-    final emailError = FormValidators.validateEmail(email);
-    final passwordError = FormValidators.validatePassword(password);
-    final nameError = FormValidators.validateName(name);
-    if (emailError != null || passwordError != null || nameError != null) {
-      Get.snackbar(
-        'Error',
-        emailError ?? passwordError ?? nameError!,
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    }
-    isLoading.value = true;
-    final success = await signUpWithEmail(email, password, name);
-    isLoading.value = false;
-    if (!success) {
-      Get.snackbar(
-        'Error',
-        'Signup failed',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-    }
-    return success;
+  Future<bool> signUp(String email, String password, String confirmPassword, String name) async {
+  final emailError = FormValidators.validateEmail(email);
+  final passwordError = FormValidators.validatePassword(password);
+  final nameError = FormValidators.validateName(name);
+
+  if (emailError != null || passwordError != null || nameError != null) {
+    Get.snackbar(
+      'Error',
+      emailError ?? passwordError ?? nameError!,
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
   }
+
+  if (password != confirmPassword) {
+    Get.snackbar(
+      'Error',
+      'Passwords do not match',
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
+  }
+
+  isLoading.value = true;
+  final success = await signUpWithEmail(email, password, name);
+  isLoading.value = false;
+
+  if (!success) {
+    Get.snackbar(
+      'Error',
+      'Signup failed',
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+  }
+
+  return success;
+}
+
 
   Future<bool> isAdmin(String uid) async {
     return await EmailAuthService().isAdmin(uid);

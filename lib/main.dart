@@ -6,15 +6,14 @@ import 'core/controllers/bottom_nav_controller.dart';
 import 'core/routes/app_routes.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/presentation/controllers/auth_controller.dart';
-import 'features/clients/presentation/controllers/client_list_controller.dart';
 import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  Get.put(AuthController());
-  Get.put(ClientListController());
-  Get.put(BottomNavController());
+  
+  Get.put(AuthController()); // Global
+  Get.put(BottomNavController()); // Global
 
   runApp(const MyApp());
 }

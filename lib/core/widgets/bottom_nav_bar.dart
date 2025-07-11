@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../features/clients/presentation/screens/clients_list_screen.dart';
+import 'package:yeetfit_admin/features/clients/presentation/screens/clients_list_screen.dart';
 import '../theme/theme.dart';
 import '../controllers/bottom_nav_controller.dart';
 
@@ -26,65 +26,58 @@ class BottomNavBar extends StatelessWidget {
 
     return Obx(
       () => Scaffold(
-        appBar: AppBar(
-          title: Text(
-            controller.selectedIndex.value == 0
-                ? 'Weight Loss Clients'
-                : controller.selectedIndex.value == 1
-                ? 'Weight Gain Clients'
-                : 'Muscle Building Clients',
-            style: AdminTheme.textStyles['title'],
-          ),
-          backgroundColor: AdminTheme.colors['surface'],
-          elevation: 2,
-          actions: [
-            IconButton(
-              icon: Icon(Icons.person, color: AdminTheme.colors['primary']),
-              onPressed: () => Get.toNamed('/settings'),
-            ),
-          ],
-        ),
         body: getSelectedScreen(controller.selectedIndex.value),
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: controller.selectedIndex.value,
-          onDestinationSelected: (index) => controller.changeIndex(index),
-          backgroundColor: AdminTheme.colors['surface'],
-          elevation: 2,
-          destinations: [
-            NavigationDestination(
-              icon: Icon(
-                Icons.fitness_center,
-                color: AdminTheme.colors['textSecondary'],
-              ),
-              selectedIcon: Icon(
-                Icons.fitness_center,
-                color: AdminTheme.colors['primary'],
-              ),
-              label: 'Weight Loss',
+        bottomNavigationBar: Padding(
+          padding: const EdgeInsets.only(
+            left: 16.0,
+            right: 16.0,
+            bottom: 16.0,
+          ), // adds margin from screen edges and bottom
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24), // rounded corners
+            child: NavigationBar(
+              height: 70,
+              elevation: 4,
+              selectedIndex: controller.selectedIndex.value,
+              onDestinationSelected: (index) => controller.changeIndex(index),
+              backgroundColor: AdminTheme.colors['surface'],
+              destinations: [
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.fitness_center,
+                    color: AdminTheme.colors['textSecondary'],
+                  ),
+                  selectedIcon: Icon(
+                    Icons.fitness_center,
+                    color: AdminTheme.colors['primary'],
+                  ),
+                  label: 'Weight Loss',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.trending_up,
+                    color: AdminTheme.colors['textSecondary'],
+                  ),
+                  selectedIcon: Icon(
+                    Icons.trending_up,
+                    color: AdminTheme.colors['primary'],
+                  ),
+                  label: 'Weight Gain',
+                ),
+                NavigationDestination(
+                  icon: Icon(
+                    Icons.accessibility_new,
+                    color: AdminTheme.colors['textSecondary'],
+                  ),
+                  selectedIcon: Icon(
+                    Icons.accessibility_new,
+                    color: AdminTheme.colors['primary'],
+                  ),
+                  label: 'Muscle Building',
+                ),
+              ],
             ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.trending_up,
-                color: AdminTheme.colors['textSecondary'],
-              ),
-              selectedIcon: Icon(
-                Icons.trending_up,
-                color: AdminTheme.colors['primary'],
-              ),
-              label: 'Weight Gain',
-            ),
-            NavigationDestination(
-              icon: Icon(
-                Icons.accessibility_new,
-                color: AdminTheme.colors['textSecondary'],
-              ),
-              selectedIcon: Icon(
-                Icons.accessibility_new,
-                color: AdminTheme.colors['primary'],
-              ),
-              label: 'Muscle Building',
-            ),
-          ],
+          ),
         ),
       ),
     );
