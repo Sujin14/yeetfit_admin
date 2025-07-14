@@ -11,7 +11,6 @@ class ClientsListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Register controller with tag for this goal
     final controller = Get.put(ClientListController(goal), tag: goal);
 
     return Obx(

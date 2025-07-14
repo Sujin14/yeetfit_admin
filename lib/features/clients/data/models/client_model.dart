@@ -1,5 +1,5 @@
 class ClientModel {
-  final String uid;
+  String uid;
   final String name;
   final String email;
   final String? goal;

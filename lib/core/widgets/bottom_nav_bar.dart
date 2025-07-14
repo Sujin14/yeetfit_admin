@@ -32,9 +32,9 @@ class BottomNavBar extends StatelessWidget {
             left: 16.0,
             right: 16.0,
             bottom: 16.0,
-          ), // adds margin from screen edges and bottom
+          ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(24), // rounded corners
+            borderRadius: BorderRadius.circular(24),
             child: NavigationBar(
               height: 70,
               elevation: 4,

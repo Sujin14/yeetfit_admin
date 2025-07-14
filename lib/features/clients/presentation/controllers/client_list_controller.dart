@@ -19,14 +19,34 @@ class ClientListController extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   ClientListController(this.goal)
-      : getClientsByGoal = GetClientsByGoal(
-          ClientRepositoryImpl(service: FirestoreClientService()),
-        );
+    : getClientsByGoal = GetClientsByGoal(
+        ClientRepositoryImpl(service: FirestoreClientService()),
+      );
 
   @override
   void onInit() {
     super.onInit();
-    fetchClients(goal); // auto fetch on init
+    _bindClientsStream();
+  }
+
+  void _bindClientsStream() {
+    isLoading.value = true;
+    error.value = '';
+    getClientsByGoal(goal).listen(
+      (fetchedClients) {
+        clients.assignAll(fetchedClients);
+        filteredClients.assignAll(fetchedClients);
+        isLoading.value = false;
+      },
+      onError: (e) {
+        error.value = 'Failed to load clients: $e';
+        isLoading.value = false;
+      },
+    );
+  }
+
+  void retryFetchClients() {
+    _bindClientsStream();
   }
 
   void toggleSearchBar() {
@@ -35,7 +55,7 @@ class ClientListController extends GetxController {
     if (!showSearchBar.value) {
       searchController.clear();
       searchQuery.value = '';
-      filteredClients.assignAll(clients); // show all again
+      filteredClients.assignAll(clients);
     }
   }
 
@@ -44,28 +64,16 @@ class ClientListController extends GetxController {
     filterClients(value);
   }
 
-  Future<void> fetchClients(String goal) async {
-    isLoading.value = true;
-    error.value = '';
-    try {
-      final fetchedClients = await getClientsByGoal(goal);
-      clients.assignAll(fetchedClients);
-      filteredClients.assignAll(fetchedClients); // show all by default
-    } catch (e) {
-      error.value = 'Failed to load clients: $e';
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
   void filterClients(String query) {
     if (query.isEmpty) {
       filteredClients.assignAll(clients);
     } else {
       filteredClients.assignAll(
         clients
-            .where((client) =>
-                client.name.toLowerCase().contains(query.toLowerCase()))
+            .where(
+              (client) =>
+                  client.name.toLowerCase().contains(query.toLowerCase()),
+            )
             .toList(),
       );
     }

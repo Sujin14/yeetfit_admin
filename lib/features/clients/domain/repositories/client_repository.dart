@@ -2,7 +2,7 @@ import '../../data/models/client_model.dart';
 import '../../data/models/plan_model.dart';
 
 abstract class ClientRepository {
-  Future<List<ClientModel>> getClientsByGoal(String goal);
+  Stream<List<ClientModel>> getClientsByGoal(String goal);
   Future<ClientModel?> getClientDetails(String uid);
   Future<List<PlanModel>> getClientPlans(String userId);
   Future<bool> assignPlan(String userId, PlanModel plan);

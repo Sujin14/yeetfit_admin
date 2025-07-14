@@ -18,7 +18,7 @@ class ClientsListBody extends StatelessWidget {
       if (controller.error.value.isNotEmpty) {
         return CustomErrorWidget(
           message: controller.error.value,
-          onRetry: () => controller.fetchClients(goal),
+          onRetry: () => controller.retryFetchClients(),
         );
       } else if (controller.isLoading.value) {
         return const Center(child: CircularProgressIndicator());

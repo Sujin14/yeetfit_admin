@@ -5,27 +5,20 @@ import '../models/plan_model.dart';
 class FirestoreClientService {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  Future<List<ClientModel>> getClientsByGoal(String goal) async {
+
+  Stream<QuerySnapshot> getClientsByGoal(String goal) {
     try {
-      print('getClientsByGoal: Fetching clients for goal: $goal');
-      final query = await firestore
+      print('getClientsByGoalStream: Streaming clients for goal: $goal');
+      return firestore
           .collection('users')
           .where('goal', isEqualTo: goal.toLowerCase())
           .where('role', isEqualTo: 'user')
-          .get();
-      final clients = query.docs.map((doc) {
-        final data = doc.data();
-        data['uid'] = doc.id;
-        print(
-          'getClientsByGoal: Found client - UID: ${doc.id}, Name: ${data['name']}',
-        );
-        return ClientModel.fromMap(data);
-      }).toList();
-      print('getClientsByGoal: Fetched ${clients.length} clients');
-      return clients;
+          .snapshots();
     } catch (e) {
-      print('getClientsByGoal: Error fetching clients for goal "$goal": $e');
-      throw Exception('Failed to fetch clients: $e');
+      print(
+        'getClientsByGoalStream: Error streaming clients for goal "$goal": $e',
+      );
+      throw Exception('Failed to stream clients: $e');
     }
   }
 
