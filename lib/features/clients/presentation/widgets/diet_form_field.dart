@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../controllers/plan_controller.dart';
+import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/utils/form_validators.dart';
-import '../../../../core/widgets/custom_button.dart';
+import '../controllers/plan_controller.dart';
 
+// Displays the form fields for creating/editing a diet plan
 class DietFormFields extends StatelessWidget {
   final String controllerTag;
   const DietFormFields({super.key, required this.controllerTag});
@@ -20,18 +21,18 @@ class DietFormFields extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Input for diet plan title
           CustomTextField(
             controller: controller.titleController,
             labelText: 'Diet Plan Title',
-            validator: FormValidators.validatePlanDetails,
+            validator: FormValidators.validatePlanTitle,
           ),
           SizedBox(height: 16.h),
           Text(
             'Meals',
-            style: AdminTheme.textStyles['title']!.copyWith(
-              color: AdminTheme.colors['textPrimary'],
-            ),
+            style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
           ),
+          // Builds dynamic meal and food input fields
           GetBuilder<PlanController>(
             tag: controllerTag,
             builder: (controller) => Column(
@@ -42,9 +43,7 @@ class DietFormFields extends StatelessWidget {
                 return Card(
                   elevation: 2,
                   margin: EdgeInsets.symmetric(vertical: 8.h),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
                   child: Padding(
                     padding: EdgeInsets.all(16.w),
                     child: Column(
@@ -57,14 +56,12 @@ class DietFormFields extends StatelessWidget {
                               child: CustomTextField(
                                 controller: mealControllers['name'],
                                 labelText: 'Meal Name (e.g., Breakfast)',
-                                validator: FormValidators.validatePlanDetails,
+                                validator: (value) => FormValidators.validateName(value, 'meal'),
                               ),
                             ),
+                            // Delete button for meal
                             IconButton(
-                              icon: Icon(
-                                Icons.delete,
-                                color: AdminTheme.colors['error'],
-                              ),
+                              icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
                               onPressed: () => controller.removeMeal(index),
                             ),
                           ],
@@ -72,21 +69,16 @@ class DietFormFields extends StatelessWidget {
                         SizedBox(height: 8.h),
                         Text(
                           'Foods',
-                          style: AdminTheme.textStyles['body']!.copyWith(
-                            color: AdminTheme.colors['textPrimary'],
-                          ),
+                          style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['textPrimary']),
                         ),
                         ...(meal['foods'] as List).asMap().entries.map((foodEntry) {
                           final foodIndex = foodEntry.key;
                           final food = foodEntry.value;
                           final f = food['controllers'];
-
                           return Card(
                             elevation: 1,
                             margin: EdgeInsets.symmetric(vertical: 4.h),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                             child: Padding(
                               padding: EdgeInsets.all(12.w),
                               child: Column(
@@ -94,7 +86,7 @@ class DietFormFields extends StatelessWidget {
                                   CustomTextField(
                                     controller: f['name'],
                                     labelText: 'Food Name (e.g., Dosa)',
-                                    validator: FormValidators.validatePlanDetails,
+                                    validator: (value) => FormValidators.validateName(value, 'food'),
                                   ),
                                   SizedBox(height: 8.h),
                                   Row(
@@ -103,27 +95,22 @@ class DietFormFields extends StatelessWidget {
                                         child: CustomTextField(
                                           controller: f['quantity'],
                                           labelText: 'Quantity',
-                                          validator: FormValidators.validatePlanDetails,
+                                          keyboardType: TextInputType.number,
+                                          validator: FormValidators.validateQuantity,
                                         ),
                                       ),
                                       SizedBox(width: 8.w),
+                                      // Dropdown for selecting food unit
                                       Expanded(
                                         child: DropdownButtonFormField<String>(
                                           decoration: InputDecoration(
                                             labelText: 'Unit',
-                                            labelStyle: TextStyle(
-                                              color: AdminTheme.colors['textSecondary'],
-                                            ),
-                                            border: OutlineInputBorder(
-                                              borderRadius: BorderRadius.circular(8.r),
-                                            ),
+                                            labelStyle: TextStyle(color: AdminTheme.colors['textSecondary']),
+                                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
                                           ),
                                           value: food['unit'] ?? 'g',
                                           items: ['g', 'ml', 'number'].map((unit) {
-                                            return DropdownMenuItem(
-                                              value: unit,
-                                              child: Text(unit),
-                                            );
+                                            return DropdownMenuItem(value: unit, child: Text(unit));
                                           }).toList(),
                                           onChanged: (value) {
                                             if (value != null) {
@@ -139,7 +126,7 @@ class DietFormFields extends StatelessWidget {
                                     controller: f['calories'],
                                     labelText: 'Calories',
                                     keyboardType: TextInputType.number,
-                                    validator: (value) => FormValidators.validateNumber(value, 'Calories'),
+                                    validator: FormValidators.validateCalories,
                                   ),
                                   SizedBox(height: 8.h),
                                   CustomTextField(
@@ -148,11 +135,9 @@ class DietFormFields extends StatelessWidget {
                                     maxLines: 3,
                                   ),
                                   SizedBox(height: 8.h),
+                                  // Delete button for food item
                                   IconButton(
-                                    icon: Icon(
-                                      Icons.delete,
-                                      color: AdminTheme.colors['error'],
-                                    ),
+                                    icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
                                     onPressed: () => controller.removeFood(index, foodIndex),
                                   ),
                                 ],
@@ -161,13 +146,12 @@ class DietFormFields extends StatelessWidget {
                           );
                         }),
                         SizedBox(height: 8.h),
+                        // Button to add more food items
                         TextButton(
                           onPressed: () => controller.addFood(index),
                           child: Text(
                             'Add Food',
-                            style: AdminTheme.textStyles['body']!.copyWith(
-                              color: AdminTheme.colors['primary'],
-                            ),
+                            style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['primary']),
                           ),
                         ),
                       ],
@@ -178,8 +162,10 @@ class DietFormFields extends StatelessWidget {
             ),
           ),
           SizedBox(height: 8.h),
+          // Button to add more meals
           CustomButton(text: 'Add More Meal', onPressed: controller.addMeal),
           SizedBox(height: 16.h),
+          // Save button for the diet plan
           Align(
             alignment: Alignment.bottomRight,
             child: CustomButton(

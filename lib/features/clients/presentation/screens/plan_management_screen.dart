@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
 import '../controllers/plan_controller.dart';
 import '../widgets/diet_form_field.dart';
 import '../widgets/workout_form_field.dart';
+
 
 class PlanManagementScreen extends StatelessWidget {
   const PlanManagementScreen({super.key});
@@ -41,7 +42,7 @@ class PlanManagementScreen extends StatelessWidget {
                   color: AdminTheme.colors['primary'],
                 ),
               )
-            : controller.error.value.isNotEmpty
+            : controller.error.value.isNotEmpty && !controller.error.value.contains('fill all required fields')
             ? CustomErrorWidget(
                 message: controller.error.value,
                 onRetry: () => controller.fetchPlans(),

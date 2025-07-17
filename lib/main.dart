@@ -11,9 +11,9 @@ import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  
-  Get.put(AuthController()); // Global
-  Get.put(BottomNavController()); // Global
+
+  Get.put(AuthController());
+  Get.put(BottomNavController());
 
   runApp(const MyApp());
 }

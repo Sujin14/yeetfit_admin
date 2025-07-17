@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// Defines the app's theme, including colors and text styles for consistent UI
 class AdminTheme {
+  // Centralized color palette for the app
   static const colors = {
     'primary': Color(0xFF6A1B9A),
     'primaryDark': Color(0xFF4A148C),
@@ -14,8 +16,17 @@ class AdminTheme {
     'textSecondary': Color(0xFF5E35B1),
     'error': Color(0xFFD32F2F),
     'inputBackground': Color(0xFFF5F5F5),
+    'gradientStart': Color(0xFF3F2B96),
+    'gradientMid': Color(0xFF5E4AE3),
+    'gradientEnd': Color(0xFF9F70FD),
+    'signupGradientStart': Color(0xFFFF892C),
+    'signupGradientMid': Color(0xFFFE9A0B),
+    'signupGradientEnd': Color(0xFFF8DC65),
+    'editIcon': Color(0xFF2196F3),
+    'deleteIcon': Color(0xFFD32F2F),
   };
 
+  // Text styles using Google Fonts for consistent typography
   static final textStyles = {
     'heading': GoogleFonts.inter(fontSize: 24, fontWeight: FontWeight.w700),
     'title': GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w600),
@@ -51,16 +62,10 @@ class AdminTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       textTheme: TextTheme(
-        headlineLarge: textStyles['heading']!.copyWith(
-          color: colors['textPrimary'],
-        ),
-        titleMedium: textStyles['title']!.copyWith(
-          color: colors['textPrimary'],
-        ),
+        headlineLarge: textStyles['heading']!.copyWith(color: colors['textPrimary']),
+        titleMedium: textStyles['title']!.copyWith(color: colors['textPrimary']),
         bodyMedium: textStyles['body']!.copyWith(color: colors['textPrimary']),
-        bodySmall: textStyles['caption']!.copyWith(
-          color: colors['textSecondary'],
-        ),
+        bodySmall: textStyles['caption']!.copyWith(color: colors['textSecondary']),
       ),
     );
   }

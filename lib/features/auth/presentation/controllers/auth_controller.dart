@@ -49,7 +49,7 @@ class AuthController extends GetxController {
   Future<bool> signUp(String email, String password, String confirmPassword, String name) async {
   final emailError = FormValidators.validateEmail(email);
   final passwordError = FormValidators.validatePassword(password);
-  final nameError = FormValidators.validateName(name);
+  final nameError = FormValidators.validateUserName(name);
 
   if (emailError != null || passwordError != null || nameError != null) {
     Get.snackbar(

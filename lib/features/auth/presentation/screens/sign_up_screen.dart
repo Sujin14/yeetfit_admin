@@ -5,6 +5,7 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/gradient_widget.dart';
 import '../widgets/sign_up_form.dart';
 
+// Displays the sign-up screen with a gradient background and form
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
 
@@ -14,9 +15,14 @@ class SignUpScreen extends StatelessWidget {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
+        // Applies gradient background for visual consistency
+        decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFFFF892C), Color(0xFFFE9A0B), Color(0xFFF8DC65)],
+            colors: [
+              AdminTheme.colors['signupGradientStart']!,
+              AdminTheme.colors['signupGradientMid']!,
+              AdminTheme.colors['signupGradientEnd']!,
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -24,11 +30,12 @@ class SignUpScreen extends StatelessWidget {
         child: SafeArea(
           child: SingleChildScrollView(
             physics: BouncingScrollPhysics(),
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
             child: Center(
               child: Column(
                 children: [
                   SizedBox(height: 40.h),
+                  // Displays app logo
                   Image.asset('assets/images/yeet_icon.png', height: 100.h),
                   Card(
                     elevation: 10,
@@ -37,14 +44,12 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     color: AdminTheme.colors['surface'],
                     child: Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20.w,
-                        vertical: 32.h,
-                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 32.h),
                       child: const SignUpForm(),
                     ),
                   ),
                   SizedBox(height: 20.h),
+                  // Navigates to login screen with gradient text for styling
                   TextButton(
                     onPressed: () => Get.toNamed('/'),
                     child: RichText(
@@ -58,10 +63,10 @@ class SignUpScreen extends StatelessWidget {
                             child: GradientText(
                               text: 'Login',
                               style: AdminTheme.textStyles['title']!,
-                              gradient: const LinearGradient(
+                              gradient: LinearGradient(
                                 colors: [
-                                  Color.fromARGB(255, 166, 4, 191),
-                                  Color.fromARGB(255, 46, 128, 229),
+                                  AdminTheme.colors['gradientStart']!,
+                                  AdminTheme.colors['gradientMid']!,
                                 ],
                               ),
                             ),
@@ -70,7 +75,6 @@ class SignUpScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   SizedBox(height: 20.h),
                 ],
               ),

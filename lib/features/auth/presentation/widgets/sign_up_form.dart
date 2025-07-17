@@ -45,7 +45,7 @@ class _SignUpFormState extends State<SignUpForm> {
             CustomTextField(
               controller: nameController,
               labelText: 'Name',
-              validator: FormValidators.validateName,
+              validator: FormValidators.validateUserName,
             ),
             CustomTextField(
               controller: emailController,
