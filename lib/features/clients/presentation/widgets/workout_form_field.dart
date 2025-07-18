@@ -1,259 +1,274 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../controllers/plan_controller.dart';
+import 'package:get/get.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
 import '../../../../core/utils/form_validators.dart';
+import '../controllers/plan_controller.dart';
 
-class WorkoutFormFields extends GetView<PlanController> {
-  const WorkoutFormFields({super.key});
+// Controller to manage preview visibility for each exercise
+class PreviewController extends GetxController {
+  final String tag;
+  final previewStates = <bool>[].obs;
+
+  PreviewController(this.tag);
+
+  void initialize(int exerciseCount) {
+    previewStates.assignAll(List.filled(exerciseCount, false));
+  }
+
+  void togglePreview(int index) {
+    if (index < previewStates.length) {
+      previewStates[index] = !previewStates[index];
+      update([index.toString()]);
+    }
+  }
+}
+
+// Displays the form fields for creating/editing a workout plan
+class WorkoutFormFields extends StatelessWidget {
+  final String controllerTag;
+  const WorkoutFormFields({super.key, required this.controllerTag});
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.find<PlanController>(tag: controllerTag);
+    final previewController = Get.put(PreviewController(controllerTag), tag: 'preview-$controllerTag');
+
     return Form(
       key: controller.formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Input for workout plan title
           CustomTextField(
             controller: controller.titleController,
             labelText: 'Workout Plan Title',
-            validator: FormValidators.validatePlanDetails,
+            validator: FormValidators.validatePlanTitle,
+          ),
+          SizedBox(height: 16.h),
+          CustomTextField(
+            controller: controller.descriptionController,
+            labelText: 'Plan Description (Optional)',
+            maxLines: 3,
           ),
           SizedBox(height: 16.h),
           Text(
             'Exercises',
-            style: AdminTheme.textStyles['title']!.copyWith(
-              color: AdminTheme.colors['textPrimary'],
-            ),
+            style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
           ),
+          // Builds dynamic exercise input fields
           GetBuilder<PlanController>(
-            builder: (controller) => Column(
-              children: controller.exercises.asMap().entries.map((entry) {
-                final index = entry.key;
-                final exercise = entry.value;
-                final nameController = TextEditingController(
-                  text: exercise['name'],
-                );
-                final repsController = TextEditingController(
-                  text: exercise['reps'],
-                );
-                final setsController = TextEditingController(
-                  text: exercise['sets'],
-                );
-                final descriptionController = TextEditingController(
-                  text: exercise['description'],
-                );
-                final instructionsController = TextEditingController(
-                  text: exercise['instructions'],
-                );
-                final videoUrlController = TextEditingController(
-                  text: exercise['videoUrl'],
-                );
-                nameController.addListener(() {
-                  exercise['name'] = nameController.text;
-                  controller.exercises.refresh();
-                });
-                repsController.addListener(() {
-                  exercise['reps'] = repsController.text;
-                  controller.exercises.refresh();
-                });
-                setsController.addListener(() {
-                  exercise['sets'] = setsController.text;
-                  controller.exercises.refresh();
-                });
-                descriptionController.addListener(() {
-                  exercise['description'] = descriptionController.text;
-                  controller.exercises.refresh();
-                });
-                instructionsController.addListener(() {
-                  exercise['instructions'] = instructionsController.text;
-                  controller.exercises.refresh();
-                });
-                videoUrlController.addListener(() {
-                  exercise['videoUrl'] = videoUrlController.text;
-                  controller.exercises.refresh();
-                });
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 8.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Exercise ${index + 1}',
-                          style: AdminTheme.textStyles['title']!.copyWith(
-                            color: AdminTheme.colors['textPrimary'],
-                          ),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            color: AdminTheme.colors['error'],
-                          ),
-                          onPressed: () => controller.removeExercise(index),
-                        ),
-                      ],
-                    ),
-                    CustomTextField(
-                      controller: nameController,
-                      labelText: 'Exercise Name',
-                      validator: FormValidators.validatePlanDetails,
-                    ),
-                    SizedBox(height: 8.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Reps/Time',
-                              labelStyle: TextStyle(
-                                color: AdminTheme.colors['textSecondary'],
+            tag: controllerTag,
+            builder: (_) {
+              // Initialize preview states based on exercise count
+              previewController.initialize(controller.exercises.length);
+              return Column(
+                children: controller.exercises.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final exercise = entry.value;
+                  final exCtrl = exercise['controllers'] as Map<String, TextEditingController>;
+
+                  return GetBuilder<PreviewController>(
+                    tag: 'preview-$controllerTag',
+                    id: index.toString(),
+                    builder: (previewCtrl) {
+                      final showPreview = index < previewCtrl.previewStates.length ? previewCtrl.previewStates[index] : false;
+
+                      return Card(
+                        elevation: 2,
+                        margin: EdgeInsets.symmetric(vertical: 8.h),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+                        child: Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Exercise ${index + 1}', style: AdminTheme.textStyles['body']),
+                                  // Delete button for exercise
+                                  IconButton(
+                                    onPressed: () => controller.removeExercise(index),
+                                    icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
+                                  ),
+                                ],
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.r),
+                              SizedBox(height: 8.h),
+                              CustomTextField(
+                                controller: exCtrl['name']!,
+                                labelText: 'Exercise Name',
+                                validator: (value) => FormValidators.validateName(value, 'exercise'),
                               ),
-                            ),
-                            value: exercise['repsType'] ?? 'reps',
-                            items: ['reps', 'time'].map((type) {
-                              return DropdownMenuItem(
-                                value: type,
-                                child: Text(type.capitalizeFirstLetter),
-                              );
-                            }).toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                controller.updateRepsType(index, value);
-                                repsController.clear();
-                              }
-                            },
+                              SizedBox(height: 8.h),
+                              // Dropdown for selecting reps type
+                              DropdownButtonFormField<String>(
+                                value: exercise['repsType'],
+                                items: const [
+                                  DropdownMenuItem(value: 'reps', child: Text('Reps')),
+                                  DropdownMenuItem(value: 'duration', child: Text('Duration (min)')),
+                                ],
+                                onChanged: (value) {
+                                  if (value != null) {
+                                    controller.updateRepsType(index, value);
+                                  }
+                                },
+                                decoration: InputDecoration(
+                                  labelText: 'Reps Type',
+                                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              exercise['repsType'] == 'reps'
+                                  ? CustomTextField(
+                                      controller: exCtrl['reps']!,
+                                      labelText: 'Reps',
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) => FormValidators.validateReps(value, 'reps'),
+                                    )
+                                  : CustomTextField(
+                                      controller: exCtrl['reps']!,
+                                      labelText: 'Duration (min)',
+                                      keyboardType: TextInputType.number,
+                                      validator: (value) => FormValidators.validateReps(value, 'duration'),
+                                    ),
+                              SizedBox(height: 8.h),
+                              // Input for sets with a dropdown for quick selection
+                              Stack(
+                                alignment: Alignment.centerRight,
+                                children: [
+                                  CustomTextField(
+                                    controller: exCtrl['sets']!,
+                                    labelText: 'Sets',
+                                    keyboardType: TextInputType.number,
+                                    validator: FormValidators.validateSets,
+                                  ),
+                                  PopupMenuButton<String>(
+                                    icon: Icon(Icons.arrow_drop_down),
+                                    onSelected: (value) {
+                                      exCtrl['sets']!.text = value;
+                                    },
+                                    itemBuilder: (_) => List.generate(10, (i) {
+                                      final value = (i + 1).toString();
+                                      return PopupMenuItem(value: value, child: Text(value));
+                                    }),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 8.h),
+                              CustomTextField(
+                                controller: exCtrl['description']!,
+                                labelText: 'Description (Optional)',
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                'Instructions',
+                                style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['textPrimary']),
+                              ),
+                              // Dynamic instruction input fields
+                              ...(exercise['instructions'] as List).asMap().entries.map((instrEntry) {
+                                final instrIndex = instrEntry.key;
+                                final instr = instrEntry.value;
+                                return Column(
+                                  children: [
+                                    SizedBox(height: 8.h),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: CustomTextField(
+                                            controller: instr['controller'],
+                                            labelText: 'Instruction Step ${instrIndex + 1}',
+                                            validator: FormValidators.validateInstruction,
+                                          ),
+                                        ),
+                                        // Delete button for instruction
+                                        IconButton(
+                                          icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
+                                          onPressed: () => controller.removeInstruction(index, instrIndex),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                );
+                              }),
+                              SizedBox(height: 8.h),
+                              // Button to add more instructions
+                              TextButton(
+                                onPressed: () => controller.addInstruction(index),
+                                child: Text(
+                                  'Add Instruction',
+                                  style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['primary']),
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              // Input for YouTube URL with preview button
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CustomTextField(
+                                      controller: exCtrl['videoUrl']!,
+                                      labelText: 'Video URL (Optional)',
+                                      validator: FormValidators.validateYouTubeUrl,
+                                    ),
+                                  ),
+                                  SizedBox(width: 8.w),
+                                  CustomButton(
+                                    text: showPreview ? 'Hide Preview' : 'Preview',
+                                    onPressed: () {
+                                      // Validate URL before showing preview
+                                      final urlError = FormValidators.validateYouTubeUrl(exCtrl['videoUrl']!.text);
+                                      if (urlError == null) {
+                                        previewController.togglePreview(index);
+                                      } else {
+                                        // Trigger validation to show error below field
+                                        controller.formKey.currentState?.validate();
+                                      }
+                                    },
+                                  ),
+                                ],
+                              ),
+                              if (showPreview && exCtrl['videoUrl']!.text.trim().isNotEmpty && FormValidators.validateYouTubeUrl(exCtrl['videoUrl']!.text) == null) ...[
+                                SizedBox(height: 8.h),
+                                SizedBox(
+                                  width: double.infinity,
+                                  height: 200.h,
+                                  child: YoutubePlayer(
+                                    controller: YoutubePlayerController.fromVideoId(
+                                      videoId: YoutubePlayerController.convertUrlToId(exCtrl['videoUrl']!.text.trim())!,
+                                      autoPlay: false,
+                                      params: const YoutubePlayerParams(showFullscreenButton: true),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: CustomTextField(
-                            controller: repsController,
-                            labelText: exercise['repsType'] == 'reps'
-                                ? 'Reps'
-                                : 'Time',
-                            keyboardType: exercise['repsType'] == 'reps'
-                                ? TextInputType.number
-                                : TextInputType.text,
-                            validator: (value) =>
-                                FormValidators.validatePlanDetails(value),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DropdownButtonFormField<String>(
-                            decoration: InputDecoration(
-                              labelText: 'Sets',
-                              labelStyle: TextStyle(
-                                color: AdminTheme.colors['textSecondary'],
-                              ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.r),
-                              ),
-                            ),
-                            value: exercise['sets']?.isNotEmpty ?? false
-                                ? exercise['sets']
-                                : null,
-                            hint: Text(
-                              'Select sets',
-                              style: TextStyle(
-                                color: AdminTheme.colors['textSecondary'],
-                              ),
-                            ),
-                            items: List.generate(10, (i) => (i + 1).toString())
-                                .map((set) {
-                                  return DropdownMenuItem(
-                                    value: set,
-                                    child: Text(set),
-                                  );
-                                })
-                                .toList(),
-                            onChanged: (value) {
-                              if (value != null) {
-                                exercise['sets'] = value;
-                                setsController.text = value;
-                                controller.exercises.refresh();
-                              }
-                            },
-                          ),
-                        ),
-                        SizedBox(width: 8.w),
-                        Expanded(
-                          child: CustomTextField(
-                            controller: setsController,
-                            labelText: 'Custom Sets',
-                            keyboardType: TextInputType.number,
-                            validator: (value) => null, // Optional field
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.h),
-                    CustomTextField(
-                      controller: descriptionController,
-                      labelText: 'Description',
-                      maxLines: 3,
-                    ),
-                    SizedBox(height: 8.h),
-                    CustomTextField(
-                      controller: instructionsController,
-                      labelText: 'Instructions',
-                      maxLines: 3,
-                    ),
-                    SizedBox(height: 8.h),
-                    CustomTextField(
-                      controller: videoUrlController,
-                      labelText: 'YouTube Video URL (Optional)',
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return null;
-                        if (!RegExp(
-                          r'^https?://(www\.)?(youtube\.com|youtu\.be)/.+$',
-                        ).hasMatch(value)) {
-                          return 'Enter a valid YouTube URL';
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                );
-              }).toList(),
-            ),
+                      );
+                    },
+                  );
+                }).toList(),
+              );
+            },
           ),
           SizedBox(height: 8.h),
-          TextButton(
+          // Button to add more exercises
+          CustomButton(
+            text: 'Add More Exercise',
             onPressed: controller.addExercise,
-            child: Text(
-              'Add More Exercise',
-              style: AdminTheme.textStyles['body']!.copyWith(
-                color: AdminTheme.colors['primary'],
-              ),
-            ),
           ),
           SizedBox(height: 16.h),
-          ElevatedButton(
-            onPressed: controller.savePlan,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AdminTheme.colors['primary'],
-              padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
-            ),
-            child: Text(
-              'Save Plan',
-              style: AdminTheme.textStyles['body']!.copyWith(
-                color: AdminTheme.colors['textPrimary'],
-              ),
+          // Save button for the workout plan
+          Align(
+            alignment: Alignment.bottomRight,
+            child: CustomButton(
+              text: 'Save Plan',
+              isLoading: controller.isLoading.value,
+              onPressed: controller.savePlan,
             ),
           ),
         ],

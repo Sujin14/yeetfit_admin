@@ -1,151 +1,100 @@
 import 'package:get/get.dart';
 import '../../data/datasources/firestore_client_service.dart';
 import '../../data/models/client_model.dart';
-import '../../data/models/progress_model.dart';
 import '../../data/repositories/client_repository_impl.dart';
 import '../../domain/usecases/get_client_details.dart';
-import '../../domain/usecases/get_client_progress.dart';
+import '../../../../core/theme/theme.dart';
 
 class ClientDetailsController extends GetxController {
   final GetClientDetails getClientDetails;
-  final GetClientProgress getClientProgress;
-  final selectedClient = Rxn<ClientModel>();
-  final progress = <ProgressModel>[].obs;
+  final client = Rxn<ClientModel>();
+  final clientName = ''.obs;
   final uid = ''.obs;
-  final clientName = Rxn<String>();
-  final isInvalidUid = false.obs;
   final isLoading = false.obs;
   final error = ''.obs;
+  final selectedClient = Rxn<ClientModel>();
+  final isInvalidUid = false.obs;
 
   ClientDetailsController()
     : getClientDetails = GetClientDetails(
         ClientRepositoryImpl(service: FirestoreClientService()),
-      ),
-      getClientProgress = GetClientProgress(
-        ClientRepositoryImpl(service: FirestoreClientService()),
       );
 
+  @override
   @override
   void onInit() {
     super.onInit();
     print('ClientDetailsController: onInit called');
-    ever(selectedClient, (client) {
-      clientName.value = client?.name;
-      print(
-        'ClientDetailsController: Client name updated to ${clientName.value}',
-      );
-    });
-  }
 
-  void _initialize() {
     final args = Get.arguments;
     print('ClientDetailsController: Arguments received: $args');
-    final argsUid = args?['uid'] as String?;
-    if (argsUid == null || argsUid.isEmpty) {
-      isInvalidUid.value = true;
-      error.value = 'Invalid or missing client ID';
-      print('ClientDetailsController: Invalid or missing UID');
-      return;
-    }
-    isInvalidUid.value = false;
-    if (uid.value != argsUid) {
-      uid.value = argsUid;
+
+    if (args != null &&
+        args['uid'] != null &&
+        (args['uid'] as String).isNotEmpty) {
+      uid.value = args['uid'] as String;
       print('ClientDetailsController: UID set to ${uid.value}');
-      fetchClientDetails(uid.value);
+      fetchClientDetails();
     } else {
-      print('ClientDetailsController: UID unchanged, skipping fetch');
+      error.value = 'Client ID is empty.';
+      isInvalidUid.value = true;
+      print('ClientDetailsController: Error - Client ID is empty.');
     }
   }
 
-  Future<void> fetchClientDetails(String uid) async {
-    if (uid.isEmpty) {
-      error.value = 'Invalid client ID';
-      isLoading.value = false;
-      isInvalidUid.value = true;
-      print('fetchClientDetails: UID is empty');
-      return;
-    }
+  Future<void> fetchClientDetails([String? customUid]) async {
     isLoading.value = true;
     error.value = '';
+    isInvalidUid.value = false;
+
+    final idToUse = customUid ?? uid.value;
+
+    if (idToUse.isEmpty) {
+      error.value = 'Client ID is empty.';
+      isInvalidUid.value = true;
+      isLoading.value = false;
+      return;
+    }
+
     try {
-      print('fetchClientDetails: Fetching details for UID: $uid');
-      final client = await getClientDetails(uid);
-      if (client != null) {
-        print(
-          'fetchClientDetails: Client found - Name: ${client.name}, Email: ${client.email}',
-        );
-        selectedClient.value = client;
-        final clientProgress = await getClientProgress(uid);
-        print(
-          'fetchClientDetails: Progress fetched - ${clientProgress.length} entries',
-        );
-        progress.assignAll(clientProgress);
-        isInvalidUid.value = false;
+      print('fetchClientDetails: Fetching details for UID: $idToUse');
+      final clientData = await getClientDetails(idToUse);
+
+      if (clientData != null) {
+        client.value = clientData;
+        selectedClient.value = clientData;
+        clientName.value = clientData.name;
       } else {
-        error.value = 'Client not found for UID: $uid';
-        print('fetchClientDetails: Client not found for UID: $uid');
-        progress.clear();
-        isInvalidUid.value = true;
+        selectedClient.value = null;
+        error.value = 'Client not found.';
       }
     } catch (e) {
       error.value = 'Failed to load client details: $e';
-      print('fetchClientDetails: Error for UID: $uid - $e');
-      isInvalidUid.value = true;
+      print('fetchClientDetails: Error - $e');
+      Get.snackbar(
+        'Error',
+        error.value,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
-  void reinitialize() {
-    print('ClientDetailsController: Reinitializing');
-    _initialize();
-  }
-
-  void navigateToAddDietPlan() {
-    if (!isInvalidUid.value) {
-      print(
-        'ClientDetailsController: Navigating to /home/plan-form with type: diet',
-      );
-      Get.toNamed(
-        '/home/plan-form',
-        arguments: {'uid': uid.value, 'mode': 'add', 'type': 'diet'},
-      );
-    }
-  }
-
   void navigateToManageDietPlans() {
-    if (!isInvalidUid.value) {
-      print(
-        'ClientDetailsController: Navigating to /home/diet-plan-management',
-      );
-      Get.toNamed(
-        '/home/diet-plan-management',
-        arguments: {'uid': uid.value, 'type': 'diet'},
-      );
-    }
-  }
-
-  void navigateToAddWorkoutPlan() {
-    if (!isInvalidUid.value) {
-      print(
-        'ClientDetailsController: Navigating to /home/plan-form with type: workout',
-      );
-      Get.toNamed(
-        '/home/plan-form',
-        arguments: {'uid': uid.value, 'mode': 'add', 'type': 'workout'},
-      );
-    }
+    print('Navigating to diet plan management for UID: ${uid.value}');
+    Get.toNamed(
+      '/home/plan-list',
+      arguments: {'uid': uid.value, 'type': 'diet'},
+    );
   }
 
   void navigateToManageWorkoutPlans() {
-    if (!isInvalidUid.value) {
-      print(
-        'ClientDetailsController: Navigating to /home/workout-plan-management',
-      );
-      Get.toNamed(
-        '/home/workout-plan-management',
-        arguments: {'uid': uid.value, 'type': 'workout'},
-      );
-    }
+    print('Navigating to workout plan management for UID: ${uid.value}');
+    Get.toNamed(
+      '/home/plan-list',
+      arguments: {'uid': uid.value, 'type': 'workout'},
+    );
   }
 }

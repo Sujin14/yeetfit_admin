@@ -6,7 +6,7 @@ class GetClientsByGoal {
 
   GetClientsByGoal(this.repository);
 
-  Future<List<ClientModel>> call(String goal) async {
-    return await repository.getClientsByGoal(goal);
+  Stream<List<ClientModel>> call(String goal) {
+    return repository.getClientsByGoal(goal);
   }
 }

@@ -1,49 +1,33 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/custom_appbar.dart';
-import '../../../../core/widgets/custom_error_widget.dart';
+import 'package:yeetfit_admin/core/widgets/custom_appbar.dart';
 import '../controllers/client_list_controller.dart';
-import '../widgets/client_list_item.dart';
+import '../widgets/client_list_body.dart';
+import '../widgets/client_list_header.dart';
 
-class ClientsListScreen extends GetView<ClientListController> {
-  const ClientsListScreen({super.key});
+class ClientsListScreen extends StatelessWidget {
+  final String goal;
+  const ClientsListScreen({super.key, required this.goal});
 
   @override
   Widget build(BuildContext context) {
-    final goal = (Get.arguments?['goal'] as String?) ?? 'weight loss';
-    controller.fetchClients(goal);
+    final controller = Get.put(ClientListController(goal), tag: goal);
 
     return Obx(
-      () => Scaffold(
-        appBar: CustomAppBar(title: '$goal Clients'),
-        body: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-          child: controller.error.value.isNotEmpty
-              ? CustomErrorWidget(
-                  message: controller.error.value,
-                  onRetry: () => controller.fetchClients(goal),
-                )
-              : controller.isLoading.value
-              ? const Center(child: CircularProgressIndicator())
-              : controller.clients.isEmpty
-              ? Center(
-                  child: Text(
-                    'No clients found for $goal',
-                    style: AdminTheme.textStyles['body']!.copyWith(
-                      color: AdminTheme.colors['textSecondary'],
-                    ),
-                  ),
-                )
-              : ListView.separated(
-                  itemCount: controller.clients.length,
-                  separatorBuilder: (context, index) => SizedBox(height: 8.h),
-                  itemBuilder: (context, index) {
-                    return ClientListItem(client: controller.clients[index]);
-                  },
-                ),
-        ),
+      () => Column(
+        children: [
+          CustomAppBar(
+            title: goal,
+            showSearchToggle: true,
+            showSearchBar: controller.showSearchBar,
+            onSearchToggle: controller.toggleSearchBar,
+          ),
+          ClientsListHeader(
+            goal: goal,
+            showSearch: controller.showSearchBar.value,
+          ),
+          Expanded(child: ClientsListBody(goal: goal)),
+        ],
       ),
     );
   }
