@@ -1,5 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
-
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/form_validators.dart';
 import '../../data/datasources/email_auth_service.dart';
@@ -46,34 +46,68 @@ class AuthController extends GetxController {
     return success;
   }
 
-  Future<bool> signUp(String email, String password, String name) async {
-    final emailError = FormValidators.validateEmail(email);
-    final passwordError = FormValidators.validatePassword(password);
-    final nameError = FormValidators.validateName(name);
-    if (emailError != null || passwordError != null || nameError != null) {
+  Future<bool> signUp(String email, String password, String confirmPassword, String name) async {
+  final emailError = FormValidators.validateEmail(email);
+  final passwordError = FormValidators.validatePassword(password);
+  final nameError = FormValidators.validateUserName(name);
+
+  if (emailError != null || passwordError != null || nameError != null) {
+    Get.snackbar(
+      'Error',
+      emailError ?? passwordError ?? nameError!,
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
+  }
+
+  if (password != confirmPassword) {
+    Get.snackbar(
+      'Error',
+      'Passwords do not match',
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+    return false;
+  }
+
+  isLoading.value = true;
+  final success = await signUpWithEmail(email, password, name);
+  isLoading.value = false;
+
+  if (!success) {
+    Get.snackbar(
+      'Error',
+      'Signup failed',
+      backgroundColor: AdminTheme.colors['error'],
+      colorText: AdminTheme.colors['surface'],
+    );
+  }
+
+  return success;
+}
+
+
+  Future<bool> isAdmin(String uid) async {
+    return await EmailAuthService().isAdmin(uid);
+  }
+
+  Future<bool> logout() async {
+    isLoading.value = true;
+    try {
+      await FirebaseAuth.instance.signOut();
+      Get.offAllNamed('/');
+      return true;
+    } catch (e) {
       Get.snackbar(
         'Error',
-        emailError ?? passwordError ?? nameError!,
+        'Failed to log out: $e',
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );
       return false;
+    } finally {
+      isLoading.value = false;
     }
-    isLoading.value = true;
-    final success = await signUpWithEmail(email, password, name);
-    isLoading.value = false;
-    if (!success) {
-      Get.snackbar(
-        'Error',
-        'Signup failed',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-    }
-    return success;
-  }
-
-  Future<bool> isAdmin(String uid) async {
-    return await EmailAuthService().isAdmin(uid);
   }
 }

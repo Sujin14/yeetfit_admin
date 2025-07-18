@@ -1,71 +1,69 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../controllers/plan_controller.dart';
-import '../widgets/plan_list_item.dart';
+import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/widgets/custom_error_widget.dart';
+import '../controllers/plan_controller.dart';
+import '../widgets/diet_form_field.dart';
+import '../widgets/workout_form_field.dart';
 
-class PlanManagementScreen extends GetView<PlanController> {
+
+class PlanManagementScreen extends StatelessWidget {
   const PlanManagementScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          '${controller.planType.value.capitalize} Plans',
-          style: AdminTheme.textStyles['title']!.copyWith(
-            color: AdminTheme.colors['textPrimary'],
+    final args = Get.arguments;
+    final tag = 'plan-${args['uid']}-${args['type']}';
+    final PlanController controller = Get.find<PlanController>(tag: tag);
+
+    return Obx(
+      () => Scaffold(
+        appBar: AppBar(
+          title: Text(
+            '${controller.planType.value.capitalizeFirstLetter} Plans',
+            style: AdminTheme.textStyles['title']!.copyWith(
+              color: AdminTheme.colors['textPrimary'],
+            ),
+          ),
+          backgroundColor: AdminTheme.colors['surface'],
+          elevation: 2,
+          leading: IconButton(
+            icon: Icon(
+              Icons.arrow_back,
+              color: AdminTheme.colors['textPrimary'],
+            ),
+            onPressed: () => Get.back(),
           ),
         ),
-        backgroundColor: AdminTheme.colors['surface'],
-        elevation: 2,
-      ),
-      body: Obx(
-        () => controller.isLoading.value
+        body: controller.isLoading.value
             ? Center(
                 child: CircularProgressIndicator(
                   color: AdminTheme.colors['primary'],
                 ),
               )
-            : controller.plans.isEmpty
-            ? Center(
-                child: Text(
-                  'No ${controller.planType.value} plans found',
-                  style: AdminTheme.textStyles['body']!.copyWith(
-                    color: AdminTheme.colors['textSecondary'],
-                  ),
-                ),
+            : controller.error.value.isNotEmpty && !controller.error.value.contains('fill all required fields')
+            ? CustomErrorWidget(
+                message: controller.error.value,
+                onRetry: () => controller.fetchPlans(),
               )
-            : ListView.builder(
-                padding: EdgeInsets.all(16.w),
-                itemCount: controller.plans.length,
-                itemBuilder: (context, index) {
-                  final plan = controller.plans[index];
-                  return PlanListItem(
-                    plan: plan,
-                    onEdit: () => Get.toNamed(
-                      '/home/plan-form',
-                      arguments: {
-                        'uid': controller.userId.value,
-                        'mode': 'edit',
-                        'type': controller.planType.value,
-                        'planId': plan.id,
-                      },
+            : SingleChildScrollView(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${controller.isEditMode.value ? 'Edit' : 'Add New'} ${controller.planType.value.capitalizeFirstLetter} Plan',
+                      style: AdminTheme.textStyles['title']!.copyWith(
+                        color: AdminTheme.colors['textPrimary'],
+                      ),
                     ),
-                    onDelete: () async {
-                      final success = await controller.deletePlan(plan.id!);
-                      if (!success) {
-                        Get.snackbar(
-                          'Error',
-                          controller.error.value,
-                          backgroundColor: AdminTheme.colors['error'],
-                          colorText: AdminTheme.colors['textPrimary'],
-                        );
-                      }
-                    },
-                  );
-                },
+                    SizedBox(height: 16.h),
+                    controller.planType.value == 'diet'
+                        ? DietFormFields(controllerTag: tag)
+                        : WorkoutFormFields(controllerTag: tag),
+                  ],
+                ),
               ),
       ),
     );

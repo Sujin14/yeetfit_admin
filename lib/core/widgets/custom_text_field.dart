@@ -10,6 +10,8 @@ class CustomTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final int? maxLines;
   final String? hintText;
+  final void Function(String)? onChanged;
+  final Widget? suffixIcon;
 
   const CustomTextField({
     super.key,
@@ -20,6 +22,8 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.maxLines = 1,
     this.hintText,
+    this.onChanged,
+    this.suffixIcon,
   });
 
   @override
@@ -31,12 +35,14 @@ class CustomTextField extends StatelessWidget {
         keyboardType: keyboardType,
         obscureText: obscureText,
         maxLines: maxLines,
+        onChanged: onChanged,
         decoration: InputDecoration(
           labelText: labelText,
           labelStyle: AdminTheme.textStyles['body']!.copyWith(
             color: AdminTheme.colors['textSecondary'],
           ),
           hintText: hintText,
+          suffixIcon: suffixIcon,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
           focusedBorder: OutlineInputBorder(
             borderSide: BorderSide(color: AdminTheme.colors['primary']!),
