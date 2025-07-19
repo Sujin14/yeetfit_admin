@@ -12,6 +12,7 @@ class CustomTextField extends StatelessWidget {
   final String? hintText;
   final void Function(String)? onChanged;
   final Widget? suffixIcon;
+  final InputDecoration? decoration;
 
   const CustomTextField({
     super.key,
@@ -24,6 +25,7 @@ class CustomTextField extends StatelessWidget {
     this.hintText,
     this.onChanged,
     this.suffixIcon,
+    this.decoration,
   });
 
   @override
@@ -36,18 +38,34 @@ class CustomTextField extends StatelessWidget {
         obscureText: obscureText,
         maxLines: maxLines,
         onChanged: onChanged,
-        decoration: InputDecoration(
-          labelText: labelText,
-          labelStyle: AdminTheme.textStyles['body']!.copyWith(
-            color: AdminTheme.colors['textSecondary'],
-          ),
-          hintText: hintText,
-          suffixIcon: suffixIcon,
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AdminTheme.colors['primary']!),
-          ),
-        ),
+        decoration: decoration != null
+            ? decoration!.copyWith(
+                labelText: decoration!.labelText ?? labelText,
+                labelStyle: decoration!.labelStyle ??
+                    AdminTheme.textStyles['body']!.copyWith(
+                      color: AdminTheme.colors['textSecondary'],
+                    ),
+                hintText: decoration!.hintText ?? hintText,
+                suffixIcon: decoration!.suffixIcon ?? suffixIcon,
+                border: decoration!.border ??
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                focusedBorder: decoration!.focusedBorder ??
+                    OutlineInputBorder(
+                      borderSide: BorderSide(color: AdminTheme.colors['primary']!),
+                    ),
+              )
+            : InputDecoration(
+                labelText: labelText,
+                labelStyle: AdminTheme.textStyles['body']!.copyWith(
+                  color: AdminTheme.colors['textSecondary'],
+                ),
+                hintText: hintText,
+                suffixIcon: suffixIcon,
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AdminTheme.colors['primary']!),
+                ),
+              ),
         style: AdminTheme.textStyles['body'],
         validator: validator,
       ),

@@ -12,9 +12,12 @@ import '../../domain/usecases/get_client_plans.dart';
 import '../../domain/usecases/delete_plan.dart';
 import 'base_plan_controller.dart.dart';
 
-
 class DietPlanController extends BasePlanController {
   final meals = <Map<String, dynamic>>[].obs;
+  final totalCaloriesController = TextEditingController();
+  final proteinController = TextEditingController();
+  final carbsController = TextEditingController();
+  final fatsController = TextEditingController();
 
   DietPlanController()
       : super(
@@ -35,17 +38,28 @@ class DietPlanController extends BasePlanController {
     titleController.clear();
     descriptionController.clear();
     meals.clear();
+    totalCaloriesController.clear();
+    carbsController.clear();
+    proteinController.clear();
+    fatsController.clear();
 
     if (isEditMode.value && args?['plan'] != null) {
       final PlanModel plan = args['plan'];
       titleController.text = plan.title;
       descriptionController.text = plan.details['description']?.toString() ?? '';
+      totalCaloriesController.text = plan.totalCalories.toString();
+      proteinController.text = plan.totalMacronutrients['protein']?.toString() ?? '0.0';
+      carbsController.text = plan.totalMacronutrients['carbs']?.toString() ?? '0.0';
+      fatsController.text = plan.totalMacronutrients['fats']?.toString() ?? '0.0';
       meals.assignAll(
         (plan.details['meals'] as List).map((meal) {
           return {
             'name': meal['name'] ?? '',
             'controllers': {
               'name': TextEditingController(text: meal['name'] ?? ''),
+              'protein': TextEditingController(text: meal['protein']?.toString() ?? '0.0'),
+              'carbs': TextEditingController(text: meal['carbs']?.toString() ?? '0.0'),
+              'fats': TextEditingController(text: meal['fats']?.toString() ?? '0.0'),
             },
             'foods': (meal['foods'] as List).map((food) {
               return {
@@ -74,7 +88,12 @@ class DietPlanController extends BasePlanController {
   void addMeal() {
     meals.add({
       'name': '',
-      'controllers': {'name': TextEditingController()},
+      'controllers': {
+        'name': TextEditingController(),
+        'protein': TextEditingController(),
+        'carbs': TextEditingController(),
+        'fats': TextEditingController(),
+      },
       'foods': [
         {
           'name': '',
@@ -175,6 +194,9 @@ class DietPlanController extends BasePlanController {
         'meals': meals.map((meal) {
           return {
             'name': meal['controllers']['name'].text.trim(),
+            'protein': double.tryParse(meal['controllers']['protein'].text.trim()) ?? 0.0,
+            'carbs': double.tryParse(meal['controllers']['carbs'].text.trim()) ?? 0.0,
+            'fats': double.tryParse(meal['controllers']['fats'].text.trim()) ?? 0.0,
             'foods': (meal['foods'] as List).map((food) {
               return {
                 'name': food['controllers']['name'].text.trim(),
@@ -186,6 +208,12 @@ class DietPlanController extends BasePlanController {
             }).toList(),
           };
         }).toList(),
+      },
+      totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
+      totalMacronutrients: {
+        'protein': double.tryParse(proteinController.text.trim()) ?? 0.0,
+        'carbs': double.tryParse(carbsController.text.trim()) ?? 0.0,
+        'fats': double.tryParse(fatsController.text.trim()) ?? 0.0,
       },
       isFavorite: isEditMode.value ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ?? false : false,
       createdAt: Timestamp.now(),
@@ -228,6 +256,10 @@ class DietPlanController extends BasePlanController {
         }
       }
     }
+    totalCaloriesController.dispose();
+    proteinController.dispose();
+    carbsController.dispose();
+    fatsController.dispose();
     super.onClose();
   }
 }

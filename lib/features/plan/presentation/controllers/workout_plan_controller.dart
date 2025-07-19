@@ -12,9 +12,9 @@ import '../../domain/usecases/get_client_plans.dart';
 import '../../domain/usecases/delete_plan.dart';
 import 'base_plan_controller.dart.dart';
 
-
 class WorkoutPlanController extends BasePlanController {
   final exercises = <Map<String, dynamic>>[].obs;
+  final totalCaloriesController = TextEditingController();
 
   WorkoutPlanController()
       : super(
@@ -35,11 +35,13 @@ class WorkoutPlanController extends BasePlanController {
     titleController.clear();
     descriptionController.clear();
     exercises.clear();
+    totalCaloriesController.clear();
 
     if (isEditMode.value && args?['plan'] != null) {
       final PlanModel plan = args['plan'];
       titleController.text = plan.title;
       descriptionController.text = plan.details['description']?.toString() ?? '';
+      totalCaloriesController.text = plan.totalCalories.toString();
       exercises.assignAll(
         (plan.details['exercises'] as List).map((exercise) {
           final instructions = (exercise['instructions'] as List? ?? []).map((instr) {
@@ -172,6 +174,8 @@ class WorkoutPlanController extends BasePlanController {
           };
         }).toList(),
       },
+      totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
+      totalMacronutrients: {}, // Not used for workouts
       isFavorite: isEditMode.value ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ?? false : false,
       createdAt: Timestamp.now(),
     );
@@ -211,6 +215,7 @@ class WorkoutPlanController extends BasePlanController {
         c.dispose();
       }
     }
+    totalCaloriesController.dispose();
     super.onClose();
   }
 }

@@ -16,7 +16,7 @@ class FormValidators {
   }
 
   static String? validatePlanTitle(String? value) {
-    if (value == null || value.isEmpty){
+    if (value == null || value.isEmpty) {
       return 'Please enter a title for the plan.';
     }
     return null;
@@ -89,6 +89,16 @@ class FormValidators {
     if (value == null || value.isEmpty) return null;
     if (YoutubePlayerController.convertUrlToId(value.trim()) == null) {
       return 'Please enter a valid YouTube URL (e.g., https://youtu.be/xyz).';
+    }
+    return null;
+  }
+
+  static String? validateMacronutrient(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a value for the macronutrient (e.g., 50).';
+    }
+    if (double.tryParse(value) == null || double.parse(value) < 0) {
+      return 'Please enter a valid non-negative number (e.g., 50).';
     }
     return null;
   }
