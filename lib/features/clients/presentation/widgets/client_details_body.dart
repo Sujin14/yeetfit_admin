@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
+import '../../../plan/presentation/widgets/client_plan_section.dart';
 import '../controllers/client_details_controller.dart';
-import 'client-progress_section.dart';
 import 'client_details_card_wrapper.dart';
-import 'client_plan_section.dart';
+import 'client_progress_section.dart';
 
 class ClientDetailsBody extends StatelessWidget {
   const ClientDetailsBody({super.key});

@@ -17,7 +17,7 @@ class ClientDetailsController extends GetxController {
 
   ClientDetailsController()
     : getClientDetails = GetClientDetails(
-        ClientRepositoryImpl(service: FirestoreClientService()),
+        ClientRepositoryImpl(FirestoreClientService()),
       );
 
   @override
