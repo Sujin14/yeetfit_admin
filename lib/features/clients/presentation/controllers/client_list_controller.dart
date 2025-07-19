@@ -20,7 +20,7 @@ class ClientListController extends GetxController {
 
   ClientListController(this.goal)
     : getClientsByGoal = GetClientsByGoal(
-        ClientRepositoryImpl(service: FirestoreClientService()),
+        ClientRepositoryImpl(FirestoreClientService()),
       );
 
   @override

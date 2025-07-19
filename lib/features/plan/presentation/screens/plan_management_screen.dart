@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:yeetfit_admin/features/plan/presentation/controllers/base_plan_controller.dart.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
-import '../controllers/plan_controller.dart';
+import '../controllers/diet_plan_controller.dart.dart';
+import '../controllers/workout_plan_controller.dart';
 import '../widgets/diet_form_field.dart';
 import '../widgets/workout_form_field.dart';
 
@@ -15,13 +17,15 @@ class PlanManagementScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final args = Get.arguments;
     final tag = 'plan-${args['uid']}-${args['type']}';
-    final PlanController controller = Get.find<PlanController>(tag: tag);
+    final controller = args['type'] == 'diet'
+        ? Get.find<DietPlanController>(tag: tag)
+        : Get.find<WorkoutPlanController>(tag: tag);
 
     return Obx(
       () => Scaffold(
         appBar: AppBar(
           title: Text(
-            '${controller.planType.value.capitalizeFirstLetter} Plans',
+            '${controller.planType.capitalizeFirstLetter} Plans',
             style: AdminTheme.textStyles['title']!.copyWith(
               color: AdminTheme.colors['textPrimary'],
             ),
@@ -53,13 +57,13 @@ class PlanManagementScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      '${controller.isEditMode.value ? 'Edit' : 'Add New'} ${controller.planType.value.capitalizeFirstLetter} Plan',
+                      '${controller.isEditMode.value ? 'Edit' : 'Add New'} ${controller.planType.capitalizeFirstLetter} Plan',
                       style: AdminTheme.textStyles['title']!.copyWith(
                         color: AdminTheme.colors['textPrimary'],
                       ),
                     ),
                     SizedBox(height: 16.h),
-                    controller.planType.value == 'diet'
+                    controller is DietPlanController
                         ? DietFormFields(controllerTag: tag)
                         : WorkoutFormFields(controllerTag: tag),
                   ],
