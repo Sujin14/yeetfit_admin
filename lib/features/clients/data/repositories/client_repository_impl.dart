@@ -1,21 +1,25 @@
 import '../../domain/repositories/client_repository.dart';
 import '../datasources/firestore_client_service.dart';
 import '../models/client_model.dart';
-import '../models/plan_model.dart';
 
 class ClientRepositoryImpl implements ClientRepository {
   final FirestoreClientService service;
 
-  ClientRepositoryImpl({required this.service});
+  ClientRepositoryImpl(this.service);
+
+  @override
+  Future<List<ClientModel>> getAllClients() {
+    return service.getAllClients();
+  }
 
   @override
   Stream<List<ClientModel>> getClientsByGoal(String goal) {
-    return service.getClientsByGoal(goal).map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return ClientModel.fromMap(doc.data() as Map<String, dynamic>)
-          ..uid = doc.id;
-      }).toList();
-    });
+    return service.getClientsByGoal(goal);
+  }
+
+  @override
+  Future<ClientModel?> getClientById(String id) {
+    return service.getClientDetails(id);
   }
 
   @override
@@ -24,17 +28,7 @@ class ClientRepositoryImpl implements ClientRepository {
   }
 
   @override
-  Future<List<PlanModel>> getClientPlans(String userId) {
-    return service.getClientPlans(userId);
-  }
-
-  @override
-  Future<bool> assignPlan(String userId, PlanModel plan) {
-    return service.assignPlan(userId, plan);
-  }
-
-  @override
-  Future<bool> deletePlan(String userId, String planId, String type) {
-    return service.deletePlan(userId, planId, type);
+  Future<bool> updateClient(ClientModel client) {
+    return service.updateClient(client);
   }
 }

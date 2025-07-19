@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import '../../../../core/theme/theme.dart';
-import '../controllers/client_details_controller.dart';
+import '../../../clients/presentation/controllers/client_details_controller.dart';
 
 class ClientPlansSection extends StatelessWidget {
   const ClientPlansSection({super.key});

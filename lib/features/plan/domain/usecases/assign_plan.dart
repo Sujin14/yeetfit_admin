@@ -1,8 +1,8 @@
-import '../../data/models/plan_model.dart';
-import '../repositories/client_repository.dart';
+import '../../data/model/plan_model.dart';
+import '../repositories/plan_repository.dart';
 
 class AssignPlan {
-  final ClientRepository repository;
+  final PlanRepository repository;
 
   AssignPlan(this.repository);
 

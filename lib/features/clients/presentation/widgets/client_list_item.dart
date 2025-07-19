@@ -42,11 +42,33 @@ class ClientListItem extends StatelessWidget {
           size: 16.w,
           color: AdminTheme.colors['textSecondary'],
         ),
-        onTap: () {
-          print(
-            'ClientListItem: Navigating to client-details with UID: ${client.uid}',
-          );
-          Get.toNamed('/home/client-details', arguments: {'uid': client.uid});
+        onTap: () async {
+          if (client.uid.isEmpty) {
+            print('ClientListItem: Cannot navigate, client UID is null or empty');
+            Get.snackbar(
+              'Error',
+              'Cannot navigate to client details: Invalid client ID',
+              backgroundColor: AdminTheme.colors['error'],
+              colorText: AdminTheme.colors['surface'],
+            );
+            return;
+          }
+          print('ClientListItem: Navigating to /home/client-details with UID: ${client.uid}');
+          try {
+            await Get.toNamed(
+              '/home/client-details',
+              arguments: {'uid': client.uid},
+            );
+            print('ClientListItem: Navigation to /home/client-details completed');
+          } catch (e) {
+            print('ClientListItem: Navigation error - $e');
+            Get.snackbar(
+              'Error',
+              'Navigation failed: $e',
+              backgroundColor: AdminTheme.colors['error'],
+              colorText: AdminTheme.colors['surface'],
+            );
+          }
         },
       ),
     );

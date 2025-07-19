@@ -1,7 +1,7 @@
-import '../repositories/client_repository.dart';
+import 'package:yeetfit_admin/features/plan/domain/repositories/plan_repository.dart';
 
 class DeletePlan {
-  final ClientRepository repository;
+  final PlanRepository repository;
 
   DeletePlan(this.repository);
 

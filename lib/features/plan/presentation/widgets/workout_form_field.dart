@@ -1,41 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/form_validators.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/utils/form_validators.dart';
-import '../controllers/plan_controller.dart';
+import '../controllers/preview_controller.dart';
+import '../controllers/workout_plan_controller.dart';
 
-// Controller to manage preview visibility for each exercise
-class PreviewController extends GetxController {
-  final String tag;
-  final previewStates = <bool>[].obs;
 
-  PreviewController(this.tag);
-
-  void initialize(int exerciseCount) {
-    previewStates.assignAll(List.filled(exerciseCount, false));
-  }
-
-  void togglePreview(int index) {
-    if (index < previewStates.length) {
-      previewStates[index] = !previewStates[index];
-      update([index.toString()]);
-    }
-  }
-}
-
-// Displays the form fields for creating/editing a workout plan
 class WorkoutFormFields extends StatelessWidget {
   final String controllerTag;
   const WorkoutFormFields({super.key, required this.controllerTag});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<PlanController>(tag: controllerTag);
+    final controller = Get.find<WorkoutPlanController>(tag: controllerTag);
     final previewController = Get.put(PreviewController(controllerTag), tag: 'preview-$controllerTag');
 
     return Form(
@@ -43,7 +24,6 @@ class WorkoutFormFields extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Input for workout plan title
           CustomTextField(
             controller: controller.titleController,
             labelText: 'Workout Plan Title',
@@ -60,11 +40,9 @@ class WorkoutFormFields extends StatelessWidget {
             'Exercises',
             style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
           ),
-          // Builds dynamic exercise input fields
-          GetBuilder<PlanController>(
+          GetBuilder<WorkoutPlanController>(
             tag: controllerTag,
             builder: (_) {
-              // Initialize preview states based on exercise count
               previewController.initialize(controller.exercises.length);
               return Column(
                 children: controller.exercises.asMap().entries.map((entry) {
@@ -91,7 +69,6 @@ class WorkoutFormFields extends StatelessWidget {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text('Exercise ${index + 1}', style: AdminTheme.textStyles['body']),
-                                  // Delete button for exercise
                                   IconButton(
                                     onPressed: () => controller.removeExercise(index),
                                     icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
@@ -105,7 +82,6 @@ class WorkoutFormFields extends StatelessWidget {
                                 validator: (value) => FormValidators.validateName(value, 'exercise'),
                               ),
                               SizedBox(height: 8.h),
-                              // Dropdown for selecting reps type
                               DropdownButtonFormField<String>(
                                 value: exercise['repsType'],
                                 items: const [
@@ -137,7 +113,6 @@ class WorkoutFormFields extends StatelessWidget {
                                       validator: (value) => FormValidators.validateReps(value, 'duration'),
                                     ),
                               SizedBox(height: 8.h),
-                              // Input for sets with a dropdown for quick selection
                               Stack(
                                 alignment: Alignment.centerRight,
                                 children: [
@@ -169,7 +144,6 @@ class WorkoutFormFields extends StatelessWidget {
                                 'Instructions',
                                 style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['textPrimary']),
                               ),
-                              // Dynamic instruction input fields
                               ...(exercise['instructions'] as List).asMap().entries.map((instrEntry) {
                                 final instrIndex = instrEntry.key;
                                 final instr = instrEntry.value;
@@ -185,7 +159,6 @@ class WorkoutFormFields extends StatelessWidget {
                                             validator: FormValidators.validateInstruction,
                                           ),
                                         ),
-                                        // Delete button for instruction
                                         IconButton(
                                           icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
                                           onPressed: () => controller.removeInstruction(index, instrIndex),
@@ -196,7 +169,6 @@ class WorkoutFormFields extends StatelessWidget {
                                 );
                               }),
                               SizedBox(height: 8.h),
-                              // Button to add more instructions
                               TextButton(
                                 onPressed: () => controller.addInstruction(index),
                                 child: Text(
@@ -205,7 +177,6 @@ class WorkoutFormFields extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 8.h),
-                              // Input for YouTube URL with preview button
                               Row(
                                 children: [
                                   Expanded(
@@ -219,12 +190,10 @@ class WorkoutFormFields extends StatelessWidget {
                                   CustomButton(
                                     text: showPreview ? 'Hide Preview' : 'Preview',
                                     onPressed: () {
-                                      // Validate URL before showing preview
                                       final urlError = FormValidators.validateYouTubeUrl(exCtrl['videoUrl']!.text);
                                       if (urlError == null) {
                                         previewController.togglePreview(index);
                                       } else {
-                                        // Trigger validation to show error below field
                                         controller.formKey.currentState?.validate();
                                       }
                                     },
@@ -256,13 +225,11 @@ class WorkoutFormFields extends StatelessWidget {
             },
           ),
           SizedBox(height: 8.h),
-          // Button to add more exercises
           CustomButton(
             text: 'Add More Exercise',
             onPressed: controller.addExercise,
           ),
           SizedBox(height: 16.h),
-          // Save button for the workout plan
           Align(
             alignment: Alignment.bottomRight,
             child: CustomButton(
