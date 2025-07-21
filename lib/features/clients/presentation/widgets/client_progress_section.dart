@@ -8,13 +8,16 @@ class ClientProgressSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Daily Progress', style: AdminTheme.textStyles['title']),
-        SizedBox(height: 8.h),
-        Text('Progress data will be displayed here (To be implemented)', style: AdminTheme.textStyles['body']),
-      ],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Daily Progress', style: AdminTheme.textStyles['title']),
+          SizedBox(height: 8.h),
+          Text('Progress data will be displayed here (To be implemented)', style: AdminTheme.textStyles['body']),
+        ],
+      ),
     );
   }
 }

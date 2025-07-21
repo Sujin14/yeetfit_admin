@@ -11,27 +11,30 @@ class ClientPlansSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<ClientDetailsController>();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Plan Management',
-          style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
-        ),
-        SizedBox(height: 8.h),
-        ListTile(
-          leading: Image.asset('assets/images/diet.jpg', width: 24.w, height: 24.h, color: AdminTheme.colors['primary']),
-          title: Text('Diet Plans', style: AdminTheme.textStyles['body']),
-          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
-          onTap: () => controller.navigateToManageDietPlans(),
-        ),
-        ListTile(
-          leading: Image.asset('assets/images/workouts.jpg', width: 24.w, height: 24.h, color: AdminTheme.colors['primary']),
-          title: Text('Workout Plans', style: AdminTheme.textStyles['body']),
-          trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
-          onTap: () => controller.navigateToManageWorkoutPlans(),
-        ),
-      ],
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Plan Management',
+            style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
+          ),
+          SizedBox(height: 8.h),
+          ListTile(
+            leading: Image.asset('assets/images/diet.png', width: 50.w, height: 50.h),
+            title: Text('Diet Plans', style: AdminTheme.textStyles['body']),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
+            onTap: () => controller.navigateToManageDietPlans(),
+          ),
+          ListTile(
+            leading: Image.asset('assets/images/workouts.png', width: 50.w, height: 50.h),
+            title: Text('Workout Plans', style: AdminTheme.textStyles['body']),
+            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
+            onTap: () => controller.navigateToManageWorkoutPlans(),
+          ),
+        ],
+      ),
     );
   }
 }

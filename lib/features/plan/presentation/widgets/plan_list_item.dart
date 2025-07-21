@@ -6,7 +6,7 @@ import 'package:lottie/lottie.dart';
 import '../../data/model/plan_model.dart';
 import '../../../../core/theme/theme.dart';
 
-class PlanListItem extends StatefulWidget {
+class PlanListItem extends StatelessWidget {
   final PlanModel plan;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
@@ -19,39 +19,17 @@ class PlanListItem extends StatefulWidget {
   });
 
   @override
-  _PlanListItemState createState() => _PlanListItemState();
-}
-
-class _PlanListItemState extends State<PlanListItem> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       child: Slidable(
-        key: ValueKey(widget.plan.id),
+        key: ValueKey(plan.id),
         endActionPane: ActionPane(
           motion: const StretchMotion(),
           extentRatio: 0.5,
           children: [
             SlidableAction(
-              onPressed: (_) => widget.onEdit(),
+              onPressed: (_) => onEdit(),
               backgroundColor: AdminTheme.colors['editIcon'] ?? Colors.blue,
               foregroundColor: AdminTheme.colors['surface'] ?? Colors.white,
               icon: Icons.edit,
@@ -61,33 +39,24 @@ class _PlanListItemState extends State<PlanListItem> with SingleTickerProviderSt
               onPressed: (_) async {
                 final confirm = await Get.dialog<bool>(
                   AlertDialog(
-                    title: Text(
-                      'Confirm Delete',
-                      style: AdminTheme.textStyles['title'],
-                    ),
+                    title: Text('Confirm Delete', style: AdminTheme.textStyles['title']),
                     content: Text(
-                      'Are you sure you want to delete "${widget.plan.title}"?',
+                      'Are you sure you want to delete "${plan.title}"?',
                       style: AdminTheme.textStyles['body'],
                     ),
                     actions: [
                       TextButton(
                         onPressed: () => Get.back(result: false),
-                        child: Text(
-                          'Cancel',
-                          style: AdminTheme.textStyles['body'],
-                        ),
+                        child: Text('Cancel', style: AdminTheme.textStyles['body']),
                       ),
                       TextButton(
                         onPressed: () => Get.back(result: true),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(color: AdminTheme.colors['error']),
-                        ),
+                        child: Text('Delete', style: TextStyle(color: AdminTheme.colors['error'])),
                       ),
                     ],
                   ),
                 );
-                if (confirm == true) widget.onDelete();
+                if (confirm == true) onDelete();
               },
               backgroundColor: AdminTheme.colors['deleteIcon'] ?? Colors.red,
               foregroundColor: AdminTheme.colors['surface'] ?? Colors.white,
@@ -103,25 +72,25 @@ class _PlanListItemState extends State<PlanListItem> with SingleTickerProviderSt
           ),
           child: ListTile(
             leading: Icon(
-              widget.plan.type == 'diet' ? Icons.restaurant : Icons.fitness_center,
+              plan.type == 'diet' ? Icons.restaurant : Icons.fitness_center,
               color: AdminTheme.colors['primary'],
               size: 24.w,
             ),
             title: Text(
-              widget.plan.title,
-              textAlign: TextAlign.center,
+              plan.title,
+              textAlign: TextAlign.start,
               style: AdminTheme.textStyles['title']!.copyWith(
                 color: AdminTheme.colors['textPrimary'],
                 fontWeight: FontWeight.w600,
               ),
             ),
             trailing: SizedBox(
-              width: 50.w,
-              height: 100.h,
+              width: 80.w,
+              height: 80.h,
               child: Lottie.asset(
                 'assets/animations/left_swipe.json',
                 repeat: true,
-                controller: _controller,
+                animate: true,
               ),
             ),
           ),

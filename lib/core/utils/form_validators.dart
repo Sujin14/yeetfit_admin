@@ -39,8 +39,9 @@ class FormValidators {
   }
 
   static String? validateInstruction(String? value) {
-    if (value == null || value.isEmpty)
+    if (value == null || value.isEmpty) {
       return 'Please provide an instruction step.';
+    }
     return null;
   }
 
@@ -59,8 +60,9 @@ class FormValidators {
   }
 
   static String? validateSets(String? value) {
-    if (value == null || value.isEmpty)
+    if (value == null || value.isEmpty) {
       return 'Please enter the number of sets (e.g., 3).';
+    }
     if (int.tryParse(value) == null || int.parse(value) <= 0) {
       return 'Please enter a valid number of sets (e.g., 3).';
     }
@@ -68,8 +70,9 @@ class FormValidators {
   }
 
   static String? validateQuantity(String? value) {
-    if (value == null || value.isEmpty)
+    if (value == null || value.isEmpty) {
       return 'Please enter a quantity (e.g., 100).';
+    }
     if (int.tryParse(value) == null || int.parse(value) <= 0) {
       return 'Please enter a valid integer quantity (e.g., 100).';
     }
@@ -77,8 +80,9 @@ class FormValidators {
   }
 
   static String? validateCalories(String? value) {
-    if (value == null || value.isEmpty)
+    if (value == null || value.isEmpty) {
       return 'Please enter a calorie count (e.g., 200).';
+    }
     if (int.tryParse(value) == null || int.parse(value) < 0) {
       return 'Please enter a valid calorie count (e.g., 200).';
     }
