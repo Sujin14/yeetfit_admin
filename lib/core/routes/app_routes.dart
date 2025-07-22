@@ -3,6 +3,9 @@ import 'package:get/get.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
+import '../../features/chat/domain/use_cases/create_or_get_chat.dart';
+import '../../features/chat/domain/use_cases/get_chat_messages.dart';
+import '../../features/chat/domain/use_cases/send_message.dart';
 import '../../features/clients/presentation/bindings/client_details_bindings.dart';
 import '../../features/clients/presentation/screens/clients_details_screen.dart';
 import '../../features/plan/presentation/controllers/diet_plan_controller.dart.dart';
@@ -11,6 +14,10 @@ import '../../features/plan/presentation/screens/plan_form_screen.dart';
 import '../../features/plan/presentation/screens/plan_list_screen.dart';
 import '../../features/plan/presentation/screens/plan_management_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/chat/presentation/screens/chat_screen.dart';
+import '../../features/chat/presentation/controllers/chat_controller.dart';
+import '../../features/chat/data/datasources/firestore_chat_service.dart';
+import '../../features/chat/data/repositories/chat_repository_impl.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class AppRoutes {
@@ -61,6 +68,17 @@ class AppRoutes {
           page: () => const PlanManagementScreen(),
           binding: BindingsBuilder(() {
             _registerPlanController(forceType: 'workout');
+          }),
+        ),
+        GetPage(
+          name: '/client-details/chat',
+          page: () => const ChatScreen(),
+          binding: BindingsBuilder(() {
+            Get.lazyPut(() => ChatController(
+                  getChatMessages: GetChatMessages(ChatRepositoryImpl(FirestoreChatService())),
+                  sendMessages: SendMessage(ChatRepositoryImpl(FirestoreChatService())),
+                  createOrGetChat: CreateOrGetChat(ChatRepositoryImpl(FirestoreChatService())),
+                ));
           }),
         ),
       ],
