@@ -89,7 +89,7 @@ class PlanListItem extends StatelessWidget {
               height: 80.h,
               child: Lottie.asset(
                 'assets/animations/left_swipe.json',
-                repeat: true,
+                repeat: false,
                 animate: true,
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 // Defines the app's theme, including colors and text styles for consistent UI
 class AdminTheme {
+  //static const Color sec = Color(0xFF6A1B9A);
   // Centralized color palette for the app
   static const colors = {
     'primary': Color(0xFF6A1B9A),
