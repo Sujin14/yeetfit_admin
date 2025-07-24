@@ -1,18 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get/get.dart';
-import 'dart:io';
 
 import '../../../../core/theme/theme.dart';
 import '../model/message_model.dart';
 
 class FirestoreChatService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   FirestoreChatService() {
-    // Enable offline persistence
     _firestore.settings = const Settings(
       persistenceEnabled: true,
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
@@ -20,22 +16,22 @@ class FirestoreChatService {
   }
 
   Stream<List<MessageModel>> getChatMessages(String chatId) {
-  final currentUser = FirebaseAuth.instance.currentUser;
-  if (currentUser == null) {
-    return Stream.error(Exception('User not authenticated'));
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      return Stream.error(Exception('User not authenticated'));
+    }
+    return _firestore
+        .collection('chats')
+        .doc(chatId)
+        .collection('messages')
+        .where('participants', arrayContains: currentUser.uid)
+        .orderBy('timestamp', descending: true)
+        .limit(50)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => MessageModel.fromMap(doc.data(), doc.id))
+            .toList());
   }
-  return _firestore
-      .collection('chats')
-      .doc(chatId)
-      .collection('messages')
-      .where('participants', arrayContains: currentUser.uid)
-      .orderBy('timestamp', descending: true)
-      .limit(50)
-      .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => MessageModel.fromMap(doc.data(), doc.id))
-          .toList());
-}
 
   Stream<MessageModel> getMessageStatus(String chatId, String messageId) {
     return _firestore
@@ -75,24 +71,6 @@ class FirestoreChatService {
           colorText: AdminTheme.colors['onError']);
     }
   }
-
-  Future<String> uploadAudio(File audioFile, String chatId, String messageId) async {
-  try {
-    if (!await audioFile.exists()) {
-      throw Exception('Audio file does not exist at ${audioFile.path}');
-    }
-    final ref = _storage.ref().child('chats/$chatId/audio/$messageId.m4a');
-    final uploadTask = ref.putFile(audioFile);
-    final snapshot = await uploadTask.whenComplete(() => null);
-    final downloadUrl = await snapshot.ref.getDownloadURL();
-    return downloadUrl;
-  } catch (e) {
-    Get.snackbar('Error', 'Failed to upload audio: $e',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['onError']);
-    rethrow;
-  }
-}
 
   Future<void> updateTypingStatus(String chatId, String userId, bool isTyping) async {
     try {
@@ -154,37 +132,37 @@ class FirestoreChatService {
   }
 
   Future<String> createOrGetChat(String adminId, String participantId, String participantName) async {
-  try {
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser == null || currentUser.uid != adminId) {
-      throw Exception('User is not authenticated or adminId does not match current user');
-    }
-    if (adminId.isEmpty || participantId.isEmpty || adminId == participantId) {
-      throw Exception('Invalid admin or participant ID');
-    }
-    final chatId = _generateChatId(adminId, participantId);
-    final chatRef = _firestore.collection('chats').doc(chatId);
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null || currentUser.uid != adminId) {
+        throw Exception('User is not authenticated or adminId does not match current user');
+      }
+      if (adminId.isEmpty || participantId.isEmpty || adminId == participantId) {
+        throw Exception('Invalid admin or participant ID');
+      }
+      final chatId = _generateChatId(adminId, participantId);
+      final chatRef = _firestore.collection('chats').doc(chatId);
 
-    await chatRef.set({
-      'participants': [adminId, participantId],
-      'participantName': participantName,
-      'lastMessage': '',
-      'lastMessageTime': Timestamp.now(),
-      'typing_$adminId': false,
-      'typing_$participantId': false,
-    }, SetOptions(merge: true));
+      await chatRef.set({
+        'participants': [adminId, participantId],
+        'participantName': participantName,
+        'lastMessage': '',
+        'lastMessageTime': Timestamp.now(),
+        'typing_$adminId': false,
+        'typing_$participantId': false,
+      }, SetOptions(merge: true));
 
-    return chatId;
-  } catch (e) {
-    Get.snackbar('Error', 'Failed to create or get chat: $e',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['onError']);
-    rethrow;
+      return chatId;
+    } catch (e) {
+      Get.snackbar('Error', 'Failed to create or get chat: $e',
+          backgroundColor: AdminTheme.colors['error'],
+          colorText: AdminTheme.colors['onError']);
+      rethrow;
+    }
   }
-}
 
-String _generateChatId(String adminId, String participantId) {
-  final ids = [adminId, participantId]..sort();
-  return '${ids[0]}_${ids[1]}';
-}
+  String _generateChatId(String adminId, String participantId) {
+    final ids = [adminId, participantId]..sort();
+    return '${ids[0]}_${ids[1]}';
+  }
 }

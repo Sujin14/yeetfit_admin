@@ -1,7 +1,5 @@
 import '../../domain/repositories/chat_repository.dart';
 import '../datasources/firestore_chat_service.dart';
-import 'dart:io';
-
 import '../model/message_model.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -36,11 +34,6 @@ class ChatRepositoryImpl implements ChatRepository {
     String participantName,
   ) {
     return service.createOrGetChat(adminId, participantId, participantName);
-  }
-
-  @override
-  Future<String> uploadAudio(File audioFile, String chatId, String messageId) {
-    return service.uploadAudio(audioFile, chatId, messageId);
   }
 
   @override

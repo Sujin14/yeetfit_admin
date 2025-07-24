@@ -1,4 +1,3 @@
-import 'dart:io';
 
 import '../../data/model/message_model.dart';
 
@@ -8,7 +7,6 @@ abstract class ChatRepository {
   Stream<Map<String, dynamic>> getUserProfile(String userId);
   Future<void> sendMessage(String chatId, MessageModel message);
   Future<String> createOrGetChat(String adminId, String participantId, String participantName);
-  Future<String> uploadAudio(File audioFile, String chatId, String messageId);
   Future<void> updateTypingStatus(String chatId, String userId, bool isTyping);
   Stream<bool> getTypingStatus(String chatId, String userId);
   Future<void> updateMessageStatus(String chatId, String messageId, String status);

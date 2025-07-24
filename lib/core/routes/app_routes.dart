@@ -13,7 +13,6 @@ import '../../features/chat/domain/use_cases/get_message_status.dart';
 import '../../features/chat/domain/use_cases/send_message.dart';
 import '../../features/chat/domain/use_cases/update_message_status.dart';
 import '../../features/chat/domain/use_cases/update_typing_status.dart';
-import '../../features/chat/domain/use_cases/upload_audio.dart';
 import '../../features/clients/presentation/bindings/client_details_bindings.dart';
 import '../../features/clients/presentation/screens/clients_details_screen.dart';
 import '../../features/plan/presentation/controllers/diet_plan_controller.dart.dart';
@@ -88,7 +87,6 @@ class AppRoutes {
                   getUserProfile: GetUserProfile(ChatRepositoryImpl(FirestoreChatService())),
                   sendMessage: SendMessage(ChatRepositoryImpl(FirestoreChatService())),
                   createOrGetChat: CreateOrGetChat(ChatRepositoryImpl(FirestoreChatService())),
-                  uploadAudio: UploadAudio(ChatRepositoryImpl(FirestoreChatService())),
                   updateTypingStatus: UpdateTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
                   getTypingStatus: GetTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
                   updateMessageStatus: UpdateMessageStatus(ChatRepositoryImpl(FirestoreChatService())),

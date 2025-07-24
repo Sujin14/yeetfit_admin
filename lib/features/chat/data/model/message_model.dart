@@ -8,8 +8,6 @@ class MessageModel {
   final List<String> participants;
   final String participantName;
   final String status; // sent, delivered, read
-  final String? audioUrl;
-  final bool isAudio;
 
   MessageModel({
     required this.id,
@@ -19,8 +17,6 @@ class MessageModel {
     required this.participants,
     required this.participantName,
     this.status = 'sent',
-    this.audioUrl,
-    this.isAudio = false,
   });
 
   factory MessageModel.fromMap(Map<String, dynamic> map, String id) {
@@ -32,8 +28,6 @@ class MessageModel {
       participants: List<String>.from(map['participants'] ?? []),
       participantName: map['participantName'] ?? 'Unknown',
       status: map['status'] ?? 'sent',
-      audioUrl: map['audioUrl'],
-      isAudio: map['audioUrl'] != null,
     );
   }
 
@@ -46,7 +40,6 @@ class MessageModel {
       'participants': participants,
       'participantName': participantName,
       'status': status,
-      'audioUrl': audioUrl,
     };
   }
 }

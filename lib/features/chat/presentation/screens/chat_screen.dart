@@ -42,122 +42,98 @@ class ChatScreen extends StatelessWidget {
                 itemCount: controller.messages.length,
                 itemBuilder: (context, index) {
                   final msg = controller.messages[index];
-                  if (msg.isAudio) {
-                    return _buildAudioPlayer(msg.audioUrl, controller);
-                  } else {
-                    return ListTile(
-                      title: Align(
-                        alignment:
-                            msg.senderId ==
-                                FirebaseAuth.instance.currentUser?.uid
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          padding: EdgeInsets.all(8.w),
-                          decoration: BoxDecoration(
-                            color:
-                                msg.senderId ==
-                                    FirebaseAuth.instance.currentUser?.uid
-                                ? AdminTheme.colors['primary']
-                                : AdminTheme.colors['surfaceVariant'],
-                            borderRadius: BorderRadius.circular(12.r),
-                          ),
-                          child: Column(
-                            crossAxisAlignment:
-                                msg.senderId ==
-                                    FirebaseAuth.instance.currentUser?.uid
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                msg.content,
-                                style: AdminTheme.textStyles['bodyMedium']
-                                    ?.copyWith(
-                                      color:
-                                          msg.senderId ==
-                                              FirebaseAuth
-                                                  .instance
-                                                  .currentUser
-                                                  ?.uid
-                                          ? AdminTheme.colors['onPrimary']
-                                          : AdminTheme.colors['onSurface'],
-                                    ),
+                  return ListTile(
+                    title: Align(
+                      alignment: msg.senderId == FirebaseAuth.instance.currentUser?.uid
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        padding: EdgeInsets.all(8.w),
+                        decoration: BoxDecoration(
+                          color: msg.senderId == FirebaseAuth.instance.currentUser?.uid
+                              ? AdminTheme.colors['primary']
+                              : AdminTheme.colors['surfaceVariant'],
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: msg.senderId == FirebaseAuth.instance.currentUser?.uid
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              msg.content,
+                              style: AdminTheme.textStyles['bodyMedium']?.copyWith(
+                                color: msg.senderId == FirebaseAuth.instance.currentUser?.uid
+                                    ? AdminTheme.colors['onPrimary']
+                                    : AdminTheme.colors['onSurface'],
                               ),
-                              SizedBox(height: 4.h),
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    DateFormat('hh:mm a').format(msg.timestamp),
-                                    style: AdminTheme.textStyles['bodySmall']
-                                        ?.copyWith(
-                                          color: AdminTheme
-                                              .colors['onSurfaceVariant'],
-                                        ),
+                            ),
+                            SizedBox(height: 4.h),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  DateFormat('hh:mm a').format(msg.timestamp),
+                                  style: AdminTheme.textStyles['bodySmall']?.copyWith(
+                                    color: AdminTheme.colors['onSurfaceVariant'],
                                   ),
-                                  if (msg.senderId ==
-                                      FirebaseAuth
-                                          .instance
-                                          .currentUser
-                                          ?.uid) ...[
-                                    SizedBox(width: 4.w),
-                                    _buildMessageStatusIcon(msg.status),
-                                  ],
+                                ),
+                                if (msg.senderId == FirebaseAuth.instance.currentUser?.uid) ...[
+                                  SizedBox(width: 4.w),
+                                  _buildMessageStatusIcon(msg.status),
                                 ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    onLongPress: () {
+                      Get.dialog(
+                        AlertDialog(
+                          title: Text(
+                            'Message Options',
+                            style: AdminTheme.textStyles['titleMedium'],
+                          ),
+                          content: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ListTile(
+                                title: Text(
+                                  'Copy',
+                                  style: AdminTheme.textStyles['bodyMedium'],
+                                ),
+                                onTap: () {
+                                  Clipboard.setData(
+                                    ClipboardData(text: msg.content),
+                                  );
+                                  Get.back();
+                                  Get.snackbar(
+                                    'Copied',
+                                    'Message copied to clipboard',
+                                    backgroundColor: AdminTheme.colors['primary'],
+                                    colorText: AdminTheme.colors['onPrimary'],
+                                  );
+                                },
+                              ),
+                              ListTile(
+                                title: Text(
+                                  'Delete',
+                                  style: AdminTheme.textStyles['bodyMedium']?.copyWith(
+                                    color: AdminTheme.colors['error'],
+                                  ),
+                                ),
+                                onTap: () {
+                                  controller.deleteMessages(msg.id);
+                                  Get.back();
+                                },
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      onLongPress: () {
-                        Get.dialog(
-                          AlertDialog(
-                            title: Text(
-                              'Message Options',
-                              style: AdminTheme.textStyles['titleMedium'],
-                            ),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                ListTile(
-                                  title: Text(
-                                    'Copy',
-                                    style: AdminTheme.textStyles['bodyMedium'],
-                                  ),
-                                  onTap: () {
-                                    Clipboard.setData(
-                                      ClipboardData(text: msg.content),
-                                    );
-                                    Get.back();
-                                    Get.snackbar(
-                                      'Copied',
-                                      'Message copied to clipboard',
-                                      backgroundColor:
-                                          AdminTheme.colors['primary'],
-                                      colorText: AdminTheme.colors['onPrimary'],
-                                    );
-                                  },
-                                ),
-                                ListTile(
-                                  title: Text(
-                                    'Delete',
-                                    style: AdminTheme.textStyles['bodyMedium']
-                                        ?.copyWith(
-                                          color: AdminTheme.colors['error'],
-                                        ),
-                                  ),
-                                  onTap: () {
-                                    controller.deleteMessages(msg.id);
-                                    Get.back();
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  }
+                      );
+                    },
+                  );
                 },
               ),
             ),
@@ -169,109 +145,69 @@ class ChatScreen extends StatelessWidget {
   }
 
   Widget _buildHeader(ChatController controller) {
-  return SafeArea(
-    bottom: false, // we only care about top padding here
-    child: Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      color: AdminTheme.colors['surface'],
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(Icons.arrow_back, color: AdminTheme.colors['primary']),
-            onPressed: () => Get.back(),
-          ),
-          Obx(() => CircleAvatar(
-                radius: 16.r,
-                backgroundImage: CachedNetworkImageProvider(
-                  controller.participantImage.value.isNotEmpty
-                      ? controller.participantImage.value
-                      : 'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
-                ),
-              )),
-          SizedBox(width: 8.w),
-          Obx(() => Text(
-                controller.participantName.value,
-                style: AdminTheme.textStyles['titleMedium']?.copyWith(
-                  color: AdminTheme.colors['onSurface'],
-                ),
-              )),
-          const Spacer(),
-          PopupMenuButton<String>(
-            icon: Icon(Icons.more_vert, color: AdminTheme.colors['primary']),
-            onSelected: (value) {
-              if (value == 'delete') {
-                Get.dialog(
-                  AlertDialog(
-                    title: Text('Delete Chat', style: AdminTheme.textStyles['titleMedium']),
-                    content: Text('Are you sure you want to delete this chat?', style: AdminTheme.textStyles['bodyMedium']),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Get.back(),
-                        child: Text('Cancel', style: AdminTheme.textStyles['bodyMedium']),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          controller.deleteChats();
-                          Get.back();
-                        },
-                        child: Text('Delete', style: AdminTheme.textStyles['bodyMedium']?.copyWith(color: AdminTheme.colors['error'])),
-                      ),
-                    ],
-                  ),
-                );
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'delete',
-                child: Text('Delete Chat', style: AdminTheme.textStyles['bodyMedium']),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-
-  Widget _buildAudioPlayer(String? audioUrl, ChatController controller) {
-    if (audioUrl == null) return const SizedBox.shrink();
-    return Obx(() {
-      final isPlaying =
-          controller.currentAudioUrl.value == audioUrl &&
-          controller.isPlaying.value;
-
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          IconButton(
-            icon: Icon(
-              isPlaying ? Icons.pause : Icons.play_arrow,
-              color: AdminTheme.colors['onSurface'],
+    return SafeArea(
+      bottom: false,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        color: AdminTheme.colors['surface'],
+        child: Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back, color: AdminTheme.colors['primary']),
+              onPressed: () => Get.back(),
             ),
-            onPressed: () {
-              isPlaying
-                  ? controller.stopAudio()
-                  : controller.playAudio(audioUrl);
-            },
-          ),
-          StreamBuilder<Duration>(
-            stream: controller.positionStream,
-            builder: (context, snapshot) {
-              final position = snapshot.data ?? Duration.zero;
-              final duration = controller.audioDuration.value;
-              return Text(
-                '${position.inSeconds}/${duration.inSeconds}s',
-                style: AdminTheme.textStyles['bodySmall']?.copyWith(
-                  color: AdminTheme.colors['onSurface'],
+            Obx(() => CircleAvatar(
+                  radius: 16.r,
+                  backgroundImage: CachedNetworkImageProvider(
+                    controller.participantImage.value.isNotEmpty
+                        ? controller.participantImage.value
+                        : 'https://t3.ftcdn.net/jpg/02/43/12/34/360_F_243123463_zTooub557xEWABDLk0jJklDyLSGl2jrr.jpg',
+                  ),
+                )),
+            SizedBox(width: 8.w),
+            Obx(() => Text(
+                  controller.participantName.value,
+                  style: AdminTheme.textStyles['titleMedium']?.copyWith(
+                    color: AdminTheme.colors['onSurface'],
+                  ),
+                )),
+            const Spacer(),
+            PopupMenuButton<String>(
+              icon: Icon(Icons.more_vert, color: AdminTheme.colors['primary']),
+              onSelected: (value) {
+                if (value == 'delete') {
+                  Get.dialog(
+                    AlertDialog(
+                      title: Text('Delete Chat', style: AdminTheme.textStyles['titleMedium']),
+                      content: Text('Are you sure you want to delete this chat?', style: AdminTheme.textStyles['bodyMedium']),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Get.back(),
+                          child: Text('Cancel', style: AdminTheme.textStyles['bodyMedium']),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            controller.deleteChats();
+                            Get.back();
+                          },
+                          child: Text('Delete', style: AdminTheme.textStyles['bodyMedium']?.copyWith(color: AdminTheme.colors['error'])),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete Chat', style: AdminTheme.textStyles['bodyMedium']),
                 ),
-              );
-            },
-          ),
-        ],
-      );
-    });
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildMessageStatusIcon(String status) {
@@ -313,27 +249,9 @@ class ChatScreen extends StatelessWidget {
             ),
           ),
           SizedBox(width: 8.w),
-          Obx(
-            () => controller.isRecording.value
-                ? CustomButton(
-                    text: 'Stop',
-                    onPressed: controller.stopRecording,
-                  )
-                : Row(
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons.mic,
-                          color: AdminTheme.colors['primary'],
-                        ),
-                        onPressed: controller.startRecording,
-                      ),
-                      CustomButton(
-                        text: 'Send',
-                        onPressed: controller.sendMessages,
-                      ),
-                    ],
-                  ),
+          CustomButton(
+            text: 'Send',
+            onPressed: controller.sendMessages,
           ),
         ],
       ),
