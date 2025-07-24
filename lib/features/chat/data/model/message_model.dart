@@ -7,6 +7,9 @@ class MessageModel {
   final DateTime timestamp;
   final List<String> participants;
   final String participantName;
+  final String status; // sent, delivered, read
+  final String? audioUrl;
+  final bool isAudio;
 
   MessageModel({
     required this.id,
@@ -15,16 +18,22 @@ class MessageModel {
     required this.timestamp,
     required this.participants,
     required this.participantName,
+    this.status = 'sent',
+    this.audioUrl,
+    this.isAudio = false,
   });
 
-  factory MessageModel.fromMap(Map<String, dynamic> map) {
+  factory MessageModel.fromMap(Map<String, dynamic> map, String id) {
     return MessageModel(
-      id: map['id'] ?? '',
+      id: id,
       senderId: map['senderId'] ?? '',
       content: map['content'] ?? '',
-      timestamp: (map['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      timestamp: (map['timestamp'] as Timestamp).toDate(),
       participants: List<String>.from(map['participants'] ?? []),
       participantName: map['participantName'] ?? 'Unknown',
+      status: map['status'] ?? 'sent',
+      audioUrl: map['audioUrl'],
+      isAudio: map['audioUrl'] != null,
     );
   }
 
@@ -36,6 +45,8 @@ class MessageModel {
       'timestamp': Timestamp.fromDate(timestamp),
       'participants': participants,
       'participantName': participantName,
+      'status': status,
+      'audioUrl': audioUrl,
     };
   }
 }

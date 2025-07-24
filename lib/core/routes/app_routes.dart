@@ -1,11 +1,19 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:yeetfit_admin/features/chat/domain/use_cases/get_typing_status.dart';
+import 'package:yeetfit_admin/features/chat/domain/use_cases/get_user_profile.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/chat/domain/use_cases/create_or_get_chat.dart';
+import '../../features/chat/domain/use_cases/delete_chat.dart';
+import '../../features/chat/domain/use_cases/delete_message.dart';
 import '../../features/chat/domain/use_cases/get_chat_messages.dart';
+import '../../features/chat/domain/use_cases/get_message_status.dart';
 import '../../features/chat/domain/use_cases/send_message.dart';
+import '../../features/chat/domain/use_cases/update_message_status.dart';
+import '../../features/chat/domain/use_cases/update_typing_status.dart';
+import '../../features/chat/domain/use_cases/upload_audio.dart';
 import '../../features/clients/presentation/bindings/client_details_bindings.dart';
 import '../../features/clients/presentation/screens/clients_details_screen.dart';
 import '../../features/plan/presentation/controllers/diet_plan_controller.dart.dart';
@@ -76,8 +84,16 @@ class AppRoutes {
           binding: BindingsBuilder(() {
             Get.lazyPut(() => ChatController(
                   getChatMessages: GetChatMessages(ChatRepositoryImpl(FirestoreChatService())),
-                  sendMessages: SendMessage(ChatRepositoryImpl(FirestoreChatService())),
+                  getMessageStatus: GetMessageStatus(ChatRepositoryImpl(FirestoreChatService())),
+                  getUserProfile: GetUserProfile(ChatRepositoryImpl(FirestoreChatService())),
+                  sendMessage: SendMessage(ChatRepositoryImpl(FirestoreChatService())),
                   createOrGetChat: CreateOrGetChat(ChatRepositoryImpl(FirestoreChatService())),
+                  uploadAudio: UploadAudio(ChatRepositoryImpl(FirestoreChatService())),
+                  updateTypingStatus: UpdateTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
+                  getTypingStatus: GetTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
+                  updateMessageStatus: UpdateMessageStatus(ChatRepositoryImpl(FirestoreChatService())),
+                  deleteChat: DeleteChat(ChatRepositoryImpl(FirestoreChatService())),
+                  deleteMessage: DeleteMessage(ChatRepositoryImpl(FirestoreChatService())),
                 ));
           }),
         ),

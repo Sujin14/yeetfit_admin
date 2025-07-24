@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
+import '../../../../core/theme/theme.dart';
 import '../../data/datasources/firestore_client_service.dart';
 import '../../data/models/client_model.dart';
 import '../../data/repositories/client_repository_impl.dart';
 import '../../domain/usecases/get_client_details.dart';
-import '../../../../core/theme/theme.dart';
 
 class ClientDetailsController extends GetxController {
   final GetClientDetails getClientDetails;
@@ -16,11 +16,10 @@ class ClientDetailsController extends GetxController {
   final isInvalidUid = false.obs;
 
   ClientDetailsController()
-    : getClientDetails = GetClientDetails(
-        ClientRepositoryImpl(FirestoreClientService()),
-      );
+      : getClientDetails = GetClientDetails(
+          ClientRepositoryImpl(FirestoreClientService()),
+        );
 
-  @override
   @override
   void onInit() {
     super.onInit();

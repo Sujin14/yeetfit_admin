@@ -30,6 +30,7 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
             arguments: {
               'participantId': controller.uid.value,
               'participantName': controller.clientName.value,
+              'participantImage': controller.client.value?.profilePicture ?? '',
             },
           ),
           backgroundColor: AdminTheme.colors['primary'],

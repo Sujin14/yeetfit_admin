@@ -1,0 +1,92 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Reusable functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    function isFavoriteOnlyUpdate() {
+      return request.resource.data.diff(resource.data).changedKeys().hasOnly(['isFavorite']);
+    }
+
+    function isParticipant() {
+      return isSignedIn() && request.auth.uid in resource.data.participants;
+    }
+
+    function isCreatingAsParticipant() {
+      return isSignedIn() &&
+        request.resource.data.participants is list &&
+        request.auth.uid in request.resource.data.participants;
+    }
+
+    // users/{userId}
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow write: if isSignedIn() && (isAdmin() || request.auth.uid == userId);
+
+      // progress tracking
+      match /progress/{progressId} {
+        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow write: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      // diet plans
+      match /diets/{dietId} {
+        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow write: if isAdmin();
+        allow update: if isSignedIn() &&
+          request.auth.uid == userId &&
+          isFavoriteOnlyUpdate();
+      }
+
+      // workout plans
+      match /workouts/{workoutId} {
+        allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+        allow write: if isAdmin();
+        allow update: if isSignedIn() &&
+          request.auth.uid == userId &&
+          isFavoriteOnlyUpdate();
+      }
+    }
+
+    // CollectionGroup favorites (diets + workouts)
+    match /{path=**}/diets/{document} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.isFavorite == true;
+    }
+
+    match /{path=**}/workouts/{document} {
+      allow read: if isSignedIn() &&
+        resource.data.userId == request.auth.uid &&
+        resource.data.isFavorite == true;
+    }
+
+    // Chat support: /chats/{chatId} and /chats/{chatId}/messages/{messageId}
+    match /chats/{chatId} {
+      // Allow read, update, delete if user is in participants
+      allow read, update, delete: if isSignedIn() && request.auth.uid in resource.data.participants;
+      // Allow create if user is in participants list
+      allow create: if isSignedIn() &&
+        request.resource.data.participants is list &&
+        request.auth.uid in request.resource.data.participants &&
+        request.resource.data.participantName is string;
+
+      match /messages/{messageId} {
+        // Allow read, update, delete if user is in participants
+        allow read, update, delete: if isSignedIn() && request.auth.uid in resource.data.participants;
+        // Allow create if user is in participants list
+        allow create: if isSignedIn() &&
+          request.resource.data.participants is list &&
+          request.auth.uid in request.resource.data.participants;
+      }
+    }
+  }
+}
