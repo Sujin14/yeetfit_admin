@@ -46,18 +46,28 @@ class ChatHeader extends StatelessWidget {
                   Get.dialog(
                     AlertDialog(
                       title: Text('Delete Chat', style: AdminTheme.textStyles['titleMedium']),
-                      content: Text('Are you sure you want to delete the entire chat', style: AdminTheme.textStyles['bodyMedium']),
+                      content: Text('Are you sure you want to delete the entire chat?', style: AdminTheme.textStyles['bodyMedium']),
                       actions: [
                         TextButton(
                           onPressed: () => Get.back(),
                           child: Text('Cancel', style: AdminTheme.textStyles['bodyMedium']),
                         ),
                         TextButton(
-                          onPressed: () {
-                            controller.deleteChats();
-                            Get.back();
+                          onPressed: () async {
+                            try {
+                              await controller.deleteChats();
+                            } catch (e) {
+                              Get.snackbar('Error', 'Failed to delete chat: $e',
+                                  backgroundColor: AdminTheme.colors['error'],
+                                  colorText: AdminTheme.colors['onError']);
+                            }
                           },
-                          child: Text('Delete', style: AdminTheme.textStyles['bodyMedium']?.copyWith(color: AdminTheme.colors['error'])),
+                          child: Text(
+                            'Delete',
+                            style: AdminTheme.textStyles['bodyMedium']?.copyWith(
+                              color: AdminTheme.colors['error'],
+                            ),
+                          ),
                         ),
                       ],
                     ),
