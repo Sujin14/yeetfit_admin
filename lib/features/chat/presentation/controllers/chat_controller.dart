@@ -51,10 +51,6 @@ class ChatController extends GetxController {
   String? _chatId;
   String? _participantId;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   void setupChat(String participantId) {
     _participantId = participantId;

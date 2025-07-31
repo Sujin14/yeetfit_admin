@@ -39,12 +39,12 @@ class MessageBubble extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isMe
                         ? AdminTheme.colors['inputBackground']
-                        : AdminTheme.colors['surfaceVariant'],
+                        : AdminTheme.colors['signupGradientEnd']!.withOpacity(0.6),
                     borderRadius: BorderRadius.only(
                       topLeft: isMe ? Radius.circular(12.r) : Radius.zero,
-                      topRight: isMe ? Radius.circular(12.r): Radius.zero,
+                      topRight: Radius.circular(12.r),
                       bottomLeft: Radius.circular(12.r),
-                      bottomRight: Radius.zero,
+                      bottomRight: isMe ? Radius.zero : Radius.circular(12.r),
                     ),
                   ),
                   child: Text(
