@@ -4,9 +4,9 @@ import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
 import '../../../plan/presentation/widgets/client_plan_section.dart';
+import '../../../progress/presentation/widgets/client_progress_section.dart';
 import '../controllers/client_details_controller.dart';
 import 'client_details_card_wrapper.dart';
-import 'client_progress_section.dart';
 
 class ClientDetailsBody extends StatelessWidget {
   const ClientDetailsBody({super.key});

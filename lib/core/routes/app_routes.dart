@@ -20,6 +20,7 @@ import '../../features/plan/presentation/controllers/workout_plan_controller.dar
 import '../../features/plan/presentation/screens/plan_form_screen.dart';
 import '../../features/plan/presentation/screens/plan_list_screen.dart';
 import '../../features/plan/presentation/screens/plan_management_screen.dart';
+import '../../features/progress/presentation/screens/client_progress_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../features/chat/presentation/controllers/chat_controller.dart';
@@ -78,21 +79,48 @@ class AppRoutes {
           }),
         ),
         GetPage(
+          name: '/client-progress',
+          page: () => const ClientProgressScreen(),
+          binding: ClientDetailsBinding(),
+        ),
+        GetPage(
           name: '/client-details/chat',
           page: () => const ChatScreen(),
           binding: BindingsBuilder(() {
-            Get.lazyPut(() => ChatController(
-                  getChatMessages: GetChatMessages(ChatRepositoryImpl(FirestoreChatService())),
-                  getMessageStatus: GetMessageStatus(ChatRepositoryImpl(FirestoreChatService())),
-                  getUserProfile: GetUserProfile(ChatRepositoryImpl(FirestoreChatService())),
-                  sendMessage: SendMessage(ChatRepositoryImpl(FirestoreChatService())),
-                  createOrGetChat: CreateOrGetChat(ChatRepositoryImpl(FirestoreChatService())),
-                  updateTypingStatus: UpdateTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
-                  getTypingStatus: GetTypingStatus(ChatRepositoryImpl(FirestoreChatService())),
-                  updateMessageStatus: UpdateMessageStatus(ChatRepositoryImpl(FirestoreChatService())),
-                  deleteChat: DeleteChat(ChatRepositoryImpl(FirestoreChatService())),
-                  deleteMessage: DeleteMessage(ChatRepositoryImpl(FirestoreChatService())),
-                ));
+            Get.lazyPut(
+              () => ChatController(
+                getChatMessages: GetChatMessages(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                getMessageStatus: GetMessageStatus(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                getUserProfile: GetUserProfile(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                sendMessage: SendMessage(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                createOrGetChat: CreateOrGetChat(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                updateTypingStatus: UpdateTypingStatus(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                getTypingStatus: GetTypingStatus(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                updateMessageStatus: UpdateMessageStatus(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                deleteChat: DeleteChat(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+                deleteMessage: DeleteMessage(
+                  ChatRepositoryImpl(FirestoreChatService()),
+                ),
+              ),
+            );
           }),
         ),
       ],
@@ -111,7 +139,8 @@ class AppRoutes {
       final controller = DietPlanController();
       controller.setupWithArguments(args);
       Get.put<DietPlanController>(controller, tag: tag);
-    } else if (type == 'workout' && !Get.isRegistered<WorkoutPlanController>(tag: tag)) {
+    } else if (type == 'workout' &&
+        !Get.isRegistered<WorkoutPlanController>(tag: tag)) {
       final controller = WorkoutPlanController();
       controller.setupWithArguments(args);
       Get.put<WorkoutPlanController>(controller, tag: tag);
@@ -125,10 +154,10 @@ class AppRoutes {
 
   static Future<String?> redirect(Routing? routing) async {
     final user = FirebaseAuth.instance.currentUser;
-    final currentRoute = routing?.current ?? '';
-    final arguments = Get.arguments;
+    final currentRoute = routing?.current;
+
     print(
-      'AppRoutes.redirect: Current route: $currentRoute, Arguments: $arguments',
+      'AppRoutes.redirect: Current route: $currentRoute, Arguments: ${Get.arguments}',
     );
 
     if (user == null) {
@@ -138,6 +167,7 @@ class AppRoutes {
 
     final controller = Get.find<AuthController>();
     final isAdmin = await controller.isAdmin(user.uid);
+
     if (!isAdmin) {
       print(
         'AppRoutes.redirect: User ${user.uid} is not an admin, signing out and redirecting to /',
@@ -146,11 +176,13 @@ class AppRoutes {
       return '/';
     }
 
+    // Only redirect if currentRoute is explicitly "/" or "/signup"
     if (currentRoute == '/' || currentRoute == '/signup') {
       print('AppRoutes.redirect: Admin user, redirecting to /home');
       return '/home';
     }
 
+    // Allow all other routes, including null (initial)
     print('AppRoutes.redirect: Allowing navigation to $currentRoute');
     return null;
   }
