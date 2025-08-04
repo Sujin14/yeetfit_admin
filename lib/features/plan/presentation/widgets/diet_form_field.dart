@@ -21,42 +21,57 @@ class DietFormFields extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           CustomTextField(
-            controller: controller.titleController,
-            labelText: 'Diet Plan Title',
-            validator: FormValidators.validatePlanTitle,
+            controller: controller.totalCaloriesController,
+            labelText: 'Total Calories to Eat',
+            keyboardType: TextInputType.number,
+            validator: FormValidators.validateCalories,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.title, color: AdminTheme.colors['textSecondary']),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          CustomTextField(
-            controller: controller.descriptionController,
-            labelText: 'Description (Optional)',
-            maxLines: 3,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.description, color: AdminTheme.colors['textSecondary']),
+              prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
+              suffixText: 'cal',
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
             ),
           ),
           SizedBox(height: 16.h),
           ExpansionTile(
             title: Text(
-              'Nutrition Goals',
+              'Macronutrients (Optional)',
               style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
             ),
             tilePadding: EdgeInsets.zero,
             childrenPadding: EdgeInsets.all(16.w),
-            initiallyExpanded: true,
             children: [
               CustomTextField(
-                controller: controller.totalCaloriesController,
-                labelText: 'Total Calories to Eat',
+                controller: controller.proteinController,
+                labelText: 'Protein',
                 keyboardType: TextInputType.number,
-                validator: FormValidators.validateCalories,
+                validator: FormValidators.validateMacronutrient,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
-                  suffixText: 'cal',
+                  prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                  suffixText: 'g',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              CustomTextField(
+                controller: controller.carbsController,
+                labelText: 'Carbohydrates',
+                keyboardType: TextInputType.number,
+                validator: FormValidators.validateMacronutrient,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                  suffixText: 'g',
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              CustomTextField(
+                controller: controller.fatsController,
+                labelText: 'Fats',
+                keyboardType: TextInputType.number,
+                validator: FormValidators.validateMacronutrient,
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                  suffixText: 'g',
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
                 ),
               ),
@@ -70,8 +85,8 @@ class DietFormFields extends StatelessWidget {
           GetBuilder<DietPlanController>(
             tag: controllerTag,
             builder: (controller) => Column(
-              children: controller.meals.asMap().entries.map((entry) {
-                final index = entry.key;
+              children: controller.meals.entries.map((entry) {
+                final mealName = entry.key;
                 final meal = entry.value;
                 final mealControllers = meal['controllers'];
                 return Card(
@@ -87,30 +102,73 @@ class DietFormFields extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            mealControllers['name'].text.isEmpty
-                                ? 'Meal ${index + 1}'
-                                : mealControllers['name'].text,
+                            mealName,
                             style: AdminTheme.textStyles['body']!.copyWith(
                               color: AdminTheme.colors['textPrimary'],
                               fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
-                        IconButton(
-                          icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-                          onPressed: () => controller.removeMeal(index),
-                        ),
+                        if (![
+                          'Breakfast',
+                          'Morning Snack',
+                          'Lunch',
+                          'Evening Snack',
+                          'Dinner',
+                        ].contains(mealName))
+                          IconButton(
+                            icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
+                            onPressed: () => controller.removeMeal(mealName),
+                          ),
                       ],
                     ),
                     tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                     childrenPadding: EdgeInsets.all(16.w),
                     children: [
                       CustomTextField(
-                        controller: mealControllers['name'],
-                        labelText: 'Meal Name (e.g., Breakfast)',
-                        validator: (value) => FormValidators.validateName(value, 'meal'),
+                        controller: controller.mealCalorieControllers[mealName],
+                        labelText: 'Calorie Goal',
+                        keyboardType: TextInputType.number,
+                        validator: FormValidators.validateCalories,
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.restaurant, color: AdminTheme.colors['textSecondary']),
+                          prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
+                          suffixText: 'cal',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      CustomTextField(
+                        controller: mealControllers['protein'],
+                        labelText: 'Protein (Optional)',
+                        keyboardType: TextInputType.number,
+                        validator: FormValidators.validateMacronutrient,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                          suffixText: 'g',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      CustomTextField(
+                        controller: mealControllers['carbs'],
+                        labelText: 'Carbohydrates (Optional)',
+                        keyboardType: TextInputType.number,
+                        validator: FormValidators.validateMacronutrient,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                          suffixText: 'g',
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+                        ),
+                      ),
+                      SizedBox(height: 16.h),
+                      CustomTextField(
+                        controller: mealControllers['fats'],
+                        labelText: 'Fats (Optional)',
+                        keyboardType: TextInputType.number,
+                        validator: FormValidators.validateMacronutrient,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
+                          suffixText: 'g',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
                         ),
                       ),
@@ -172,7 +230,7 @@ class DietFormFields extends StatelessWidget {
                                         }).toList(),
                                         onChanged: (value) {
                                           if (value != null) {
-                                            controller.updateUnit(index, foodIndex, value);
+                                            controller.updateUnit(mealName, foodIndex, value);
                                           }
                                         },
                                       ),
@@ -194,7 +252,7 @@ class DietFormFields extends StatelessWidget {
                                 SizedBox(height: 16.h),
                                 CustomTextField(
                                   controller: f['protein'],
-                                  labelText: 'Protein',
+                                  labelText: 'Protein (Optional)',
                                   keyboardType: TextInputType.number,
                                   validator: FormValidators.validateMacronutrient,
                                   decoration: InputDecoration(
@@ -206,7 +264,7 @@ class DietFormFields extends StatelessWidget {
                                 SizedBox(height: 16.h),
                                 CustomTextField(
                                   controller: f['carbs'],
-                                  labelText: 'Carbohydrates',
+                                  labelText: 'Carbohydrates (Optional)',
                                   keyboardType: TextInputType.number,
                                   validator: FormValidators.validateMacronutrient,
                                   decoration: InputDecoration(
@@ -218,7 +276,7 @@ class DietFormFields extends StatelessWidget {
                                 SizedBox(height: 16.h),
                                 CustomTextField(
                                   controller: f['fats'],
-                                  labelText: 'Fats',
+                                  labelText: 'Fats (Optional)',
                                   keyboardType: TextInputType.number,
                                   validator: FormValidators.validateMacronutrient,
                                   decoration: InputDecoration(
@@ -240,7 +298,7 @@ class DietFormFields extends StatelessWidget {
                                 SizedBox(height: 16.h),
                                 IconButton(
                                   icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-                                  onPressed: () => controller.removeFood(index, foodIndex),
+                                  onPressed: () => controller.removeFood(mealName, foodIndex),
                                 ),
                               ],
                             ),
@@ -250,7 +308,7 @@ class DietFormFields extends StatelessWidget {
                       SizedBox(height: 16.h),
                       CustomButton(
                         text: 'Add Food',
-                        onPressed: () => controller.addFood(index),
+                        onPressed: () => controller.addFood(mealName),
                         icon: Icons.add,
                       ),
                     ],
@@ -261,7 +319,7 @@ class DietFormFields extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           CustomButton(
-            text: 'Add More Meal',
+            text: 'Add Custom Meal',
             onPressed: controller.addMeal,
             icon: Icons.add,
           ),

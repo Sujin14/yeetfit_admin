@@ -9,8 +9,8 @@ class PlanModel {
   final Map<String, dynamic> details;
   final bool isFavorite;
   final Timestamp createdAt;
-  final int totalCalories; // Total calories to eat (diet) or burn (workout)
-  final Map<String, double> totalMacronutrients; // Total protein, carbs, fats for diet
+  final int totalCalories;
+  final Map<String, double> totalMacronutrients;
 
   PlanModel({
     this.id,
@@ -36,7 +36,8 @@ class PlanModel {
       isFavorite: map['isFavorite'] as bool? ?? false,
       createdAt: map['createdAt'] as Timestamp? ?? Timestamp.now(),
       totalCalories: map['totalCalories'] as int? ?? 0,
-      totalMacronutrients: Map<String, double>.from(map['totalMacronutrients'] ?? {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0}),
+      totalMacronutrients: Map<String, double>.from(
+          map['totalMacronutrients'] ?? {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0}),
     );
   }
 

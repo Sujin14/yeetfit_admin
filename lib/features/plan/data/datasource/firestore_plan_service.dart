@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 import '../model/plan_model.dart';
 
 class FirestorePlanService {
@@ -47,7 +46,7 @@ class FirestorePlanService {
           .collection('users')
           .doc(userId)
           .collection(collection)
-          .doc(plan.id);
+          .doc(plan.id ?? firestore.collection('users').doc().id);
       await docRef.set(plan.toMap());
       return true;
     } catch (e) {

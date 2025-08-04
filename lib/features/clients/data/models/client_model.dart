@@ -1,27 +1,29 @@
 class ClientModel {
-  String uid;
+  final String uid;
   final String name;
-  final String email;
-  final String? goal;
-  final double? height;
-  final double? currentWeight;
-  final double? goalWeight;
-  final String? gender;
-  final int? age;
-  final String? activityLevel;
-  final String? profilePicture;
+  final String? email; // Made nullable to accommodate cases where email isn't provided
+  final String? gender; // Made nullable for flexibility
+  final int? age; // Made nullable for flexibility
+  final String? goal; // Already nullable in second model
+  final double? currentWeight; // Made nullable for flexibility
+  final double? goalWeight; // Made nullable for flexibility
+  final double? height; // Made nullable for flexibility
+  final String? activityLevel; // Made nullable for flexibility
+  final int? timeDurationWeeks; // Already nullable in first model
+  final String? profilePicture; // From second model
 
   ClientModel({
     required this.uid,
     required this.name,
-    required this.email,
-    this.goal,
-    this.height,
-    this.currentWeight,
-    this.goalWeight,
+    this.email,
     this.gender,
     this.age,
+    this.goal,
+    this.currentWeight,
+    this.goalWeight,
+    this.height,
     this.activityLevel,
+    this.timeDurationWeeks,
     this.profilePicture,
   });
 
@@ -29,14 +31,15 @@ class ClientModel {
     return ClientModel(
       uid: map['uid'] ?? '',
       name: map['name'] ?? '',
-      email: map['email'] ?? '',
-      goal: map['goal'],
-      height: (map['height'] as num?)?.toDouble(),
-      currentWeight: (map['currentWeight'] as num?)?.toDouble(),
-      goalWeight: (map['goalWeight'] as num?)?.toDouble(),
+      email: map['email'],
       gender: map['gender'],
       age: map['age'],
+      goal: map['goal'],
+      currentWeight: (map['currentWeight'] as num?)?.toDouble(),
+      goalWeight: (map['goalWeight'] as num?)?.toDouble(),
+      height: (map['height'] as num?)?.toDouble(),
       activityLevel: map['activityLevel'],
+      timeDurationWeeks: map['timeDurationWeeks'],
       profilePicture: map['profilePicture'],
     );
   }
@@ -46,13 +49,14 @@ class ClientModel {
       'uid': uid,
       'name': name,
       'email': email,
-      'goal': goal,
-      'height': height,
-      'currentWeight': currentWeight,
-      'goalWeight': goalWeight,
       'gender': gender,
       'age': age,
+      'goal': goal,
+      'currentWeight': currentWeight,
+      'goalWeight': goalWeight,
+      'height': height,
       'activityLevel': activityLevel,
+      'timeDurationWeeks': timeDurationWeeks,
       'profilePicture': profilePicture,
     };
   }
