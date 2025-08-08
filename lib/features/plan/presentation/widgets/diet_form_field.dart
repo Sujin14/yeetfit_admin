@@ -137,9 +137,8 @@ class DietFormFields extends StatelessWidget {
               color: AdminTheme.colors['textPrimary'],
             ),
           ),
-          GetBuilder<DietPlanController>(
-            tag: controllerTag,
-            builder: (controller) => Column(
+          Obx(
+            () => Column(
               children: controller.meals.entries.map((entry) {
                 return MealForm(
                   mealName: entry.key,
@@ -162,7 +161,7 @@ class DietFormFields extends StatelessWidget {
               CustomButton(
                 text: 'Cancel',
                 onPressed: () => Get.back(),
-                icon: Icons.cancel
+                icon: Icons.cancel,
               ),
               CustomButton(
                 text: controller.isEditMode.value ? 'Update Plan' : 'Save Plan',

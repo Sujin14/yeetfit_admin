@@ -16,7 +16,7 @@ class WorkoutFormFields extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutPlanController>(tag: controllerTag);
-    final previewController = Get.put(PreviewController(controllerTag), tag: 'preview-$controllerTag');
+    Get.put(PreviewController(controllerTag), tag: 'preview-$controllerTag');
 
     return Form(
       key: controller.formKey,
@@ -28,8 +28,13 @@ class WorkoutFormFields extends StatelessWidget {
             labelText: 'Workout Plan Title',
             validator: FormValidators.validatePlanTitle,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.title, color: AdminTheme.colors['textSecondary']),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+              prefixIcon: Icon(
+                Icons.title,
+                color: AdminTheme.colors['textSecondary'],
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
             ),
           ),
           SizedBox(height: 16.h),
@@ -38,8 +43,13 @@ class WorkoutFormFields extends StatelessWidget {
             labelText: 'Plan Description (Optional)',
             maxLines: 3,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.description, color: AdminTheme.colors['textSecondary']),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+              prefixIcon: Icon(
+                Icons.description,
+                color: AdminTheme.colors['textSecondary'],
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
             ),
           ),
           SizedBox(height: 16.h),
@@ -49,30 +59,33 @@ class WorkoutFormFields extends StatelessWidget {
             keyboardType: TextInputType.number,
             validator: FormValidators.validateCalories,
             decoration: InputDecoration(
-              prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
+              prefixIcon: Icon(
+                Icons.local_fire_department,
+                color: AdminTheme.colors['textSecondary'],
+              ),
               suffixText: 'cal',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8.r),
+              ),
             ),
           ),
           SizedBox(height: 16.h),
           Text(
             'Exercises',
-            style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
+            style: AdminTheme.textStyles['title']!.copyWith(
+              color: AdminTheme.colors['textPrimary'],
+            ),
           ),
-          GetBuilder<WorkoutPlanController>(
-            tag: controllerTag,
-            builder: (_) {
-              previewController.initialize(controller.exercises.length);
-              return Column(
-                children: controller.exercises.asMap().entries.map((entry) {
-                  return ExerciseForm(
-                    exercise: entry.value,
-                    index: entry.key,
-                    controllerTag: controllerTag,
-                  );
-                }).toList(),
-              );
-            },
+          Obx(
+            () => Column(
+              children: controller.exercises.asMap().entries.map((entry) {
+                return ExerciseForm(
+                  exercise: entry.value,
+                  index: entry.key,
+                  controllerTag: controllerTag,
+                );
+              }).toList(),
+            ),
           ),
           SizedBox(height: 16.h),
           CustomButton(
@@ -87,7 +100,7 @@ class WorkoutFormFields extends StatelessWidget {
               CustomButton(
                 text: 'Cancel',
                 onPressed: () => Get.back(),
-                icon: Icons.cancel
+                icon: Icons.cancel,
               ),
               CustomButton(
                 text: controller.isEditMode.value ? 'Update Plan' : 'Save Plan',

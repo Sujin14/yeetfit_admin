@@ -11,6 +11,7 @@ import '../../domain/usecases/assign_plan.dart';
 import '../../domain/usecases/delete_plan.dart';
 import '../../domain/usecases/get_client_plans.dart';
 import 'base_plan_controller.dart.dart';
+import 'preview_controller.dart';
 
 class WorkoutPlanController extends BasePlanController {
   final exercises = <Map<String, dynamic>>[].obs;
@@ -36,6 +37,8 @@ class WorkoutPlanController extends BasePlanController {
     descriptionController.clear();
     exercises.clear();
     totalCaloriesController.clear();
+
+    final previewController = Get.put(PreviewController('$userId-$planType'), tag: 'preview-plan-$userId-$planType');
 
     if (isEditMode.value && args?['plan'] != null) {
       final PlanModel plan = args['plan'];
@@ -68,8 +71,10 @@ class WorkoutPlanController extends BasePlanController {
           };
         }).toList(),
       );
+      previewController.initialize(exercises.length);
     } else {
       addExercise();
+      previewController.initialize(exercises.length);
     }
     isLoading.value = false;
   }
@@ -93,15 +98,8 @@ class WorkoutPlanController extends BasePlanController {
         'videoUrl': TextEditingController(),
       },
     });
-    exercises.refresh();
-    update();
-  }
-
-  void addInstruction(int exerciseIndex) {
-    exercises[exerciseIndex]['instructions'].add({
-      'text': '',
-      'controller': TextEditingController(),
-    });
+    final previewController = Get.find<PreviewController>(tag: 'preview-plan-$userId-$planType');
+    previewController.initialize(exercises.length);
     exercises.refresh();
     update();
   }
@@ -113,19 +111,30 @@ class WorkoutPlanController extends BasePlanController {
     for (var c in controllers.values) {
       c.dispose();
     }
-    for (var instr in exercises[index]['instructions']) {
-      instr['controller'].dispose();
+    for (final instr in exercises[index]['instructions']) {
+      (instr['controller'] as TextEditingController).dispose();
     }
     exercises.removeAt(index);
+    final previewController = Get.find<PreviewController>(tag: 'preview-plan-$userId-$planType');
+    previewController.initialize(exercises.length);
     exercises.refresh();
     update();
     return true;
   }
 
+  void addInstruction(int exerciseIndex) {
+    exercises[exerciseIndex]['instructions'].add({
+      'text': '',
+      'controller': TextEditingController(),
+    });
+    exercises.refresh();
+    update();
+  }
+
   Future<bool> removeInstruction(int exerciseIndex, int instructionIndex) async {
     final confirmed = await showConfirmationDialog('instruction');
     if (!confirmed) return false;
-    exercises[exerciseIndex]['instructions'][instructionIndex]['controller'].dispose();
+    (exercises[exerciseIndex]['instructions'][instructionIndex]['controller'] as TextEditingController).dispose();
     exercises[exerciseIndex]['instructions'].removeAt(instructionIndex);
     exercises.refresh();
     update();
@@ -141,6 +150,7 @@ class WorkoutPlanController extends BasePlanController {
 
   void updateSets(int index, String sets) {
     exercises[index]['controllers']['sets'].text = sets;
+    exercises[index]['sets'] = sets;
     exercises.refresh();
     update();
   }
@@ -149,17 +159,21 @@ class WorkoutPlanController extends BasePlanController {
   Future<bool> savePlan() async {
     if (userId.value.isEmpty) {
       error.value = 'No client selected. Please try again.';
-      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     }
 
     if (formKey.currentState == null || !formKey.currentState!.validate()) {
+      error.value = 'Please fill all required fields';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     }
 
     final plan = PlanModel(
       id: isEditMode.value ? planId.value : null,
-      title: titleController.text.trim().isEmpty ? 'Unnamed Plan' : titleController.text.trim(),
+      title: titleController.text.trim().isEmpty ? 'Unnamed Workout Plan' : titleController.text.trim(),
       type: planType,
       userId: userId.value,
       assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
@@ -169,18 +183,18 @@ class WorkoutPlanController extends BasePlanController {
           return {
             'name': exercise['controllers']['name'].text.trim(),
             'repsType': exercise['repsType'],
-            'reps': exercise['controllers']['reps'].text.trim(),
-            'sets': exercise['controllers']['sets'].text.trim(),
+            'reps': int.tryParse(exercise['controllers']['reps'].text.trim()) ?? 0,
+            'sets': int.tryParse(exercise['controllers']['sets'].text.trim()) ?? 0,
             'description': exercise['controllers']['description'].text.trim(),
             'instructions': (exercise['instructions'] as List).map((instr) {
-              return {'text': instr['controller'].text.trim()};
+              return {'text': (instr['controller'] as TextEditingController).text.trim()};
             }).toList(),
             'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
           };
         }).toList(),
       },
       totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
-      totalMacronutrients: {}, // Not used for workouts
+      totalMacronutrients: {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0},
       isFavorite: isEditMode.value ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ?? false : false,
       createdAt: Timestamp.now(),
     );
@@ -196,12 +210,14 @@ class WorkoutPlanController extends BasePlanController {
             backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
       } else {
         error.value = 'Failed to save plan';
-        Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+        Get.snackbar('Error', error.value,
+            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       }
       return success;
     } catch (e) {
       error.value = 'Error saving plan: $e';
-      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     } finally {
       isLoading.value = false;
@@ -210,12 +226,12 @@ class WorkoutPlanController extends BasePlanController {
 
   @override
   void onClose() {
-    for (final ex in exercises) {
-      for (var c in (ex['controllers'] as Map<String, TextEditingController>).values) {
+    for (final exercise in exercises) {
+      for (var c in (exercise['controllers'] as Map<String, TextEditingController>).values) {
         c.dispose();
       }
-      for (var c in (ex['instructions'] as List<Map<String, dynamic>>).map((i) => i['controller']).cast<TextEditingController>()) {
-        c.dispose();
+      for (final instr in exercise['instructions']) {
+        (instr['controller'] as TextEditingController).dispose();
       }
     }
     totalCaloriesController.dispose();

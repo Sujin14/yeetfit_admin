@@ -312,11 +312,15 @@ class DietPlanController extends BasePlanController {
   Future<bool> savePlan() async {
     if (userId.value.isEmpty) {
       error.value = 'No client selected. Please try again.';
-      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     }
 
     if (formKey.currentState == null || !formKey.currentState!.validate()) {
+      error.value = 'Please fill all required fields';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     }
 
@@ -372,12 +376,14 @@ class DietPlanController extends BasePlanController {
             backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
       } else {
         error.value = 'Failed to save plan';
-        Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+        Get.snackbar('Error', error.value,
+            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       }
       return success;
     } catch (e) {
       error.value = 'Error saving plan: $e';
-      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     } finally {
       isLoading.value = false;

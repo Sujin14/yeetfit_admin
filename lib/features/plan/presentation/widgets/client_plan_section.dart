@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../clients/presentation/controllers/client_details_controller.dart';
 
@@ -18,20 +19,50 @@ class ClientPlansSection extends StatelessWidget {
         children: [
           Text(
             'Plan Management',
-            style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['textPrimary']),
+            style: AdminTheme.textStyles['title']!.copyWith(
+              color: AdminTheme.colors['textPrimary'],
+            ),
           ),
           SizedBox(height: 8.h),
           ListTile(
-            leading: Image.asset('assets/images/diet.png', width: 50.w, height: 50.h),
-            title: Text('Diet Plans', style: AdminTheme.textStyles['body']),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
-            onTap: () => controller.navigateToManageDietPlans(),
+            leading: Image.asset(
+              'assets/images/diet.png',
+              width: 50.w,
+              height: 50.h,
+            ),
+            title: Text(
+              'Diet Plans',
+              style: AdminTheme.textStyles['body'],
+            ),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 16.w,
+              color: AdminTheme.colors['textSecondary'],
+            ),
+            onTap: () => AppRoutes.debounceNavigate(
+              '/home/plan-list',
+              arguments: {'uid': controller.uid.value, 'type': 'diet'},
+            ),
           ),
           ListTile(
-            leading: Image.asset('assets/images/workouts.png', width: 50.w, height: 50.h),
-            title: Text('Workout Plans', style: AdminTheme.textStyles['body']),
-            trailing: Icon(Icons.arrow_forward_ios, size: 16, color: AdminTheme.colors['textSecondary']),
-            onTap: () => controller.navigateToManageWorkoutPlans(),
+            leading: Image.asset(
+              'assets/images/workouts.png',
+              width: 50.w,
+              height: 50.h,
+            ),
+            title: Text(
+              'Workout Plans',
+              style: AdminTheme.textStyles['body'],
+            ),
+            trailing: Icon(
+              Icons.arrow_forward_ios,
+              size: 16.w,
+              color: AdminTheme.colors['textSecondary'],
+            ),
+            onTap: () => AppRoutes.debounceNavigate(
+              '/home/plan-list',
+              arguments: {'uid': controller.uid.value, 'type': 'workout'},
+            ),
           ),
         ],
       ),
