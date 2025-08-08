@@ -14,7 +14,9 @@ class ClientDetailsCard extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       child: Card(
         elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
           child: Column(
@@ -22,23 +24,26 @@ class ClientDetailsCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                    radius: 24.r,
-                    backgroundColor: AdminTheme.colors['secondary'],
-                    backgroundImage: client.profilePicture?.isNotEmpty == true
-                        ? NetworkImage(client.profilePicture!)
-                        : null,
-                    child: client.profilePicture?.isEmpty != false
-                        ? Text(
-                            client.name.isNotEmpty
-                                ? client.name[0].toUpperCase()
-                                : '',
-                            style: AdminTheme.textStyles['body']!.copyWith(
-                              color: Colors.white,
-                              fontSize: 16.sp,
-                            ),
-                          )
-                        : null,
+                  Hero(
+                    tag: 'client-avatar-${client.uid}',
+                    child: CircleAvatar(
+                      radius: 24.r,
+                      backgroundColor: AdminTheme.colors['secondary'],
+                      backgroundImage: client.profilePicture?.isNotEmpty == true
+                          ? NetworkImage(client.profilePicture!)
+                          : null,
+                      child: client.profilePicture?.isNotEmpty != true
+                          ? Text(
+                              client.name.isNotEmpty
+                                  ? client.name[0].toUpperCase()
+                                  : '',
+                              style: AdminTheme.textStyles['body']!.copyWith(
+                                color: Colors.white,
+                                fontSize: 16.sp,
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
                   SizedBox(width: 16.w),
                   Text(
@@ -50,10 +55,7 @@ class ClientDetailsCard extends StatelessWidget {
                 ],
               ),
               SizedBox(height: 16.h),
-              Text(
-                'Email: ${client.email}',
-                style: AdminTheme.textStyles['body'],
-              ),
+
               Text(
                 'Goal: ${client.goal ?? 'Not set'}',
                 style: AdminTheme.textStyles['body'],

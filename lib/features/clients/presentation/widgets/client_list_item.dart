@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../data/models/client_model.dart';
 
 class ClientListItem extends StatelessWidget {
@@ -16,20 +19,49 @@ class ClientListItem extends StatelessWidget {
       elevation: 2,
       child: ListTile(
         contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        leading: CircleAvatar(
-          radius: 24.r,
-          backgroundColor: AdminTheme.colors['primary']?.withOpacity(0.1),
-          backgroundImage: client.profilePicture?.isNotEmpty == true
-              ? NetworkImage(client.profilePicture!)
-              : null,
-          child: client.profilePicture?.isEmpty != false
-              ? Text(
-                  client.name.isNotEmpty ? client.name[0] : '',
-                  style: AdminTheme.textStyles['body']!.copyWith(
-                    color: AdminTheme.colors['textPrimary'],
-                  ),
-                )
-              : null,
+        leading: Hero(
+          tag: 'client-avatar-${client.uid}',
+          child: Material(
+            color: Colors.transparent,
+            child: CircleAvatar(
+              radius: 24.r,
+              backgroundColor: AdminTheme.colors['primary']?.withOpacity(0.1),
+              child: client.profilePicture?.isNotEmpty == true
+                  ? ClipOval(
+                      child: CachedNetworkImage(
+                        imageUrl: client.profilePicture!,
+                        width: 48.r,
+                        height: 48.r,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: AdminTheme.colors['black']!,
+                          highlightColor: AdminTheme.colors['surface']!,
+                          child: Container(
+                            width: 48.r,
+                            height: 48.r,
+                            color: Colors.white,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Text(
+                          client.name.isNotEmpty
+                              ? client.name[0].toUpperCase()
+                              : '',
+                          style: AdminTheme.textStyles['body']!.copyWith(
+                            color: AdminTheme.colors['textPrimary'],
+                          ),
+                        ),
+                      ),
+                    )
+                  : Text(
+                      client.name.isNotEmpty
+                          ? client.name[0].toUpperCase()
+                          : '',
+                      style: AdminTheme.textStyles['body']!.copyWith(
+                        color: AdminTheme.colors['textPrimary'],
+                      ),
+                    ),
+            ),
+          ),
         ),
         title: Text(
           client.name,
@@ -42,9 +74,11 @@ class ClientListItem extends StatelessWidget {
           size: 16.w,
           color: AdminTheme.colors['textSecondary'],
         ),
-        onTap: () async {
+        onTap: () {
           if (client.uid.isEmpty) {
-            print('ClientListItem: Cannot navigate, client UID is null or empty');
+            print(
+              'ClientListItem: Cannot navigate, client UID is null or empty',
+            );
             Get.snackbar(
               'Error',
               'Cannot navigate to client details: Invalid client ID',
@@ -53,22 +87,17 @@ class ClientListItem extends StatelessWidget {
             );
             return;
           }
-          print('ClientListItem: Navigating to /home/client-details with UID: ${client.uid}');
-          try {
-            await Get.toNamed(
-              '/home/client-details',
-              arguments: {'uid': client.uid},
-            );
-            print('ClientListItem: Navigation to /home/client-details completed');
-          } catch (e) {
-            print('ClientListItem: Navigation error - $e');
-            Get.snackbar(
-              'Error',
-              'Navigation failed: $e',
-              backgroundColor: AdminTheme.colors['error'],
-              colorText: AdminTheme.colors['surface'],
-            );
-          }
+          print(
+            'ClientListItem: Navigating to /home/client-details with UID: ${client.uid}',
+          );
+          AppRoutes.debounceNavigate(
+            '/home/client-details',
+            arguments: {
+              'uid': client.uid,
+              'name': client.name,
+              'profilePicture': client.profilePicture ?? '',
+            },
+          );
         },
       ),
     );

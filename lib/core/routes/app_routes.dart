@@ -176,14 +176,27 @@ class AppRoutes {
       return '/';
     }
 
-    // Only redirect if currentRoute is explicitly "/" or "/signup"
     if (currentRoute == '/' || currentRoute == '/signup') {
       print('AppRoutes.redirect: Admin user, redirecting to /home');
       return '/home';
     }
 
-    // Allow all other routes, including null (initial)
     print('AppRoutes.redirect: Allowing navigation to $currentRoute');
     return null;
   }
+
+  static void debounceNavigate(String route, {dynamic arguments}) {
+    if (!_isNavigating) {
+      _isNavigating = true;
+      print('AppRoutes.debounceNavigate: Navigating to $route with arguments: $arguments');
+      Get.toNamed(route, arguments: arguments);
+      Future.delayed(const Duration(milliseconds: 500), () {
+        _isNavigating = false;
+      });
+    } else {
+      print('AppRoutes.debounceNavigate: Navigation to $route blocked due to debounce');
+    }
+  }
+
+  static bool _isNavigating = false;
 }

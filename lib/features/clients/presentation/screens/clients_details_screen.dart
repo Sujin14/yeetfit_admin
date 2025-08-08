@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_appbar.dart';
-import '../../../chat/presentation/screens/chat_screen.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../controllers/client_details_controller.dart';
 import '../widgets/client_details_body.dart';
 
@@ -25,8 +25,8 @@ class ClientDetailsScreen extends GetView<ClientDetailsController> {
               : controller.clientName.value,
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => Get.toNamed(
-            ChatScreen.routeName,
+          onPressed: () => AppRoutes.debounceNavigate(
+            '/home/client-details/chat',
             arguments: {
               'participantId': controller.uid.value,
               'participantName': controller.clientName.value,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
 import '../controllers/client_list_controller.dart';
@@ -21,7 +22,7 @@ class ClientsListBody extends StatelessWidget {
           onRetry: () => controller.retryFetchClients(),
         );
       } else if (controller.isLoading.value) {
-        return const Center(child: CircularProgressIndicator());
+        return _ShimmerClientList();
       } else if (controller.filteredClients.isEmpty) {
         return Center(
           child: Text(
@@ -47,5 +48,42 @@ class ClientsListBody extends StatelessWidget {
         );
       }
     });
+  }
+}
+
+class _ShimmerClientList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AdminTheme.colors['black']!,
+      highlightColor: AdminTheme.colors['surface']!,
+      child: ListView.separated(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        itemCount: 5,
+        separatorBuilder: (_, __) => SizedBox(height: 8.h),
+        itemBuilder: (context, index) {
+          return Card(
+            margin: EdgeInsets.symmetric(vertical: 4.h),
+            elevation: 2,
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
+              ),
+              leading: CircleAvatar(
+                radius: 24.r,
+                backgroundColor: Colors.white,
+              ),
+              title: Container(width: 100.w, height: 16.h, color: Colors.white),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: 16.w,
+                color: Colors.white,
+              ),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

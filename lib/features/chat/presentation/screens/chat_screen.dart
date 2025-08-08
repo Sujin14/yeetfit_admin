@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/shimmer_loading.dart';
+import '../widgets/chat_shimmer_loading.dart';
 import '../../data/model/message_model.dart';
 import '../controllers/chat_controller.dart';
 import '../widgets/chat_header.dart';
@@ -31,7 +31,7 @@ class ChatScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoadingMessages.value) {
-          return shimmerLoading();
+          return chatShimmerLoading();
         }
         return Column(
           children: [
@@ -58,7 +58,10 @@ class ChatScreen extends StatelessWidget {
                   ),
                   if (controller.participantTyping.value)
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 8.h,
+                        horizontal: 16.w,
+                      ),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(

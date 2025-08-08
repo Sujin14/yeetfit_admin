@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
 import '../../../plan/presentation/widgets/client_plan_section.dart';
@@ -17,9 +18,7 @@ class ClientDetailsBody extends StatelessWidget {
 
     return Obx(() {
       if (controller.isLoading.value) {
-        return Center(
-          child: CircularProgressIndicator(color: AdminTheme.colors['primary']),
-        );
+        return _ShimmerLoading();
       }
 
       if (controller.isInvalidUid.value) {
@@ -99,6 +98,50 @@ class _InvalidUidWidget extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ShimmerLoading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: AdminTheme.colors['black']!,
+      highlightColor: AdminTheme.colors['surface']!,
+      child: SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 200.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              width: double.infinity,
+              height: 150.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Container(
+              width: double.infinity,
+              height: 150.h,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
