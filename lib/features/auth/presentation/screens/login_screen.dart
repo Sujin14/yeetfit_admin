@@ -2,21 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/gradient_widget.dart';
+import '../controllers/auth_controller.dart';
+import '../widgets/auth_nav_link.dart';
 import '../widgets/login_form.dart';
 import '../widgets/login_header.dart';
 
-// Displays the login screen with a gradient background and form
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final authController = Get.find<AuthController>();
+
     return Scaffold(
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        // Applies gradient background for visual appeal
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -31,13 +32,12 @@ class LoginScreen extends StatelessWidget {
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
-              physics: BouncingScrollPhysics(),
+              physics: const BouncingScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(height: 10.h),
-                  // Displays app logo
                   Image.asset('assets/images/yeet_icon.png', height: 100.h),
                   SizedBox(height: 40.h),
                   Card(
@@ -47,7 +47,10 @@ class LoginScreen extends StatelessWidget {
                     ),
                     color: AdminTheme.colors['surface']!.withOpacity(0.95),
                     child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 32.h),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 32.h,
+                      ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: const [
@@ -58,32 +61,14 @@ class LoginScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20.h),
-                  // Navigates to sign-up screen with gradient text for styling
-                  TextButton(
-                    onPressed: () => Get.toNamed('/signup'),
-                    child: RichText(
-                      text: TextSpan(
-                        style: AdminTheme.textStyles['body'],
-                        children: [
-                          const TextSpan(text: "Don't have an account? "),
-                          WidgetSpan(
-                            alignment: PlaceholderAlignment.baseline,
-                            baseline: TextBaseline.alphabetic,
-                            child: GradientText(
-                              text: 'Sign Up',
-                              style: AdminTheme.textStyles['title']!,
-                              gradient: LinearGradient(
-                                colors: [
-                                  AdminTheme.colors['signupGradientStart']!,
-                                  AdminTheme.colors['signupGradientEnd']!,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  AuthNavLink(
+                    prefixText: "Don't have an account? ",
+                    linkText: 'Sign Up',
+                    onPressed: authController.navigateToSignUp,
+                    gradientColors: [
+                      AdminTheme.colors['signupGradientStart']!,
+                      AdminTheme.colors['signupGradientEnd']!,
+                    ],
                   ),
                 ],
               ),

@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/form_validators.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../../../../core/widgets/custom_text_field.dart';
 import '../controllers/auth_controller.dart';
+import 'auth_button.dart';
+import 'auth_text_field.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -14,55 +12,40 @@ class LoginForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    final formKey = GlobalKey<FormState>();
-    final emailController = TextEditingController();
-    final passwordController = TextEditingController();
 
-    return Obx(
-      () => Form(
-        key: formKey,
-        child: Column(
-          children: [
-            CustomTextField(
-              controller: emailController,
-              labelText: 'Email',
-              keyboardType: TextInputType.emailAddress,
-              validator: FormValidators.validateEmail,
-            ),
-            CustomTextField(
-              controller: passwordController,
+    return Form(
+      key: authController.loginFormKey,
+      child: Column(
+        children: [
+          AuthTextField(
+            controller: authController.loginEmailController,
+            labelText: 'Email',
+            keyboardType: TextInputType.emailAddress,
+            validator: FormValidators.validateEmail,
+          ),
+          Obx(
+            () => AuthTextField(
+              controller: authController.loginPasswordController,
               labelText: 'Password',
-              obscureText: true,
+              obscureText: !authController.showLoginPassword.value,
               validator: FormValidators.validatePassword,
-            ),
-            SizedBox(height: 24.h),
-            CustomButton(
-              text: 'Login',
-              isLoading: authController.isLoading.value,
-              onPressed: () async {
-                if (formKey.currentState!.validate()) {
-                  final success = await authController.login(
-                    emailController.text.trim(),
-                    passwordController.text.trim(),
-                  );
-                  if (success) {
-                    Get.offAllNamed('/home/dashboard');
-                  }
-                }
-              },
-            ),
-            SizedBox(height: 16.h),
-            TextButton(
-              onPressed: () => Get.toNamed('/signup'),
-              child: Text(
-                'Create Admin Account',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  color: AdminTheme.colors['primary'],
+              suffixIcon: IconButton(
+                icon: Icon(
+                  authController.showLoginPassword.value
+                      ? Icons.visibility
+                      : Icons.visibility_off,
+                  color: AdminTheme.colors['textSecondary'],
                 ),
+                onPressed: authController.toggleLoginPasswordVisibility,
               ),
             ),
-          ],
-        ),
+          ),
+          AuthButton(
+            text: 'Login',
+            isLoading: authController.isLoading.value,
+            onPressed: authController.login,
+          ),
+        ],
       ),
     );
   }
