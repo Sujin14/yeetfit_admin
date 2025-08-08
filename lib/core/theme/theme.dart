@@ -25,6 +25,7 @@ class AdminTheme {
     'signupGradientEnd': Color(0xFFF8DC65),
     'editIcon': Color(0xFF2196F3),
     'deleteIcon': Color(0xFFD32F2F),
+    'black': Color.fromRGBO(0, 0, 0, 0.658)
   };
 
   // Text styles using Google Fonts for consistent typography

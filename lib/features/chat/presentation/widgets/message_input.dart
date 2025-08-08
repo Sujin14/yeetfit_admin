@@ -24,25 +24,16 @@ class MessageInput extends StatelessWidget {
               decoration: InputDecoration(
                 fillColor: AdminTheme.colors['inputBackground'],
                 filled: true,
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 12.h,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.r),
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.r),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(24.r),
-                ),
+                contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(24.r)),
+                enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24.r)),
+                focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(24.r)),
               ),
             ),
           ),
           SizedBox(width: 8.w),
           IconButton(
-            icon: Icon(Icons.send_rounded, color: AdminTheme.colors['primary'],size: 45,),
+            icon: Icon(Icons.send_rounded, color: AdminTheme.colors['primary'], size: 45),
             onPressed: controller.sendMessages,
           ),
         ],

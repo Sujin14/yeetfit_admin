@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/date_utils.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
 import '../../data/model/message_model.dart';
 import '../controllers/chat_controller.dart';
 import '../widgets/chat_header.dart';
@@ -16,7 +16,7 @@ class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key});
 
   @override
-  Widget build(context) {
+  Widget build(BuildContext context) {
     final controller = Get.find<ChatController>();
     final args = Get.arguments as Map<String, dynamic>;
     final participantId = args['participantId'] as String;
@@ -31,9 +31,8 @@ class ChatScreen extends StatelessWidget {
       ),
       body: Obx(() {
         if (controller.isLoadingMessages.value) {
-          return const Center(child: CircularProgressIndicator());
+          return shimmerLoading();
         }
-
         return Column(
           children: [
             Expanded(
@@ -42,12 +41,9 @@ class ChatScreen extends StatelessWidget {
                   Expanded(
                     child: ListView.builder(
                       reverse: false,
-                      itemCount: _calculateItemCount(controller.messages),
+                      itemCount: controller.messageItems.length,
                       itemBuilder: (context, index) {
-                        final item = _getItemAtIndex(
-                          controller.messages,
-                          index,
-                        );
+                        final item = controller.messageItems[index];
                         if (item is String) {
                           return DateSeparator(dateText: item);
                         } else if (item is MessageModel) {
@@ -62,10 +58,7 @@ class ChatScreen extends StatelessWidget {
                   ),
                   if (controller.participantTyping.value)
                     Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 8.h,
-                        horizontal: 16.w,
-                      ),
+                      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: Text(
@@ -84,55 +77,5 @@ class ChatScreen extends StatelessWidget {
         );
       }),
     );
-  }
-
-  // Calculate total item count (messages + date separators)
-  int _calculateItemCount(RxList<MessageModel> messages) {
-    if (messages.isEmpty) return 0;
-    int count = messages.length;
-    DateTime? lastDate;
-    for (var message in messages.reversed) {
-      final currentDate = DateTime(
-        message.timestamp.year,
-        message.timestamp.month,
-        message.timestamp.day,
-      );
-      if (lastDate == null || currentDate != lastDate) {
-        count++; // Add a date separator
-        lastDate = currentDate;
-      }
-    }
-    return count;
-  }
-
-  // Get item at index (either a MessageModel or a date string)
-  dynamic _getItemAtIndex(RxList<MessageModel> messages, int index) {
-    if (messages.isEmpty) return null;
-    final reversedMessages = messages.reversed.toList();
-    int currentIndex = 0;
-    DateTime? lastDate;
-
-    for (int i = 0; i < reversedMessages.length; i++) {
-      final message = reversedMessages[i];
-      final currentDate = DateTime(
-        message.timestamp.year,
-        message.timestamp.month,
-        message.timestamp.day,
-      );
-
-      if (lastDate == null || currentDate != lastDate) {
-        if (currentIndex == index) {
-          return getFormattedDate(message.timestamp);
-        }
-        currentIndex++;
-        lastDate = currentDate;
-      }
-
-      if (currentIndex == index) {
-        return message;
-      }
-      currentIndex++;
-    }
-    return null;
   }
 }

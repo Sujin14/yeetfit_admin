@@ -1,10 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
-import 'package:yeetfit_admin/features/chat/data/model/message_model.dart';
 import '../../../../core/theme/theme.dart';
+import '../../data/model/message_model.dart';
 import '../controllers/chat_controller.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -29,9 +28,7 @@ class MessageBubble extends StatelessWidget {
           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             GestureDetector(
-              onLongPress: () {
-                _showMessageOptions(context);
-              },
+              onLongPress: () => controller.showMessageOptions(context, message),
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.7),
                 child: Container(
@@ -53,7 +50,7 @@ class MessageBubble extends StatelessWidget {
                     overflow: TextOverflow.visible,
                     style: AdminTheme.textStyles['bodyMedium']?.copyWith(
                       color: isMe
-                          ? AdminTheme.colors['surface'] 
+                          ? AdminTheme.colors['surface']
                           : AdminTheme.colors['onSurface'],
                     ),
                   ),
@@ -94,53 +91,5 @@ class MessageBubble extends StatelessWidget {
       default:
         return const SizedBox.shrink();
     }
-  }
-
-  void _showMessageOptions(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: Text(
-            'Message Options',
-            style: AdminTheme.textStyles['titleMedium'],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: Text(
-                  'Copy',
-                  style: AdminTheme.textStyles['bodyMedium'],
-                ),
-                onTap: () {
-                  Clipboard.setData(ClipboardData(text: message.content));
-                  Navigator.of(context).pop();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text("Message copied to clipboard"),
-                      backgroundColor: AdminTheme.colors['primary'],
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                title: Text(
-                  'Delete',
-                  style: AdminTheme.textStyles['bodyMedium']?.copyWith(
-                    color: AdminTheme.colors['error'],
-                  ),
-                ),
-                onTap: () {
-                  controller.deleteMessages(message.id);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }

@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
+import 'package:intl/intl.dart';
 import '../../../../core/theme/theme.dart';
 import '../../data/model/message_model.dart';
 import '../../domain/use_cases/create_or_get_chat.dart';
@@ -48,9 +49,15 @@ class ChatController extends GetxController {
   final participantTyping = false.obs;
   final participantName = ''.obs;
   final participantImage = ''.obs;
+  final messageItems = <dynamic>[].obs; // Messages and date separators
   String? _chatId;
   String? _participantId;
 
+  @override
+  void onClose() {
+    messageController.dispose();
+    super.onClose();
+  }
 
   void setupChat(String participantId) {
     _participantId = participantId;
@@ -59,63 +66,101 @@ class ChatController extends GetxController {
     participantImage.value = args['participantImage'] as String? ?? '';
     final adminId = FirebaseAuth.instance.currentUser?.uid ?? '';
     if (adminId.isEmpty) {
-      Get.snackbar('Error', 'User not authenticated',
-          backgroundColor: AdminTheme.colors['error'],
-          colorText: AdminTheme.colors['onError']);
+      Get.snackbar(
+        'Error',
+        'User not authenticated',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['onError'],
+      );
       return;
     }
-    createOrGetChat(adminId, participantId, participantName.value).then((chatId) {
-      _chatId = chatId;
-      getChatMessages(chatId).listen((data) {
-        messages.assignAll(data);
-        isLoadingMessages.value = false;
-        if (data.isEmpty) {
-          Get.snackbar('Info', 'No messages yet. Start the conversation!',
-              backgroundColor: AdminTheme.colors['primary'],
-              colorText: AdminTheme.colors['onPrimary'],
-              duration: const Duration(seconds: 3));
-        }
-        for (var message in data) {
-          if (message.senderId != adminId && message.status != 'read') {
-            updateMessageStatus(chatId, message.id, 'read');
-          }
-        }
-      }, onError: (e) {
-        isLoadingMessages.value = false;
-        Get.snackbar('Error', 'Failed to load messages: $e',
+    createOrGetChat(adminId, participantId, participantName.value)
+        .then((chatId) {
+          _chatId = chatId;
+          getChatMessages(chatId).listen(
+            (data) {
+              messages.assignAll(data);
+              _updateMessageItems(data);
+              isLoadingMessages.value = false;
+              if (data.isEmpty) {
+                Get.snackbar(
+                  'Info',
+                  'No messages yet. Start the conversation!',
+                  backgroundColor: AdminTheme.colors['primary'],
+                  colorText: AdminTheme.colors['onPrimary'],
+                  duration: const Duration(seconds: 3),
+                );
+              }
+              for (var message in data) {
+                if (message.senderId != adminId && message.status != 'read') {
+                  updateMessageStatus(chatId, message.id, 'read');
+                }
+              }
+            },
+            onError: (e) {
+              isLoadingMessages.value = false;
+              Get.snackbar(
+                'Error',
+                'Failed to load messages: $e',
+                backgroundColor: AdminTheme.colors['error'],
+                colorText: AdminTheme.colors['onError'],
+              );
+            },
+          );
+          getTypingStatus(chatId, participantId).listen(
+            (typing) {
+              participantTyping.value = typing;
+            },
+            onError: (e) {
+              Get.snackbar(
+                'Error',
+                'Failed to load typing status: $e',
+                backgroundColor: AdminTheme.colors['error'],
+                colorText: AdminTheme.colors['onError'],
+              );
+            },
+          );
+          getUserProfile(participantId).listen(
+            (profile) {
+              participantName.value = profile['name'] ?? participantName.value;
+              participantImage.value =
+                  profile['profileImage'] ?? participantImage.value;
+            },
+            onError: (e) {
+              Get.snackbar(
+                'Error',
+                'Failed to load user profile: $e',
+                backgroundColor: AdminTheme.colors['error'],
+                colorText: AdminTheme.colors['onError'],
+              );
+            },
+          );
+        })
+        .catchError((e) {
+          isLoadingMessages.value = false;
+          Get.snackbar(
+            'Error',
+            'Failed to setup chat: $e',
             backgroundColor: AdminTheme.colors['error'],
-            colorText: AdminTheme.colors['onError']);
-      });
-      getTypingStatus(chatId, participantId).listen((typing) {
-        participantTyping.value = typing;
-      }, onError: (e) {
-        Get.snackbar('Error', 'Failed to load typing status: $e',
-            backgroundColor: AdminTheme.colors['error'],
-            colorText: AdminTheme.colors['onError']);
-      });
-      getUserProfile(participantId).listen((profile) {
-        participantName.value = profile['name'] ?? participantName.value;
-        participantImage.value = profile['profileImage'] ?? participantImage.value;
-      }, onError: (e) {
-        Get.snackbar('Error', 'Failed to load user profile: $e',
-            backgroundColor: AdminTheme.colors['error'],
-            colorText: AdminTheme.colors['onError']);
-      });
-    }).catchError((e) {
-      isLoadingMessages.value = false;
-      Get.snackbar('Error', 'Failed to setup chat: $e',
-          backgroundColor: AdminTheme.colors['error'],
-          colorText: AdminTheme.colors['onError']);
-    });
+            colorText: AdminTheme.colors['onError'],
+          );
+        });
   }
 
   void updateMessage(String value) {
     messageText.value = value;
-    updateTypingStatus(_chatId!, FirebaseAuth.instance.currentUser!.uid, value.isNotEmpty);
+    updateTypingStatus(
+      _chatId!,
+      FirebaseAuth.instance.currentUser!.uid,
+      value.isNotEmpty,
+    );
   }
 
   Future<void> sendMessages() async {
-    if (messageText.value.trim().isEmpty || _chatId == null || _participantId == null) return;
+    if (messageText.value.trim().isEmpty ||
+        _chatId == null ||
+        _participantId == null)
+      return;
 
     final adminId = FirebaseAuth.instance.currentUser?.uid ?? '';
     final message = MessageModel(
@@ -147,9 +192,114 @@ class ChatController extends GetxController {
     }
   }
 
-  @override
-  void onClose() {
-    messageController.dispose();
-    super.onClose();
+  void showMessageOptions(BuildContext context, MessageModel message) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: Text(
+          'Message Options',
+          style: AdminTheme.textStyles['titleMedium'],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text('Copy', style: AdminTheme.textStyles['bodyMedium']),
+              onTap: () {
+                Clipboard.setData(ClipboardData(text: message.content));
+                Get.back();
+                Get.snackbar(
+                  'Success',
+                  'Message copied to clipboard',
+                  backgroundColor: AdminTheme.colors['primary'],
+                  colorText: AdminTheme.colors['onPrimary'],
+                );
+              },
+            ),
+            ListTile(
+              title: Text(
+                'Delete',
+                style: AdminTheme.textStyles['bodyMedium']?.copyWith(
+                  color: AdminTheme.colors['error'],
+                ),
+              ),
+              onTap: () {
+                deleteMessages(message.id);
+                Get.back();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void showDeleteChatDialog(BuildContext context) {
+    Get.dialog(
+      AlertDialog(
+        title: Text('Delete Chat', style: AdminTheme.textStyles['titleMedium']),
+        content: Text(
+          'Are you sure you want to delete the entire chat?',
+          style: AdminTheme.textStyles['bodyMedium'],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: Text('Cancel', style: AdminTheme.textStyles['bodyMedium']),
+          ),
+          TextButton(
+            onPressed: () async {
+              await deleteChats();
+              Get.back();
+            },
+            child: Text(
+              'Delete',
+              style: AdminTheme.textStyles['bodyMedium']?.copyWith(
+                color: AdminTheme.colors['error'],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateMessageItems(List<MessageModel> messages) {
+    final items = <dynamic>[];
+    if (messages.isEmpty) {
+      messageItems.assignAll(items);
+      return;
+    }
+    final reversedMessages = messages.reversed.toList();
+    DateTime? lastDate;
+
+    for (var message in reversedMessages) {
+      final currentDate = DateTime(
+        message.timestamp.year,
+        message.timestamp.month,
+        message.timestamp.day,
+      );
+      if (lastDate == null || currentDate != lastDate) {
+        items.add(_formatDate(message.timestamp));
+        lastDate = currentDate;
+      }
+      items.add(message);
+    }
+    messageItems.assignAll(items);
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final messageDate = DateTime(date.year, date.month, date.day);
+
+    if (messageDate == today) {
+      return 'Today';
+    } else if (messageDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('dd/MMM/yyyy').format(date);
+    }
   }
 }

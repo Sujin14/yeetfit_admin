@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../chat/data/datasources/notification_services.dart';
 import '../../data/datasources/email_auth_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/usecases/login_with_email.dart';
@@ -12,11 +13,9 @@ class AuthController extends GetxController {
   final SignUpWithEmail signUpWithEmail;
   final isLoading = false.obs;
   
-  // Form keys
   final loginFormKey = GlobalKey<FormState>();
   final signUpFormKey = GlobalKey<FormState>();
   
-  // Text controllers
   final loginEmailController = TextEditingController();
   final loginPasswordController = TextEditingController();
   final signUpEmailController = TextEditingController();
@@ -24,7 +23,6 @@ class AuthController extends GetxController {
   final signUpConfirmPasswordController = TextEditingController();
   final signUpNameController = TextEditingController();
   
-  // Password visibility
   final showLoginPassword = false.obs;
   final showSignUpPassword = false.obs;
   final showSignUpConfirmPassword = false.obs;
@@ -39,7 +37,6 @@ class AuthController extends GetxController {
 
   @override
   void onClose() {
-    // Dispose controllers
     loginEmailController.dispose();
     loginPasswordController.dispose();
     signUpEmailController.dispose();
@@ -68,6 +65,7 @@ class AuthController extends GetxController {
       );
     } else {
       Get.offAllNamed('/home/dashboard');
+      await Get.find<NotificationService>().init();
     }
     return success;
   }
@@ -101,6 +99,7 @@ class AuthController extends GetxController {
       );
     } else {
       Get.offAllNamed('/home/dashboard');
+      await Get.find<NotificationService>().init();
     }
     return success;
   }
