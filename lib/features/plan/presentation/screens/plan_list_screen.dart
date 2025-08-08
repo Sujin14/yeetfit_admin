@@ -55,6 +55,7 @@ class PlanListScreen extends StatelessWidget {
               plan: plan,
               onEdit: () => controller.openPlanForm(mode: 'edit', plan: plan),
               onDelete: () => controller.removePlan(plan.id!),
+              isFirst: index == 0,
             );
           },
         );

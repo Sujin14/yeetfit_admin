@@ -10,12 +10,14 @@ class PlanListItem extends StatelessWidget {
   final PlanModel plan;
   final VoidCallback onDelete;
   final VoidCallback onEdit;
+  final bool isFirst; // New parameter to indicate if this is the first item
 
   const PlanListItem({
     super.key,
     required this.plan,
     required this.onDelete,
     required this.onEdit,
+    required this.isFirst, // Required parameter
   });
 
   @override
@@ -30,8 +32,8 @@ class PlanListItem extends StatelessWidget {
           children: [
             SlidableAction(
               onPressed: (_) => onEdit(),
-              backgroundColor: AdminTheme.colors['editIcon'] ?? Colors.blue,
-              foregroundColor: AdminTheme.colors['surface'] ?? Colors.white,
+              backgroundColor: AdminTheme.colors['editIcon']!,
+              foregroundColor: AdminTheme.colors['surface'],
               icon: Icons.edit,
               label: 'Edit',
             ),
@@ -58,8 +60,8 @@ class PlanListItem extends StatelessWidget {
                 );
                 if (confirm == true) onDelete();
               },
-              backgroundColor: AdminTheme.colors['deleteIcon'] ?? Colors.red,
-              foregroundColor: AdminTheme.colors['surface'] ?? Colors.white,
+              backgroundColor: AdminTheme.colors['deleteIcon']!,
+              foregroundColor: AdminTheme.colors['surface'],
               icon: Icons.delete,
               label: 'Delete',
             ),
@@ -84,15 +86,17 @@ class PlanListItem extends StatelessWidget {
                 fontWeight: FontWeight.w600,
               ),
             ),
-            trailing: SizedBox(
-              width: 80.w,
-              height: 80.h,
-              child: Lottie.asset(
-                'assets/animations/left_swipe.json',
-                repeat: false,
-                animate: true,
-              ),
-            ),
+            trailing: isFirst
+                ? SizedBox(
+                    width: 80.w,
+                    height: 80.h,
+                    child: Lottie.asset(
+                      'assets/animations/left_swipe.json',
+                      repeat: true,
+                      animate: true,
+                    ),
+                  )
+                : null,
           ),
         ),
       ),

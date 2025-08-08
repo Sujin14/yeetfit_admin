@@ -8,8 +8,8 @@ import '../../data/datasource/firestore_plan_service.dart';
 import '../../data/model/plan_model.dart';
 import '../../data/repositories/plan_repository_impl.dart';
 import '../../domain/usecases/assign_plan.dart';
-import '../../domain/usecases/get_client_plans.dart';
 import '../../domain/usecases/delete_plan.dart';
+import '../../domain/usecases/get_client_plans.dart';
 import 'base_plan_controller.dart.dart';
 
 class WorkoutPlanController extends BasePlanController {
@@ -139,12 +139,17 @@ class WorkoutPlanController extends BasePlanController {
     update();
   }
 
+  void updateSets(int index, String sets) {
+    exercises[index]['controllers']['sets'].text = sets;
+    exercises.refresh();
+    update();
+  }
+
   @override
   Future<bool> savePlan() async {
     if (userId.value.isEmpty) {
       error.value = 'No client selected. Please try again.';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     }
 
@@ -191,14 +196,12 @@ class WorkoutPlanController extends BasePlanController {
             backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
       } else {
         error.value = 'Failed to save plan';
-        Get.snackbar('Error', error.value,
-            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+        Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       }
       return success;
     } catch (e) {
       error.value = 'Error saving plan: $e';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      Get.snackbar('Error', error.value, backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
       return false;
     } finally {
       isLoading.value = false;
