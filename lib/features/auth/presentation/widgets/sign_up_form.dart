@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/form_validators.dart';
+import '../../../../core/widgets/shimmer_loading.dart';
+import '../../../settings/presentation/widgets/profile_avatar.dart';
 import '../controllers/auth_controller.dart';
 import 'auth_button.dart';
 import 'auth_text_field.dart';
@@ -17,6 +20,8 @@ class SignUpForm extends StatelessWidget {
       key: authController.signUpFormKey,
       child: Column(
         children: [
+          const ProfileAvatar(isSignup: true),
+          SizedBox(height: 16.h),
           AuthTextField(
             controller: authController.signUpNameController,
             labelText: 'Name',
@@ -67,10 +72,15 @@ class SignUpForm extends StatelessWidget {
               ),
             ),
           ),
-          AuthButton(
-            text: 'Sign Up',
-            isLoading: authController.isLoading.value,
-            onPressed: authController.signUp,
+          Obx(
+            () => AuthButton(
+              text: 'Sign Up',
+              isLoading: authController.isLoading.value,
+              onPressed: authController.isLoading.value
+                  ? () {}
+                  : () => authController.signUp(), // Wrap in VoidCallback
+              loadingWidget: ShimmerLoading(height: 24.h, width: 24.w),
+            ),
           ),
         ],
       ),

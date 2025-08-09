@@ -21,11 +21,18 @@ import '../../features/plan/presentation/screens/plan_form_screen.dart';
 import '../../features/plan/presentation/screens/plan_list_screen.dart';
 import '../../features/plan/presentation/screens/plan_management_screen.dart';
 import '../../features/progress/presentation/screens/client_progress_screen.dart';
-import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/settings/presentation/screens/about_screen.dart';
+import '../../features/settings/presentation/screens/change_password_screen.dart';
+import '../../features/settings/presentation/screens/contact_support_screen.dart';
+import '../../features/settings/presentation/screens/edit_profile_screen.dart';
+import '../../features/settings/presentation/screens/help_screen.dart';
+import '../../features/settings/presentation/screens/privacy_policy_screen.dart';
 import '../../features/chat/presentation/screens/chat_screen.dart';
 import '../../features/chat/presentation/controllers/chat_controller.dart';
 import '../../features/chat/data/datasources/firestore_chat_service.dart';
 import '../../features/chat/data/repositories/chat_repository_impl.dart';
+import '../../features/settings/presentation/screens/settings_screen.dart';
+import '../../features/settings/presentation/screens/terms_screen.dart';
 import '../widgets/bottom_nav_bar.dart';
 
 class AppRoutes {
@@ -38,6 +45,14 @@ class AppRoutes {
     GetPage(name: '/', page: () => const LoginScreen()),
     GetPage(name: '/signup', page: () => const SignUpScreen()),
     GetPage(name: '/settings', page: () => const SettingsScreen()),
+    GetPage(name: '/edit-profile', page: () => const EditProfileScreen()),
+    GetPage(name: '/change-password', page: () => const ChangePasswordScreen()),
+    GetPage(name: '/help', page: () => const HelpScreen()),
+    GetPage(name: '/contact-support', page: () => const ContactSupportScreen()),
+    GetPage(name: '/about', page: () => const AboutScreen()),
+    GetPage(name: '/privacy-policy', page: () => const PrivacyPolicyScreen()),
+    GetPage(name: '/terms', page: () => const TermsScreen()),
+
     GetPage(
       name: '/home',
       page: () => const BottomNavBar(),
@@ -188,13 +203,17 @@ class AppRoutes {
   static void debounceNavigate(String route, {dynamic arguments}) {
     if (!_isNavigating) {
       _isNavigating = true;
-      print('AppRoutes.debounceNavigate: Navigating to $route with arguments: $arguments');
+      print(
+        'AppRoutes.debounceNavigate: Navigating to $route with arguments: $arguments',
+      );
       Get.toNamed(route, arguments: arguments);
       Future.delayed(const Duration(milliseconds: 500), () {
         _isNavigating = false;
       });
     } else {
-      print('AppRoutes.debounceNavigate: Navigation to $route blocked due to debounce');
+      print(
+        'AppRoutes.debounceNavigate: Navigation to $route blocked due to debounce',
+      );
     }
   }
 

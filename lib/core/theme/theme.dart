@@ -3,8 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 // Defines the app's theme, including colors and text styles for consistent UI
 class AdminTheme {
-  //static const Color sec = Color(0xFF6A1B9A);
-  // Centralized color palette for the app
   static const colors = {
     'primary': Color(0xFF6A1B9A),
     'primaryDark': Color(0xFF4A148C),
@@ -25,7 +23,8 @@ class AdminTheme {
     'signupGradientEnd': Color(0xFFF8DC65),
     'editIcon': Color(0xFF2196F3),
     'deleteIcon': Color(0xFFD32F2F),
-    'black': Color.fromRGBO(0, 0, 0, 0.658)
+    'black': Color.fromRGBO(0, 0, 0, 0.658),
+    'onPrimary': Color(0xffffffff)
   };
 
   // Text styles using Google Fonts for consistent typography

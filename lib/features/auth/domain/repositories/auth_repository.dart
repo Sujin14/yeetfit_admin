@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 
 abstract class AuthRepository {
@@ -5,7 +6,8 @@ abstract class AuthRepository {
   Future<UserCredential?> signUpWithEmail(
     String email,
     String password,
-    String name,
-  );
+    String name, {
+    File? profileImageFile,
+  });
   Future<bool> isAdmin(String uid);
 }

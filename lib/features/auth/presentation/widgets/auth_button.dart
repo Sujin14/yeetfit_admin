@@ -5,13 +5,15 @@ import '../../../../core/widgets/custom_button.dart';
 class AuthButton extends StatelessWidget {
   final String text;
   final bool isLoading;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
+  final Widget? loadingWidget;
 
   const AuthButton({
     super.key,
     required this.text,
     required this.isLoading,
     required this.onPressed,
+    this.loadingWidget,
   });
 
   @override

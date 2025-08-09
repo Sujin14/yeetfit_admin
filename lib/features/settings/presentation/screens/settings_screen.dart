@@ -1,72 +1,35 @@
+// lib/features/settings/views/settings_view.dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../../../../core/theme/theme.dart';
-import '../../../../core/widgets/custom_appbar.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
-import '../widgets/settings_option.dart';
+import '../controllers/settings_controller.dart';
+import '../widgets/settings_tile.dart';
+import '../widgets/section_title.dart';
+import '../../../../core/theme/theme.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final AuthController authController = Get.find<AuthController>();
+    final controller = Get.put(SettingsController());
+    Get.find<AuthController>();
 
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Settings'),
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-        child: Obx(
-          () => authController.isLoading.value
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                  children: [
-                    SettingsOption(
-                      title: 'Sign Out',
-                      icon: Icons.logout,
-                      onTap: () async {
-                        final confirmed =
-                            await Get.dialog<bool>(
-                              AlertDialog(
-                                title: const Text('Confirm Sign Out'),
-                                content: const Text(
-                                  'Are you sure you want to sign out?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Get.back(result: false),
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        color:
-                                            AdminTheme.colors['textSecondary'],
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () => Get.back(result: true),
-                                    child: Text(
-                                      'Sign Out',
-                                      style: TextStyle(
-                                        color: AdminTheme.colors['error'],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ) ??
-                            false;
-
-                        if (confirmed) {
-                          await authController.logout();
-                        }
-                      },
-                    ),
-                  ],
-                ),
-        ),
-      ),
+      appBar: AppBar(title: Text('Settings', style: AdminTheme.textStyles['title']!.copyWith(color: AdminTheme.colors['onPrimary'])), backgroundColor: AdminTheme.colors['primary']),
+      body: ListView(padding: const EdgeInsets.only(bottom: 24), children: [
+        const SectionTitle(title: 'Profile & Account'),
+        SettingsTile(icon: Icons.person_outline, title: 'Edit Profile', onTap: () => Get.toNamed('/edit-profile')),
+        SettingsTile(icon: Icons.lock_outline, title: 'Change Password', onTap: () => Get.toNamed('/change-password')),
+        SettingsTile(icon: Icons.logout, title: 'Logout', iconColor: AdminTheme.colors['error'], destructive: true, onTap: controller.confirmLogout),
+        const SectionTitle(title: 'Support & Info'),
+        SettingsTile(icon: Icons.help_outline, title: 'Help / FAQs', onTap: () => Get.toNamed('/help')),
+        SettingsTile(icon: Icons.contact_support, title: 'Contact Support', onTap: () => Get.toNamed('/contact-support')),
+        SettingsTile(icon: Icons.info_outline, title: 'About App', onTap: () => Get.toNamed('/about')),
+        SettingsTile(icon: Icons.privacy_tip_outlined, title: 'Privacy Policy', onTap: () => Get.toNamed('/privacy-policy')),
+        SettingsTile(icon: Icons.description, title: 'Terms of Service', onTap: () => Get.toNamed('/terms')),
+        const SizedBox(height: 12),
+      ]),
     );
   }
 }
