@@ -131,4 +131,12 @@ class EmailAuthService {
       throw Exception('Reauthentication failed: $e');
     }
   }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+    } catch (e) {
+      throw Exception('Failed to send password reset email: $e');
+    }
+  }
 }

@@ -32,4 +32,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<bool> isAdmin(String uid) {
     return emailService.isAdmin(uid);
   }
+
+  @override
+  Future<void> sendPasswordResetEmail(String email) {
+    return emailService.sendPasswordResetEmail(email);
+  }
 }

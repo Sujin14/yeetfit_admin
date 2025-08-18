@@ -5,6 +5,7 @@ import '../../../../core/utils/form_validators.dart';
 import '../controllers/auth_controller.dart';
 import 'auth_button.dart';
 import 'auth_text_field.dart';
+import 'forgot_password_button.dart';
 
 class LoginForm extends StatelessWidget {
   const LoginForm({super.key});
@@ -39,6 +40,10 @@ class LoginForm extends StatelessWidget {
                 onPressed: authController.toggleLoginPasswordVisibility,
               ),
             ),
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: ForgotPasswordButton(),
           ),
           AuthButton(
             text: 'Login',

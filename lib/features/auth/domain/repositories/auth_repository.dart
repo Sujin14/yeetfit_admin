@@ -10,4 +10,5 @@ abstract class AuthRepository {
     File? profileImageFile,
   });
   Future<bool> isAdmin(String uid);
+  Future<void> sendPasswordResetEmail(String email);
 }

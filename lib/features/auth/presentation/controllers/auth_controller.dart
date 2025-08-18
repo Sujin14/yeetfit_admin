@@ -8,10 +8,12 @@ import '../../data/datasources/email_auth_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/usecases/login_with_email.dart';
 import '../../domain/usecases/sign_up_with_email.dart';
+import '../../domain/usecases/send_password_reset_email.dart';
 
 class AuthController extends GetxController {
   final LoginWithEmail loginWithEmail;
   final SignUpWithEmail signUpWithEmail;
+  final SendPasswordResetEmail resetPasswordUseCase;
   final isLoading = false.obs;
 
   final loginFormKey = GlobalKey<FormState>();
@@ -35,6 +37,9 @@ class AuthController extends GetxController {
           AuthRepositoryImpl(emailService: EmailAuthService()),
         ),
         signUpWithEmail = SignUpWithEmail(
+          AuthRepositoryImpl(emailService: EmailAuthService()),
+        ),
+        resetPasswordUseCase = SendPasswordResetEmail(
           AuthRepositoryImpl(emailService: EmailAuthService()),
         );
 
@@ -143,6 +148,28 @@ class AuthController extends GetxController {
         colorText: AdminTheme.colors['surface'],
       );
       return false;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    isLoading.value = true;
+    try {
+      await resetPasswordUseCase(email.trim());
+      Get.snackbar(
+        'Success',
+        'Password reset link sent',
+        backgroundColor: AdminTheme.colors['primary'],
+        colorText: AdminTheme.colors['surface'],
+      );
+    } catch (e) {
+      Get.snackbar(
+        'Error',
+        'Failed to send password reset email: $e',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
     } finally {
       isLoading.value = false;
     }
