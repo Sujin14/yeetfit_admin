@@ -17,29 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -59,4 +47,47 @@ class DefaultFirebaseOptions {
     projectId: 'yeetfit-43038',
     storageBucket: 'yeetfit-43038.firebasestorage.app',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyB5-x-XdpPz3Rrr6lfVPaQ1yMiTmAnYOHU',
+    appId: '1:866289640315:web:746b7d429b4e694caa93de',
+    messagingSenderId: '866289640315',
+    projectId: 'yeetfit-43038',
+    authDomain: 'yeetfit-43038.firebaseapp.com',
+    storageBucket: 'yeetfit-43038.firebasestorage.app',
+    measurementId: 'G-F4BTJMP0VF',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAUYvzzAx9QwrwLoJ8m8gO0KsZNj4326hY',
+    appId: '1:866289640315:ios:b82b8160319f926caa93de',
+    messagingSenderId: '866289640315',
+    projectId: 'yeetfit-43038',
+    storageBucket: 'yeetfit-43038.firebasestorage.app',
+    androidClientId: '866289640315-48h6gakdlrf7r0iuu14t2fhp8vcivh11.apps.googleusercontent.com',
+    iosClientId: '866289640315-a14l69bmfrn3p4rbtkdr02q1n1dmeohi.apps.googleusercontent.com',
+    iosBundleId: 'com.example.yeetfitAdmin',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyAUYvzzAx9QwrwLoJ8m8gO0KsZNj4326hY',
+    appId: '1:866289640315:ios:b82b8160319f926caa93de',
+    messagingSenderId: '866289640315',
+    projectId: 'yeetfit-43038',
+    storageBucket: 'yeetfit-43038.firebasestorage.app',
+    androidClientId: '866289640315-48h6gakdlrf7r0iuu14t2fhp8vcivh11.apps.googleusercontent.com',
+    iosClientId: '866289640315-a14l69bmfrn3p4rbtkdr02q1n1dmeohi.apps.googleusercontent.com',
+    iosBundleId: 'com.example.yeetfitAdmin',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyB5-x-XdpPz3Rrr6lfVPaQ1yMiTmAnYOHU',
+    appId: '1:866289640315:web:528033f3b4b1ec4faa93de',
+    messagingSenderId: '866289640315',
+    projectId: 'yeetfit-43038',
+    authDomain: 'yeetfit-43038.firebaseapp.com',
+    storageBucket: 'yeetfit-43038.firebasestorage.app',
+    measurementId: 'G-HWQHRB9WHE',
+  );
+
 }

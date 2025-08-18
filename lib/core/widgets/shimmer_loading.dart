@@ -19,13 +19,13 @@ class ShimmerLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AdminTheme.colors['black']!,
+      baseColor: AdminTheme.colors['accent']!,
       highlightColor: AdminTheme.colors['surface']!,
       child: Container(
         width: width ?? double.infinity,
         height: height ?? 50.h,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AdminTheme.colors['accent'],
           borderRadius: borderRadius ?? BorderRadius.circular(8.r),
         ),
       ),

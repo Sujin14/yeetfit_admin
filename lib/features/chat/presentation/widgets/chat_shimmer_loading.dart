@@ -8,7 +8,7 @@ Widget chatShimmerLoading() {
   return ListView.builder(
     itemCount: 20,
     itemBuilder: (context, index) => Shimmer.fromColors(
-      baseColor: AdminTheme.colors['black']!.withOpacity(0.2),
+      baseColor: AdminTheme.colors['accent']!.withOpacity(0.2),
       highlightColor: AdminTheme.colors['surface']!.withOpacity(0.4),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),

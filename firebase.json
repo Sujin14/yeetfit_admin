@@ -1,6 +1,1 @@
-{
-  "firestore": {
-    "rules": "firestore.rules"
-  }
-}
-
+{"firestore":{"rules":"firestore.rules"},"flutter":{"platforms":{"android":{"default":{"projectId":"yeetfit-43038","appId":"1:866289640315:android:6f44e175ab24f527aa93de","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"yeetfit-43038","configurations":{"android":"1:866289640315:android:6f44e175ab24f527aa93de","ios":"1:866289640315:ios:b82b8160319f926caa93de","macos":"1:866289640315:ios:b82b8160319f926caa93de","web":"1:866289640315:web:746b7d429b4e694caa93de","windows":"1:866289640315:web:528033f3b4b1ec4faa93de"}}}}}}

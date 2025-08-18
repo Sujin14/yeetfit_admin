@@ -7,6 +7,45 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:866289640315:android:bf1c53e7d2021a35aa93de",
+        "android_client_info": {
+          "package_name": "com.example.sdfg"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "866289640315-55okeoa9kjp2un22hhs7vht2ifvqduoi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFmz3iSNp5YH_rrdq_YZUQkQw_h5a1iCY"
+        },
+        {
+          "current_key": "AIzaSyBeclXcro3A5F0djHPMbXc-0MRd1FgK8Og"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "866289640315-55okeoa9kjp2un22hhs7vht2ifvqduoi.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "866289640315-1ejs4n2j3m5ve9nooceort93cbn1ht47.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.yeetfit"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:866289640315:android:6f44e175ab24f527aa93de",
         "android_client_info": {
           "package_name": "com.example.yeetfit_admin"

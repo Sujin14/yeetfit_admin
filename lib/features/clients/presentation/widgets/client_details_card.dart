@@ -38,7 +38,7 @@ class ClientDetailsCard extends StatelessWidget {
                                   ? client.name[0].toUpperCase()
                                   : '',
                               style: AdminTheme.textStyles['body']!.copyWith(
-                                color: Colors.white,
+                                color: AdminTheme.colors['onPrimary'],
                                 fontSize: 16.sp,
                               ),
                             )

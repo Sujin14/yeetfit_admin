@@ -93,7 +93,7 @@ class _InvalidUidWidget extends StatelessWidget {
             child: Text(
               'Go Back',
               style: AdminTheme.textStyles['body']!.copyWith(
-                color: Colors.white,
+                color: AdminTheme.colors['onPrimary'],
               ),
             ),
           ),
@@ -118,7 +118,7 @@ class _ShimmerLoading extends StatelessWidget {
               width: double.infinity,
               height: 200.h,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AdminTheme.colors['onPrimary'],
                 borderRadius: BorderRadius.circular(12.r),
               ),
             ),
@@ -127,7 +127,7 @@ class _ShimmerLoading extends StatelessWidget {
               width: double.infinity,
               height: 150.h,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AdminTheme.colors['onPrimary'],
                 borderRadius: BorderRadius.circular(12.r),
               ),
             ),
@@ -136,7 +136,7 @@ class _ShimmerLoading extends StatelessWidget {
               width: double.infinity,
               height: 150.h,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AdminTheme.colors['onPrimary'],
                 borderRadius: BorderRadius.circular(12.r),
               ),
             ),

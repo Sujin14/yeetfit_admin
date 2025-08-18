@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/theme.dart';
+
 class GradientText extends StatelessWidget {
   final String text;
   final TextStyle style;
@@ -16,7 +18,10 @@ class GradientText extends StatelessWidget {
   Widget build(BuildContext context) {
     return ShaderMask(
       shaderCallback: (bounds) => gradient.createShader(bounds),
-      child: Text(text, style: style.copyWith(color: Colors.white)),
+      child: Text(
+        text,
+        style: style.copyWith(color: AdminTheme.colors['onPrimary']),
+      ),
     );
   }
 }

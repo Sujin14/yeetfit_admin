@@ -55,7 +55,7 @@ class _ShimmerClientList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: AdminTheme.colors['black']!,
+      baseColor: AdminTheme.colors['accent']!,
       highlightColor: AdminTheme.colors['surface']!,
       child: ListView.separated(
         padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
@@ -72,13 +72,17 @@ class _ShimmerClientList extends StatelessWidget {
               ),
               leading: CircleAvatar(
                 radius: 24.r,
-                backgroundColor: Colors.white,
+                backgroundColor: AdminTheme.colors['onPrimary'],
               ),
-              title: Container(width: 100.w, height: 16.h, color: Colors.white),
+              title: Container(
+                width: 100.w,
+                height: 16.h,
+                color: AdminTheme.colors['onPrimary'],
+              ),
               trailing: Icon(
                 Icons.arrow_forward_ios,
                 size: 16.w,
-                color: Colors.white,
+                color: AdminTheme.colors['onPrimary'],
               ),
             ),
           );

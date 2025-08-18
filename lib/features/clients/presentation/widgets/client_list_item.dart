@@ -34,12 +34,12 @@ class ClientListItem extends StatelessWidget {
                         height: 48.r,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
-                          baseColor: AdminTheme.colors['black']!,
+                          baseColor: AdminTheme.colors['accent']!,
                           highlightColor: AdminTheme.colors['surface']!,
                           child: Container(
                             width: 48.r,
                             height: 48.r,
-                            color: Colors.white,
+                            color: AdminTheme.colors['onPrimary'],
                           ),
                         ),
                         errorWidget: (context, url, error) => Text(

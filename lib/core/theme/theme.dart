@@ -24,7 +24,7 @@ class AdminTheme {
     'editIcon': Color(0xFF2196F3),
     'deleteIcon': Color(0xFFD32F2F),
     'black': Color.fromRGBO(0, 0, 0, 0.658),
-    'onPrimary': Color(0xffffffff)
+    'onPrimary': Color(0xffffffff),
   };
 
   // Text styles using Google Fonts for consistent typography
@@ -45,14 +45,14 @@ class AdminTheme {
         secondary: colors['secondary']!,
         surface: colors['surface']!,
         error: colors['error']!,
-        onPrimary: Colors.white,
+        onPrimary: AdminTheme.colors['onPrimary']!,
         onSecondary: Colors.black,
         onSurface: colors['textPrimary']!,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: colors['primary'],
-          foregroundColor: Colors.white,
+          foregroundColor: AdminTheme.colors['onPrimary'],
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         ),
@@ -63,10 +63,16 @@ class AdminTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
       textTheme: TextTheme(
-        headlineLarge: textStyles['heading']!.copyWith(color: colors['textPrimary']),
-        titleMedium: textStyles['title']!.copyWith(color: colors['textPrimary']),
+        headlineLarge: textStyles['heading']!.copyWith(
+          color: colors['textPrimary'],
+        ),
+        titleMedium: textStyles['title']!.copyWith(
+          color: colors['textPrimary'],
+        ),
         bodyMedium: textStyles['body']!.copyWith(color: colors['textPrimary']),
-        bodySmall: textStyles['caption']!.copyWith(color: colors['textSecondary']),
+        bodySmall: textStyles['caption']!.copyWith(
+          color: colors['textSecondary'],
+        ),
       ),
     );
   }
