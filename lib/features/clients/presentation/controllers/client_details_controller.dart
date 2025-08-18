@@ -23,21 +23,17 @@ class ClientDetailsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    print('ClientDetailsController: onInit called');
 
     final args = Get.arguments;
-    print('ClientDetailsController: Arguments received: $args');
 
     if (args != null &&
         args['uid'] != null &&
         (args['uid'] as String).isNotEmpty) {
       uid.value = args['uid'] as String;
-      print('ClientDetailsController: UID set to ${uid.value}');
       fetchClientDetails();
     } else {
       error.value = 'Client ID is empty.';
       isInvalidUid.value = true;
-      print('ClientDetailsController: Error - Client ID is empty.');
     }
   }
 
@@ -56,7 +52,6 @@ class ClientDetailsController extends GetxController {
     }
 
     try {
-      print('fetchClientDetails: Fetching details for UID: $idToUse');
       final clientData = await getClientDetails(idToUse);
 
       if (clientData != null) {
@@ -69,7 +64,6 @@ class ClientDetailsController extends GetxController {
       }
     } catch (e) {
       error.value = 'Failed to load client details: $e';
-      print('fetchClientDetails: Error - $e');
       Get.snackbar(
         'Error',
         error.value,
@@ -82,7 +76,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void navigateToManageDietPlans() {
-    print('Navigating to diet plan management for UID: ${uid.value}');
     Get.toNamed(
       '/home/plan-list',
       arguments: {'uid': uid.value, 'type': 'diet'},
@@ -90,7 +83,6 @@ class ClientDetailsController extends GetxController {
   }
 
   void navigateToManageWorkoutPlans() {
-    print('Navigating to workout plan management for UID: ${uid.value}');
     Get.toNamed(
       '/home/plan-list',
       arguments: {'uid': uid.value, 'type': 'workout'},

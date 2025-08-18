@@ -32,7 +32,6 @@ class FirestoreProgressService {
           }
         }
       } catch (e) {
-        print('Error fetching food data for $uid/$date: $e');
         return {
           'goalCalories': 2000.0,
           'currentCalories': 0.0,
@@ -56,13 +55,11 @@ class FirestoreProgressService {
             ? (dietSnapshot.docs.first.data()['totalCalories'] as num?)?.toDouble() ?? 2000.0
             : 2000.0;
 
-        print('Food progress for $uid/$date: goalCalories=$goalCalories, currentCalories=$totalCalories');
         return {
           'goalCalories': goalCalories,
           'currentCalories': totalCalories,
         };
       } catch (e) {
-        print('Error fetching diet data for $uid: $e');
         return {
           'goalCalories': 2000.0,
           'currentCalories': totalCalories,
@@ -82,10 +79,8 @@ class FirestoreProgressService {
 
     try {
       final doc = await docRef.get();
-      print('Fetching progress for path: ${docRef.path}, exists: ${doc.exists}, data: ${doc.data()}');
       return doc.exists ? doc.data() : null;
     } catch (e) {
-      print('Error fetching progress for ${docRef.path}: $e');
       return null;
     }
   }

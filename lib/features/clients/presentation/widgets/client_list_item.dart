@@ -22,7 +22,7 @@ class ClientListItem extends StatelessWidget {
         leading: Hero(
           tag: 'client-avatar-${client.uid}',
           child: Material(
-            color: Colors.transparent,
+            color: AdminTheme.colors['transperent'],
             child: CircleAvatar(
               radius: 24.r,
               backgroundColor: AdminTheme.colors['primary']?.withOpacity(0.1),
@@ -76,9 +76,6 @@ class ClientListItem extends StatelessWidget {
         ),
         onTap: () {
           if (client.uid.isEmpty) {
-            print(
-              'ClientListItem: Cannot navigate, client UID is null or empty',
-            );
             Get.snackbar(
               'Error',
               'Cannot navigate to client details: Invalid client ID',
@@ -87,9 +84,6 @@ class ClientListItem extends StatelessWidget {
             );
             return;
           }
-          print(
-            'ClientListItem: Navigating to /home/client-details with UID: ${client.uid}',
-          );
           AppRoutes.debounceNavigate(
             '/home/client-details',
             arguments: {

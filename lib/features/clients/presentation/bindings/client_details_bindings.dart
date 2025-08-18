@@ -8,4 +8,4 @@ class ClientDetailsBinding extends Bindings {
     Get.lazyPut(() => ClientDetailsController());
     Get.lazyPut(() => ClientProgressController());
   }
-}
+} 

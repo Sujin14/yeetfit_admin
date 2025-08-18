@@ -171,12 +171,8 @@ class AppRoutes {
     final user = FirebaseAuth.instance.currentUser;
     final currentRoute = routing?.current;
 
-    print(
-      'AppRoutes.redirect: Current route: $currentRoute, Arguments: ${Get.arguments}',
-    );
 
     if (user == null) {
-      print('AppRoutes.redirect: No user logged in, redirecting to /');
       return '/';
     }
 
@@ -184,37 +180,24 @@ class AppRoutes {
     final isAdmin = await controller.isAdmin(user.uid);
 
     if (!isAdmin) {
-      print(
-        'AppRoutes.redirect: User ${user.uid} is not an admin, signing out and redirecting to /',
-      );
       await FirebaseAuth.instance.signOut();
       return '/';
     }
 
     if (currentRoute == '/' || currentRoute == '/signup') {
-      print('AppRoutes.redirect: Admin user, redirecting to /home');
       return '/home';
     }
-
-    print('AppRoutes.redirect: Allowing navigation to $currentRoute');
     return null;
   }
 
   static void debounceNavigate(String route, {dynamic arguments}) {
     if (!_isNavigating) {
       _isNavigating = true;
-      print(
-        'AppRoutes.debounceNavigate: Navigating to $route with arguments: $arguments',
-      );
       Get.toNamed(route, arguments: arguments);
       Future.delayed(const Duration(milliseconds: 500), () {
         _isNavigating = false;
       });
-    } else {
-      print(
-        'AppRoutes.debounceNavigate: Navigation to $route blocked due to debounce',
-      );
-    }
+    } 
   }
 
   static bool _isNavigating = false;

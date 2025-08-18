@@ -1,16 +1,16 @@
 class ClientModel {
   final String uid;
   final String name;
-  final String? email; // Made nullable to accommodate cases where email isn't provided
-  final String? gender; // Made nullable for flexibility
-  final int? age; // Made nullable for flexibility
-  final String? goal; // Already nullable in second model
-  final double? currentWeight; // Made nullable for flexibility
-  final double? goalWeight; // Made nullable for flexibility
-  final double? height; // Made nullable for flexibility
-  final String? activityLevel; // Made nullable for flexibility
-  final int? timeDurationWeeks; // Already nullable in first model
-  final String? profilePicture; // From second model
+  final String? email;
+  final String? gender;
+  final int? age;
+  final String? goal;
+  final double? currentWeight;
+  final double? goalWeight;
+  final double? height;
+  final String? activityLevel;
+  final int? timeDurationWeeks;
+  final String? profilePicture;
 
   ClientModel({
     required this.uid,

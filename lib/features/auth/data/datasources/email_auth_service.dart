@@ -91,7 +91,7 @@ class EmailAuthService {
       }
 
       if (email != null && currentUser != null && currentUser.email != email) {
-        await currentUser.updateEmail(email);
+        await currentUser.verifyBeforeUpdateEmail(email);
       }
       if (name != null && currentUser != null && currentUser.displayName != name) {
         await currentUser.updateDisplayName(name);

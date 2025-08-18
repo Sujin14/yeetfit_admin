@@ -6,7 +6,6 @@ class FirestoreClientService {
 
   Stream<List<ClientModel>> getClientsByGoal(String goal) {
   try {
-    print('getClientsByGoalStream: Streaming clients for goal: $goal');
     return firestore
         .collection('users')
         .where('goal', isEqualTo: goal.toLowerCase())
@@ -20,7 +19,6 @@ class FirestoreClientService {
           }).toList();
         });
   } catch (e) {
-    print('getClientsByGoalStream: Error - $e');
     throw Exception('Failed to stream clients: $e');
   }
 }
@@ -28,14 +26,12 @@ class FirestoreClientService {
 
   Future<ClientModel?> getClientDetails(String uid) async {
     try {
-      print('getClientDetails: Fetching details for UID: $uid');
       final doc = await firestore.collection('users').doc(uid).get();
       if (!doc.exists) return null;
       final data = doc.data()!;
       data['uid'] = doc.id;
       return ClientModel.fromMap(data);
     } catch (e) {
-      print('getClientDetails: Error - $e');
       throw Exception('Failed to fetch client details: $e');
     }
   }
@@ -52,7 +48,6 @@ class FirestoreClientService {
         return ClientModel.fromMap(data);
       }).toList();
     } catch (e) {
-      print('getAllClients: Error - $e');
       throw Exception('Failed to get clients: $e');
     }
   }
@@ -62,7 +57,6 @@ class FirestoreClientService {
       await firestore.collection('users').doc(client.uid).update(client.toMap());
       return true;
     } catch (e) {
-      print('updateClient: Error - $e');
       return false;
     }
   }

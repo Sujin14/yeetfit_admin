@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 
@@ -18,9 +17,6 @@ class NotificationService extends GetxService {
   Future<NotificationService> init() async {
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      if (kDebugMode) {
-        print('NotificationService: No user logged in, skipping initialization');
-      }
       return this;
     }
 
@@ -42,18 +38,13 @@ class NotificationService extends GetxService {
             msg.reference.update({'status': 'delivered'});
           }
         }).catchError((e) {
-          if (kDebugMode) {
-            print('Error updating message status for chat ${chat.id}: $e');
-          }
           Get.snackbar('Error', 'Failed to update message status: $e',
               backgroundColor: AdminTheme.colors['error'],
               colorText: AdminTheme.colors['onError']);
         });
       }
     }, onError: (e) {
-      if (kDebugMode) {
-        print('Error listening to chats: $e');
-      }
+      
       Get.snackbar('Error', 'Failed to load chats: $e',
           backgroundColor: AdminTheme.colors['error'],
           colorText: AdminTheme.colors['onError']);

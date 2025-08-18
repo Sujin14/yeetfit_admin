@@ -25,6 +25,7 @@ class AdminTheme {
     'deleteIcon': Color(0xFFD32F2F),
     'black': Color.fromRGBO(0, 0, 0, 0.658),
     'onPrimary': Color(0xffffffff),
+    'transperent': Colors.transparent
   };
 
   // Text styles using Google Fonts for consistent typography

@@ -34,7 +34,6 @@ class FirestorePlanService {
       ];
       return plans;
     } catch (e) {
-      print('getClientPlans: Error - $e');
       throw Exception('Failed to fetch plans: $e');
     }
   }
@@ -50,7 +49,6 @@ class FirestorePlanService {
       await docRef.set(plan.toMap());
       return true;
     } catch (e) {
-      print('assignPlan: Error - $e');
       throw Exception('Failed to assign plan: $e');
     }
   }
@@ -66,7 +64,6 @@ class FirestorePlanService {
           .delete();
       return true;
     } catch (e) {
-      print('deletePlan: Error - $e');
       throw Exception('Failed to delete plan: $e');
     }
   }
