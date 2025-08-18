@@ -28,13 +28,14 @@ class ClientProgressBody extends StatelessWidget {
         );
       }
 
-      if (controller.progressData.isEmpty) {
+      if (controller.progressData.values.every((data) => data == null)) {
         return Center(
           child: Text(
-            'No progress data found for ${DateFormat('yyyy-MM-dd').format(controller.selectedDate.value)}',
+            'No progress data found for ${DateFormat('yyyy-MM-dd').format(controller.selectedDate.value)}. Try selecting a different date.',
             style: AdminTheme.textStyles['body']!.copyWith(
               color: AdminTheme.colors['textSecondary'],
             ),
+            textAlign: TextAlign.center,
           ),
         );
       }
@@ -51,9 +52,9 @@ class ClientProgressBody extends StatelessWidget {
             ProgressCard(
               title: 'Water Progress',
               dataKey: 'water',
-              goalField: 'goalLiters',
-              currentField: 'currentLiters',
-              unit: 'L',
+              goalField: 'goalGlasses',
+              currentField: 'glassesConsumed',
+              unit: 'glasses',
             ),
             SizedBox(height: 8.h),
             ProgressCard(
@@ -68,7 +69,7 @@ class ClientProgressBody extends StatelessWidget {
               title: 'Steps Progress',
               dataKey: 'steps',
               goalField: 'goalSteps',
-              currentField: 'currentSteps',
+              currentField: 'steps',
               unit: 'steps',
             ),
             SizedBox(height: 8.h),
@@ -76,7 +77,7 @@ class ClientProgressBody extends StatelessWidget {
               title: 'Sleep Progress',
               dataKey: 'sleep',
               goalField: 'goalHours',
-              currentField: 'currentHours',
+              currentField: 'duration',
               unit: 'hrs',
             ),
             SizedBox(height: 8.h),

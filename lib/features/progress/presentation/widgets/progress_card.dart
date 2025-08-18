@@ -27,11 +27,37 @@ class ProgressCard extends StatelessWidget {
 
     return Obx(() {
       final data = controller.progressData[dataKey];
-      final double? goal = data != null ? (data[goalField] as num?)?.toDouble() : null;
-      final double? current = data != null ? (data[currentField] as num?)?.toDouble() : null;
+      final double? goal = data != null && data[goalField] is num
+          ? (data[goalField] as num).toDouble()
+          : null;
+      final double? current = data != null && data[currentField] is num
+          ? (data[currentField] as num).toDouble()
+          : null;
       final percentage = goal != null && current != null && goal > 0
           ? ((current / goal) * 100).clamp(0, 100).toStringAsFixed(1)
           : '0.0';
+
+      if (data == null) {
+        return Card(
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
+          child: ListTile(
+            title: Text(
+              title,
+              style: AdminTheme.textStyles['body']!.copyWith(
+                color: AdminTheme.colors['textPrimary'],
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            subtitle: Text(
+              'No data available',
+              style: AdminTheme.textStyles['body']!.copyWith(
+                color: AdminTheme.colors['textSecondary'],
+              ),
+            ),
+          ),
+        );
+      }
 
       return Card(
         elevation: 2,

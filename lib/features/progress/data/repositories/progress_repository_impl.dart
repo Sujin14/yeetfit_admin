@@ -25,9 +25,11 @@ class ProgressRepositoryImpl implements ProgressRepository {
         subcategory: entry.value,
         date: date,
       );
+      print('Progress for ${entry.key}: $data');
       results[entry.key] = data;
     }
 
+    print('Final progress results: $results');
     return results;
   }
 }
