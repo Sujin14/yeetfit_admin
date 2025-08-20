@@ -78,7 +78,7 @@ class SignUpForm extends StatelessWidget {
               isLoading: authController.isLoading.value,
               onPressed: authController.isLoading.value
                   ? () {}
-                  : () => authController.signUp(), // Wrap in VoidCallback
+                  : () => authController.signUp(),
               loadingWidget: ShimmerLoading(height: 24.h, width: 24.w),
             ),
           ),

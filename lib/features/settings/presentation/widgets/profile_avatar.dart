@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,44 +15,58 @@ class ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = isSignup ? Get.find<AuthController>() : Get.find<EditProfileController>();
-    final imageFile = isSignup ? (controller as AuthController).signUpProfileImage : (controller as EditProfileController).selectedImageFile;
-    final photoUrl = isSignup ? RxnString() : (controller as EditProfileController).photoUrl;
+    final controller = isSignup
+        ? Get.find<AuthController>()
+        : Get.find<EditProfileController>();
+    final imageFile = isSignup
+        ? (controller as AuthController).signUpProfileImage
+        : (controller as EditProfileController).selectedImageFile;
+    final photoUrl = isSignup
+        ? RxnString()
+        : (controller as EditProfileController).photoUrl;
+    final isWeb = MediaQuery.of(context).size.width > 600;
 
     return Obx(() {
       final file = imageFile.value;
       final url = photoUrl.value;
+      final imageWidth = isWeb ? 100.0 : 140.w;
+      final imageHeight = isWeb ? 100.0 : 140.h;
+
       Widget image;
       if (file != null) {
         image = ClipRRect(
-          borderRadius: BorderRadius.circular(70.r),
-          child: Image.file(file, width: 140.w, height: 140.h, fit: BoxFit.cover),
+          borderRadius: BorderRadius.circular(isWeb ? 50.0 : 70.r),
+          child: Image.file(
+            file,
+            width: imageWidth,
+            height: imageHeight,
+            fit: BoxFit.cover,
+          ),
         );
       } else if (url != null && url.isNotEmpty) {
         image = ClipRRect(
-          borderRadius: BorderRadius.circular(70.r),
+          borderRadius: BorderRadius.circular(isWeb ? 50.0 : 70.r),
           child: CachedNetworkImage(
             imageUrl: url,
-            width: 140.w,
-            height: 140.h,
+            width: imageWidth,
+            height: imageHeight,
             fit: BoxFit.cover,
-            placeholder: (context, url) => CircularProgressIndicator(
-              color: AdminTheme.colors['primary'],
-            ),
+            placeholder: (context, url) =>
+                CircularProgressIndicator(color: AdminTheme.colors['primary']),
             errorWidget: (context, url, error) => Icon(
               Icons.error,
               color: AdminTheme.colors['error'],
-              size: 64.w,
+              size: isWeb ? 48.0 : 64.w,
             ),
           ),
         );
       } else {
         image = CircleAvatar(
-          radius: 70.r,
+          radius: isWeb ? 50.0 : 70.r,
           backgroundColor: AdminTheme.colors['surface'],
           child: Icon(
             Icons.person,
-            size: 64.w,
+            size: isWeb ? 48.0 : 64.w,
             color: AdminTheme.colors['primary'],
           ),
         );
@@ -61,12 +74,15 @@ class ProfileAvatar extends StatelessWidget {
       return Column(
         children: [
           Container(
-            width: 140.w,
-            height: 140.h,
+            width: imageWidth,
+            height: imageHeight,
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(70.r),
+              borderRadius: BorderRadius.circular(isWeb ? 50.0 : 70.r),
               boxShadow: [
-                BoxShadow(color: Colors.black.withOpacity(0.12), blurRadius: 8.r),
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.12),
+                  blurRadius: isWeb ? 6.r : 6.r,
+                ),
               ],
             ),
             child: image,
@@ -76,20 +92,26 @@ class ProfileAvatar extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ElevatedButton.icon(
-                onPressed: isSignup ? (controller as AuthController).pickProfileImage : (controller as EditProfileController).pickFromGallery,
-                icon: Icon(Icons.photo_library, size: 20.w),
+                onPressed: isSignup
+                    ? (controller as AuthController).pickProfileImage
+                    : (controller as EditProfileController).pickFromGallery,
+                icon: Icon(Icons.photo_library, size: isWeb ? 16.0 : 20.w),
                 label: Text(
                   'Gallery',
                   style: AdminTheme.textStyles['body']!.copyWith(
                     color: AdminTheme.colors['surface'],
+                    fontSize: isWeb ? 14.0 : 16.sp,
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AdminTheme.colors['primary'],
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWeb ? 12.0 : 16.w,
+                    vertical: isWeb ? 6.0 : 8.h,
+                  ),
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: isWeb ? 6.0 : 8.w),
               OutlinedButton.icon(
                 onPressed: isSignup
                     ? () async {
@@ -109,19 +131,26 @@ class ProfileAvatar extends StatelessWidget {
                             );
                             return;
                           }
-                          (controller as AuthController).signUpProfileImage.value = file;
+                          (controller as AuthController)
+                                  .signUpProfileImage
+                                  .value =
+                              file;
                         }
                       }
                     : (controller as EditProfileController).pickFromCamera,
-                icon: Icon(Icons.camera_alt, size: 20.w),
+                icon: Icon(Icons.camera_alt, size: isWeb ? 16.0 : 20.w),
                 label: Text(
                   'Camera',
                   style: AdminTheme.textStyles['body']!.copyWith(
                     color: AdminTheme.colors['primary'],
+                    fontSize: isWeb ? 14.0 : 16.sp,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: isWeb ? 12.0 : 16.w,
+                    vertical: isWeb ? 6.0 : 8.h,
+                  ),
                 ),
               ),
             ],
