@@ -14,6 +14,9 @@ class ClientListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWeb =
+        MediaQuery.of(context).size.width > 600; // Threshold for web view
+
     return Card(
       margin: EdgeInsets.symmetric(vertical: 4.h),
       elevation: 2,
@@ -24,21 +27,21 @@ class ClientListItem extends StatelessWidget {
           child: Material(
             color: AdminTheme.colors['transperent'],
             child: CircleAvatar(
-              radius: 24.r,
+              radius: isWeb ? 20.0 : 24.r, // Constrain avatar size for web
               backgroundColor: AdminTheme.colors['primary']?.withOpacity(0.1),
               child: client.profilePicture?.isNotEmpty == true
                   ? ClipOval(
                       child: CachedNetworkImage(
                         imageUrl: client.profilePicture!,
-                        width: 48.r,
-                        height: 48.r,
+                        width: isWeb ? 40.0 : 48.r,
+                        height: isWeb ? 40.0 : 48.r,
                         fit: BoxFit.cover,
                         placeholder: (context, url) => Shimmer.fromColors(
                           baseColor: AdminTheme.colors['accent']!,
                           highlightColor: AdminTheme.colors['surface']!,
                           child: Container(
-                            width: 48.r,
-                            height: 48.r,
+                            width: isWeb ? 40.0 : 48.r,
+                            height: isWeb ? 40.0 : 48.r,
                             color: AdminTheme.colors['onPrimary'],
                           ),
                         ),
@@ -48,6 +51,7 @@ class ClientListItem extends StatelessWidget {
                               : '',
                           style: AdminTheme.textStyles['body']!.copyWith(
                             color: AdminTheme.colors['textPrimary'],
+                            fontSize: isWeb ? 14.0 : 16.sp,
                           ),
                         ),
                       ),
@@ -58,6 +62,7 @@ class ClientListItem extends StatelessWidget {
                           : '',
                       style: AdminTheme.textStyles['body']!.copyWith(
                         color: AdminTheme.colors['textPrimary'],
+                        fontSize: isWeb ? 14.0 : 16.sp,
                       ),
                     ),
             ),
@@ -67,11 +72,12 @@ class ClientListItem extends StatelessWidget {
           client.name,
           style: AdminTheme.textStyles['title']!.copyWith(
             color: AdminTheme.colors['textPrimary'],
+            fontSize: isWeb ? 16.0 : 18.sp, // Constrain title font size for web
           ),
         ),
         trailing: Icon(
           Icons.arrow_forward_ios,
-          size: 16.w,
+          size: isWeb ? 14.0 : 16.w, // Constrain icon size for web
           color: AdminTheme.colors['textSecondary'],
         ),
         onTap: () {

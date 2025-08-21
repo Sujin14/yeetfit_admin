@@ -24,31 +24,40 @@ class NotificationService extends GetxService {
         .collection('chats')
         .where('participants', arrayContains: userId)
         .snapshots()
-        .listen((snapshot) {
-      for (var chat in snapshot.docs) {
-        FirebaseFirestore.instance
-            .collection('chats')
-            .doc(chat.id)
-            .collection('messages')
-            .where('participants', arrayContains: userId)
-            .where('status', isEqualTo: 'sent')
-            .get()
-            .then((messages) {
-          for (var msg in messages.docs) {
-            msg.reference.update({'status': 'delivered'});
-          }
-        }).catchError((e) {
-          Get.snackbar('Error', 'Failed to update message status: $e',
+        .listen(
+          (snapshot) {
+            for (var chat in snapshot.docs) {
+              FirebaseFirestore.instance
+                  .collection('chats')
+                  .doc(chat.id)
+                  .collection('messages')
+                  .where('participants', arrayContains: userId)
+                  .where('status', isEqualTo: 'sent')
+                  .get()
+                  .then((messages) {
+                    for (var msg in messages.docs) {
+                      msg.reference.update({'status': 'delivered'});
+                    }
+                  })
+                  .catchError((e) {
+                    Get.snackbar(
+                      'Error',
+                      'Failed to update message status: $e',
+                      backgroundColor: AdminTheme.colors['error'],
+                      colorText: AdminTheme.colors['onError'],
+                    );
+                  });
+            }
+          },
+          onError: (e) {
+            Get.snackbar(
+              'Error',
+              'Failed to load chats: $e',
               backgroundColor: AdminTheme.colors['error'],
-              colorText: AdminTheme.colors['onError']);
-        });
-      }
-    }, onError: (e) {
-      
-      Get.snackbar('Error', 'Failed to load chats: $e',
-          backgroundColor: AdminTheme.colors['error'],
-          colorText: AdminTheme.colors['onError']);
-    });
+              colorText: AdminTheme.colors['onError'],
+            );
+          },
+        );
 
     return this;
   }
