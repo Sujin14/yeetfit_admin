@@ -7,30 +7,30 @@ class FirestorePlanService {
   Future<List<PlanModel>> getClientPlans(String userId) async {
     try {
       final workouts = await firestore
-          .collection('users')
-          .doc(userId)
-          .collection('workouts')
-          .orderBy('createdAt', descending: true)
-          .get();
+ .collection('users')
+ .doc(userId)
+ .collection('workouts')
+ .orderBy('createdAt', descending: true)
+ .get();
       final diets = await firestore
-          .collection('users')
-          .doc(userId)
-          .collection('diets')
-          .orderBy('createdAt', descending: true)
-          .get();
+ .collection('users')
+ .doc(userId)
+ .collection('diets')
+ .orderBy('createdAt', descending: true)
+ .get();
       final plans = [
-        ...workouts.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          data['type'] = 'workout';
-          return PlanModel.fromMap(data);
-        }),
-        ...diets.docs.map((doc) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          data['type'] = 'diet';
-          return PlanModel.fromMap(data);
-        }),
+ ...workouts.docs.map((doc) {
+   final data = doc.data();
+   data['id'] = doc.id;
+   data['type'] = 'workout';
+   return PlanModel.fromMap(data);
+ }),
+ ...diets.docs.map((doc) {
+   final data = doc.data();
+   data['id'] = doc.id;
+   data['type'] = 'diet';
+   return PlanModel.fromMap(data);
+ }),
       ];
       return plans;
     } catch (e) {
@@ -39,28 +39,34 @@ class FirestorePlanService {
   }
 
   Future<bool> assignPlan(String userId, PlanModel plan) async {
-  try {
-    final collection = plan.type == 'diet' ? 'diets' : 'workouts';
-    final docRef = firestore
-        .collection('users')
-        .doc(userId)
-        .collection(collection)
-        .doc(plan.id);
-    await docRef.set(plan.toMap(), SetOptions(merge: true)); // Use merge to update existing document
-    return true;
-  } catch (e) {
-    throw Exception('Failed to assign plan: $e');
+    try {
+      final collection = plan.type == 'diet' ? 'diets' : 'workouts';
+      final docId = plan.id ?? firestore.collection('users').doc().id; // Generate new ID only if plan.id is null
+      final docRef = firestore
+ .collection('users')
+ .doc(userId)
+ .collection(collection)
+ .doc(docId);
+      // Remove 'id' from the map to avoid storing it as a field
+      final planData = plan.toMap()..remove('id');
+      await docRef.set(planData, SetOptions(merge: true));
+      print('Plan saved with ID: $docId'); // Debug log
+      return true;
+    } catch (e) {
+      print('Error assigning plan: $e'); // Debug log
+      throw Exception('Failed to assign plan: $e');
+    }
   }
-}
+
   Future<bool> deletePlan(String userId, String planId, String type) async {
     try {
       final collection = type == 'diet' ? 'diets' : 'workouts';
       await firestore
-          .collection('users')
-          .doc(userId)
-          .collection(collection)
-          .doc(planId)
-          .delete();
+ .collection('users')
+ .doc(userId)
+ .collection(collection)
+ .doc(planId)
+ .delete();
       return true;
     } catch (e) {
       throw Exception('Failed to delete plan: $e');

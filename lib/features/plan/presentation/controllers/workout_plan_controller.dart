@@ -33,20 +33,30 @@ class WorkoutPlanController extends BasePlanController {
     isEditMode.value = args?['mode'] == 'edit';
     planId.value = args?['planId'] ?? '';
 
-    titleController.clear();
-    descriptionController.clear();
-    exercises.clear();
-    totalCaloriesController.clear();
+    print('Initializing form: userId=${userId.value}, isEditMode=${isEditMode.value}, planId=${planId.value}'); // Debug log
+
+    // Clear form fields only if not in edit mode
+    if (!isEditMode.value) {
+      titleController.clear();
+      descriptionController.clear();
+      exercises.clear();
+      totalCaloriesController.clear();
+    }
 
     final previewController = Get.put(PreviewController('$userId-$planType'), tag: 'preview-plan-$userId-$planType');
 
-    if (isEditMode.value && args?['plan'] != null) {
+    if (isEditMode.value && args?['plan'] != null && planId.value.isNotEmpty) {
       final PlanModel plan = args['plan'];
+      if (plan.id != planId.value) {
+        print('Warning: planId (${planId.value}) does not match plan.id (${plan.id})');
+        planId.value = plan.id ?? planId.value; // Prefer plan.id
+      }
+      print('Loading plan data: ${plan.title}, ID: ${plan.id}'); // Debug log
       titleController.text = plan.title;
       descriptionController.text = plan.details['description']?.toString() ?? '';
       totalCaloriesController.text = plan.totalCalories.toString();
       exercises.assignAll(
-        (plan.details['exercises'] as List).map((exercise) {
+        (plan.details['exercises'] as List? ?? []).map((exercise) {
           final instructions = (exercise['instructions'] as List? ?? []).map((instr) {
             return {
               'text': instr['text'] ?? '',
@@ -56,15 +66,15 @@ class WorkoutPlanController extends BasePlanController {
           return {
             'name': exercise['name'] ?? '',
             'repsType': exercise['repsType'] ?? 'reps',
-            'reps': exercise['reps'].toString(),
-            'sets': exercise['sets'].toString(),
+            'reps': exercise['reps']?.toString() ?? '',
+            'sets': exercise['sets']?.toString() ?? '',
             'description': exercise['description'] ?? '',
             'instructions': instructions,
             'videoUrl': exercise['videoUrl'] ?? '',
             'controllers': {
               'name': TextEditingController(text: exercise['name'] ?? ''),
-              'reps': TextEditingController(text: exercise['reps'].toString()),
-              'sets': TextEditingController(text: exercise['sets'].toString()),
+              'reps': TextEditingController(text: exercise['reps']?.toString() ?? ''),
+              'sets': TextEditingController(text: exercise['sets']?.toString() ?? ''),
               'description': TextEditingController(text: exercise['description'] ?? ''),
               'videoUrl': TextEditingController(text: exercise['videoUrl'] ?? ''),
             },
@@ -72,6 +82,15 @@ class WorkoutPlanController extends BasePlanController {
         }).toList(),
       );
       previewController.initialize(exercises.length);
+    } else if (isEditMode.value) {
+      print('Error: Edit mode enabled but no plan or planId provided');
+      isEditMode.value = false; // Reset to avoid inconsistent state
+      Get.snackbar(
+        'Error',
+        'Cannot load plan data for editing',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
     } else {
       addExercise();
       previewController.initialize(exercises.length);
@@ -156,73 +175,74 @@ class WorkoutPlanController extends BasePlanController {
   }
 
   @override
-Future<bool> savePlan() async {
-  if (userId.value.isEmpty) {
-    error.value = 'No client selected. Please try again.';
-    Get.snackbar('Error', error.value,
-        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-    return false;
-  }
-
-  if (formKey.currentState == null || !formKey.currentState!.validate()) {
-    error.value = 'Please fill all required fields';
-    Get.snackbar('Error', error.value,
-        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-    return false;
-  }
-
-  final plan = PlanModel(
-    id: isEditMode.value ? planId.value : null, // Ensure planId is used for updates
-    title: titleController.text.trim().isEmpty ? 'Unnamed Workout Plan' : titleController.text.trim(),
-    type: planType,
-    userId: userId.value,
-    assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-    details: {
-      'description': descriptionController.text.trim(),
-      'exercises': exercises.map((exercise) {
-        return {
-          'name': exercise['controllers']['name'].text.trim(),
-          'repsType': exercise['repsType'],
-          'reps': int.tryParse(exercise['controllers']['reps'].text.trim()) ?? 0,
-          'sets': int.tryParse(exercise['controllers']['sets'].text.trim()) ?? 0,
-          'description': exercise['controllers']['description'].text.trim(),
-          'instructions': (exercise['instructions'] as List).map((instr) {
-            return {'text': (instr['controller'] as TextEditingController).text.trim()};
-          }).toList(),
-          'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
-        };
-      }).toList(),
-    },
-    totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
-    totalMacronutrients: {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0},
-    isFavorite: isEditMode.value ? plans.firstWhere((p) => p.id == planId.value, orElse: () => PlanModel(id: null, title: '', type: planType, userId: userId.value, details: {}, isFavorite: false, createdAt: Timestamp.now(), totalCalories: 0)).isFavorite : false,
-    createdAt: Timestamp.now(),
-  );
-
-  isLoading.value = true;
-  error.value = '';
-  try {
-    final success = await assignPlan(userId.value, plan);
-    if (success) {
-      await fetchPlans();
-      Get.back(result: true);
-      Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
-          backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
-    } else {
-      error.value = 'Failed to save plan';
+  Future<bool> savePlan() async {
+    if (userId.value.isEmpty) {
+      error.value = 'No client selected. Please try again.';
       Get.snackbar('Error', error.value,
           backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      return false;
     }
-    return success;
-  } catch (e) {
-    error.value = 'Error saving plan: $e';
-    Get.snackbar('Error', error.value,
-        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-    return false;
-  } finally {
-    isLoading.value = false;
+
+    if (formKey.currentState == null || !formKey.currentState!.validate()) {
+      error.value = 'Please fill all required fields';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      return false;
+    }
+
+    final plan = PlanModel(
+      id: isEditMode.value && planId.value.isNotEmpty ? planId.value : null, // Retain planId for updates
+      title: titleController.text.trim().isEmpty ? 'Unnamed Workout Plan' : titleController.text.trim(),
+      type: planType,
+      userId: userId.value,
+      assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+      details: {
+        'description': descriptionController.text.trim(),
+        'exercises': exercises.map((exercise) {
+          return {
+            'name': exercise['controllers']['name'].text.trim(),
+            'repsType': exercise['repsType'],
+            'reps': int.tryParse(exercise['controllers']['reps'].text.trim()) ?? 0,
+            'sets': int.tryParse(exercise['controllers']['sets'].text.trim()) ?? 0,
+            'description': exercise['controllers']['description'].text.trim(),
+            'instructions': (exercise['instructions'] as List).map((instr) {
+              return {'text': (instr['controller'] as TextEditingController).text.trim()};
+            }).toList(),
+            'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
+          };
+        }).toList(),
+      },
+      totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
+      totalMacronutrients: {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0},
+      isFavorite: isEditMode.value ? plans.firstWhere((p) => p.id == planId.value, orElse: () => PlanModel(id: null, title: '', type: planType, userId: userId.value, details: {}, isFavorite: false, createdAt: Timestamp.now(), totalCalories: 0)).isFavorite : false,
+      createdAt: Timestamp.now(),
+    );
+
+    isLoading.value = true;
+    error.value = '';
+    try {
+      print('Saving plan: isEditMode=${isEditMode.value}, planId=${plan.id}'); // Debug log
+      final success = await assignPlan(userId.value, plan);
+      if (success) {
+        await fetchPlans();
+        Get.back(result: true);
+        Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
+            backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
+      } else {
+        error.value = 'Failed to save plan';
+        Get.snackbar('Error', error.value,
+            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      }
+      return success;
+    } catch (e) {
+      error.value = 'Error saving plan: $e';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+      return false;
+    } finally {
+      isLoading.value = false;
+    }
   }
-}
 
   @override
   void onClose() {

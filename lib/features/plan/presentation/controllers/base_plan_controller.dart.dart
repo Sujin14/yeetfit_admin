@@ -32,15 +32,20 @@ abstract class BasePlanController extends GetxController {
   });
 
   void setupWithArguments(Map<String, dynamic>? args) {
-    if (isInitialized) return;
-    userId.value = args?['uid'] ?? '';
-    isEditMode.value = args?['mode'] == 'edit';
-    planId.value = args?['planId'] ?? '';
-    if (Get.currentRoute.contains('plan')) {
+    if (args == null) {
+      print('Error: No arguments provided for setup');
+      error.value = 'Invalid navigation arguments';
+      return;
+    }
+    userId.value = args['uid'] ?? '';
+    isEditMode.value = args['mode'] == 'edit';
+    planId.value = args['planId'] ?? '';
+    print('Setup: userId=${userId.value}, isEditMode=${isEditMode.value}, planId=${planId.value}'); // Debug log
+    if (Get.currentRoute.contains('plan') && !isInitialized) {
       initializeForm();
       fetchPlans();
+      isInitialized = true;
     }
-    isInitialized = true;
   }
 
   void initializeForm();
@@ -54,7 +59,9 @@ abstract class BasePlanController extends GetxController {
     error.value = '';
     try {
       final fetchedPlans = await getClientPlans(userId.value);
-      plans.assignAll(fetchedPlans.where((plan) => plan.type == planType).toList());
+      plans.assignAll(
+        fetchedPlans.where((plan) => plan.type == planType).toList(),
+      );
     } catch (e) {
       error.value = 'Failed to load plans: $e';
       Get.snackbar(
@@ -109,17 +116,30 @@ abstract class BasePlanController extends GetxController {
   }
 
   Future<void> openPlanForm({required String mode, PlanModel? plan}) async {
-    final route = planType == 'diet' ? '/home/diet-plan-management' : '/home/workout-plan-management';
+    final route = planType == 'diet'
+        ? '/home/diet-plan-management'
+        : '/home/workout-plan-management';
+    if (mode == 'edit' && (plan?.id == null || plan?.id?.isEmpty == true)) {
+      print('Error: Attempting to edit plan with null or empty ID');
+      Get.snackbar(
+        'Error',
+        'Cannot edit plan: Invalid plan ID',
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+      return;
+    }
     AppRoutes.debounceNavigate(
       route,
       arguments: {
         'uid': userId.value,
         'type': planType,
         'mode': mode,
-        'planId': plan?.id,
+        'planId': plan?.id ?? '',
         'plan': plan,
       },
     );
+    print('Navigating to $route with planId: ${plan?.id}, mode: $mode'); // Debug log
     await fetchPlans();
   }
 
