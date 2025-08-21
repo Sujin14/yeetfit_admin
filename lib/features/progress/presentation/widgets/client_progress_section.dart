@@ -10,13 +10,20 @@ class ClientProgressSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ClientDetailsController>();
+    final isWeb =
+        MediaQuery.of(context).size.width > 600; // Threshold for web view
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Daily Progress', style: AdminTheme.textStyles['title']),
+          Text(
+            'Daily Progress',
+            style: AdminTheme.textStyles['title']!.copyWith(
+              fontSize: isWeb ? 16.0 : 18.sp, // Constrain title font size
+            ),
+          ),
           SizedBox(height: 8.h),
           Card(
             elevation: 2,
@@ -32,11 +39,12 @@ class ClientProgressSection extends StatelessWidget {
                 'View Daily Progress',
                 style: AdminTheme.textStyles['body']!.copyWith(
                   color: AdminTheme.colors['textPrimary'],
+                  fontSize: isWeb ? 14.0 : 16.sp, // Constrain font size
                 ),
               ),
               trailing: Icon(
                 Icons.arrow_forward_ios,
-                size: 16.w,
+                size: isWeb ? 14.0 : 16.w, // Constrain icon size for web
                 color: AdminTheme.colors['textSecondary'],
               ),
               onTap: () {

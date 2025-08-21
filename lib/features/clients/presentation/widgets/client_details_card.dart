@@ -10,6 +10,9 @@ class ClientDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWeb =
+        MediaQuery.of(context).size.width > 600; // Threshold for web view
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
       child: Card(
@@ -27,7 +30,9 @@ class ClientDetailsCard extends StatelessWidget {
                   Hero(
                     tag: 'client-avatar-${client.uid}',
                     child: CircleAvatar(
-                      radius: 24.r,
+                      radius: isWeb
+                          ? 20.0
+                          : 24.r, // Constrain avatar size for web
                       backgroundColor: AdminTheme.colors['secondary'],
                       backgroundImage: client.profilePicture?.isNotEmpty == true
                           ? NetworkImage(client.profilePicture!)
@@ -39,7 +44,9 @@ class ClientDetailsCard extends StatelessWidget {
                                   : '',
                               style: AdminTheme.textStyles['body']!.copyWith(
                                 color: AdminTheme.colors['onPrimary'],
-                                fontSize: 16.sp,
+                                fontSize: isWeb
+                                    ? 14.0
+                                    : 16.sp, // Constrain font size
                               ),
                             )
                           : null,
@@ -50,39 +57,55 @@ class ClientDetailsCard extends StatelessWidget {
                     client.name,
                     style: AdminTheme.textStyles['title']!.copyWith(
                       color: AdminTheme.colors['textPrimary'],
+                      fontSize: isWeb
+                          ? 16.0
+                          : 18.sp, // Constrain title font size
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 16.h),
-
               Text(
                 'Goal: ${client.goal ?? 'Not set'}',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Height: ${client.height?.toStringAsFixed(1) ?? 'Not set'} cm',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Current Weight: ${client.currentWeight?.toStringAsFixed(1) ?? 'Not set'} kg',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Goal Weight: ${client.goalWeight?.toStringAsFixed(1) ?? 'Not set'} kg',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Gender: ${client.gender ?? 'Not set'}',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Age: ${client.age?.toString() ?? 'Not set'}',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
               Text(
                 'Activity Level: ${client.activityLevel ?? 'Not set'}',
-                style: AdminTheme.textStyles['body'],
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
               ),
             ],
           ),
