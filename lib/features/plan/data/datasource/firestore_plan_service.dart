@@ -39,20 +39,19 @@ class FirestorePlanService {
   }
 
   Future<bool> assignPlan(String userId, PlanModel plan) async {
-    try {
-      final collection = plan.type == 'diet' ? 'diets' : 'workouts';
-      final docRef = firestore
-          .collection('users')
-          .doc(userId)
-          .collection(collection)
-          .doc(plan.id ?? firestore.collection('users').doc().id);
-      await docRef.set(plan.toMap());
-      return true;
-    } catch (e) {
-      throw Exception('Failed to assign plan: $e');
-    }
+  try {
+    final collection = plan.type == 'diet' ? 'diets' : 'workouts';
+    final docRef = firestore
+        .collection('users')
+        .doc(userId)
+        .collection(collection)
+        .doc(plan.id);
+    await docRef.set(plan.toMap(), SetOptions(merge: true)); // Use merge to update existing document
+    return true;
+  } catch (e) {
+    throw Exception('Failed to assign plan: $e');
   }
-
+}
   Future<bool> deletePlan(String userId, String planId, String type) async {
     try {
       final collection = type == 'diet' ? 'diets' : 'workouts';

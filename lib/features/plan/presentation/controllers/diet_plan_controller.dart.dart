@@ -309,86 +309,86 @@ class DietPlanController extends BasePlanController {
   }
 
   @override
-  Future<bool> savePlan() async {
-    if (userId.value.isEmpty) {
-      error.value = 'No client selected. Please try again.';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    }
-
-    if (formKey.currentState == null || !formKey.currentState!.validate()) {
-      error.value = 'Please fill all required fields';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    }
-
-    final plan = PlanModel(
-      id: isEditMode.value ? planId.value : null,
-      title: titleController.text.trim().isEmpty ? 'Unnamed Plan' : titleController.text.trim(),
-      type: planType,
-      userId: userId.value,
-      assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-      details: {
-        'description': descriptionController.text.trim(),
-        'meals': meals.map((mealName, meal) => MapEntry(mealName, {
-              'calories': int.tryParse(mealCalorieControllers[mealName]?.text ?? '0') ?? 0,
-              'macronutrients': {
-                'protein': double.tryParse(meal['controllers']['protein'].text.trim()) ?? 0.0,
-                'carbs': double.tryParse(meal['controllers']['carbs'].text.trim()) ?? 0.0,
-                'fats': double.tryParse(meal['controllers']['fats'].text.trim()) ?? 0.0,
-              },
-              'foods': (meal['foods'] as List).map((food) {
-                return {
-                  'name': food['controllers']['name'].text.trim(),
-                  'quantity': food['controllers']['quantity'].text.trim(),
-                  'unit': food['unit'] ?? 'g',
-                  'calories': int.tryParse(food['controllers']['calories'].text.trim()) ?? 0,
-                  'description': food['controllers']['description'].text.trim(),
-                  'macronutrients': {
-                    'protein': double.tryParse(food['controllers']['protein'].text.trim()) ?? 0.0,
-                    'carbs': double.tryParse(food['controllers']['carbs'].text.trim()) ?? 0.0,
-                    'fats': double.tryParse(food['controllers']['fats'].text.trim()) ?? 0.0,
-                  },
-                };
-              }).toList(),
-            })),
-      },
-      totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
-      totalMacronutrients: {
-        'protein': double.tryParse(proteinController.text.trim()) ?? 0.0,
-        'carbs': double.tryParse(carbsController.text.trim()) ?? 0.0,
-        'fats': double.tryParse(fatsController.text.trim()) ?? 0.0,
-      },
-      isFavorite: isEditMode.value ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ?? false : false,
-      createdAt: Timestamp.now(),
-    );
-
-    isLoading.value = true;
-    error.value = '';
-    try {
-      final success = await assignPlan(userId.value, plan);
-      if (success) {
-        await fetchPlans();
-        Get.back(result: true);
-        Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
-            backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
-      } else {
-        error.value = 'Failed to save plan';
-        Get.snackbar('Error', error.value,
-            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      }
-      return success;
-    } catch (e) {
-      error.value = 'Error saving plan: $e';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
+Future<bool> savePlan() async {
+  if (userId.value.isEmpty) {
+    error.value = 'No client selected. Please try again.';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
   }
+
+  if (formKey.currentState == null || !formKey.currentState!.validate()) {
+    error.value = 'Please fill all required fields';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
+  }
+
+  final plan = PlanModel(
+    id: isEditMode.value ? planId.value : null, // Ensure planId is used for updates
+    title: titleController.text.trim().isEmpty ? 'Unnamed Plan' : titleController.text.trim(),
+    type: planType,
+    userId: userId.value,
+    assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+    details: {
+      'description': descriptionController.text.trim(),
+      'meals': meals.map((mealName, meal) => MapEntry(mealName, {
+            'calories': int.tryParse(mealCalorieControllers[mealName]?.text ?? '0') ?? 0,
+            'macronutrients': {
+              'protein': double.tryParse(meal['controllers']['protein'].text.trim()) ?? 0.0,
+              'carbs': double.tryParse(meal['controllers']['carbs'].text.trim()) ?? 0.0,
+              'fats': double.tryParse(meal['controllers']['fats'].text.trim()) ?? 0.0,
+            },
+            'foods': (meal['foods'] as List).map((food) {
+              return {
+                'name': food['controllers']['name'].text.trim(),
+                'quantity': food['controllers']['quantity'].text.trim(),
+                'unit': food['unit'] ?? 'g',
+                'calories': int.tryParse(food['controllers']['calories'].text.trim()) ?? 0,
+                'description': food['controllers']['description'].text.trim(),
+                'macronutrients': {
+                  'protein': double.tryParse(food['controllers']['protein'].text.trim()) ?? 0.0,
+                  'carbs': double.tryParse(food['controllers']['carbs'].text.trim()) ?? 0.0,
+                  'fats': double.tryParse(food['controllers']['fats'].text.trim()) ?? 0.0,
+                },
+              };
+            }).toList(),
+          })),
+    },
+    totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
+    totalMacronutrients: {
+      'protein': double.tryParse(proteinController.text.trim()) ?? 0.0,
+      'carbs': double.tryParse(carbsController.text.trim()) ?? 0.0,
+      'fats': double.tryParse(fatsController.text.trim()) ?? 0.0,
+    },
+    isFavorite: isEditMode.value ? plans.firstWhere((p) => p.id == planId.value, orElse: () => PlanModel(id: null, title: '', type: planType, userId: userId.value, details: {}, isFavorite: false, createdAt: Timestamp.now(), totalCalories: 0)).isFavorite : false,
+    createdAt: Timestamp.now(),
+  );
+
+  isLoading.value = true;
+  error.value = '';
+  try {
+    final success = await assignPlan(userId.value, plan);
+    if (success) {
+      await fetchPlans();
+      Get.back(result: true);
+      Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
+          backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
+    } else {
+      error.value = 'Failed to save plan';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    }
+    return success;
+  } catch (e) {
+    error.value = 'Error saving plan: $e';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
   @override
   void onClose() {

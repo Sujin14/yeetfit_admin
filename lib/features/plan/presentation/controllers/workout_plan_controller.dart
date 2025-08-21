@@ -156,73 +156,73 @@ class WorkoutPlanController extends BasePlanController {
   }
 
   @override
-  Future<bool> savePlan() async {
-    if (userId.value.isEmpty) {
-      error.value = 'No client selected. Please try again.';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    }
-
-    if (formKey.currentState == null || !formKey.currentState!.validate()) {
-      error.value = 'Please fill all required fields';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    }
-
-    final plan = PlanModel(
-      id: isEditMode.value ? planId.value : null,
-      title: titleController.text.trim().isEmpty ? 'Unnamed Workout Plan' : titleController.text.trim(),
-      type: planType,
-      userId: userId.value,
-      assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
-      details: {
-        'description': descriptionController.text.trim(),
-        'exercises': exercises.map((exercise) {
-          return {
-            'name': exercise['controllers']['name'].text.trim(),
-            'repsType': exercise['repsType'],
-            'reps': int.tryParse(exercise['controllers']['reps'].text.trim()) ?? 0,
-            'sets': int.tryParse(exercise['controllers']['sets'].text.trim()) ?? 0,
-            'description': exercise['controllers']['description'].text.trim(),
-            'instructions': (exercise['instructions'] as List).map((instr) {
-              return {'text': (instr['controller'] as TextEditingController).text.trim()};
-            }).toList(),
-            'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
-          };
-        }).toList(),
-      },
-      totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
-      totalMacronutrients: {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0},
-      isFavorite: isEditMode.value ? plans.firstWhereOrNull((p) => p.id == planId.value)?.isFavorite ?? false : false,
-      createdAt: Timestamp.now(),
-    );
-
-    isLoading.value = true;
-    error.value = '';
-    try {
-      final success = await assignPlan(userId.value, plan);
-      if (success) {
-        await fetchPlans();
-        Get.back(result: true);
-        Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
-            backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
-      } else {
-        error.value = 'Failed to save plan';
-        Get.snackbar('Error', error.value,
-            backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      }
-      return success;
-    } catch (e) {
-      error.value = 'Error saving plan: $e';
-      Get.snackbar('Error', error.value,
-          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
-      return false;
-    } finally {
-      isLoading.value = false;
-    }
+Future<bool> savePlan() async {
+  if (userId.value.isEmpty) {
+    error.value = 'No client selected. Please try again.';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
   }
+
+  if (formKey.currentState == null || !formKey.currentState!.validate()) {
+    error.value = 'Please fill all required fields';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
+  }
+
+  final plan = PlanModel(
+    id: isEditMode.value ? planId.value : null, // Ensure planId is used for updates
+    title: titleController.text.trim().isEmpty ? 'Unnamed Workout Plan' : titleController.text.trim(),
+    type: planType,
+    userId: userId.value,
+    assignedBy: FirebaseAuth.instance.currentUser?.uid ?? '',
+    details: {
+      'description': descriptionController.text.trim(),
+      'exercises': exercises.map((exercise) {
+        return {
+          'name': exercise['controllers']['name'].text.trim(),
+          'repsType': exercise['repsType'],
+          'reps': int.tryParse(exercise['controllers']['reps'].text.trim()) ?? 0,
+          'sets': int.tryParse(exercise['controllers']['sets'].text.trim()) ?? 0,
+          'description': exercise['controllers']['description'].text.trim(),
+          'instructions': (exercise['instructions'] as List).map((instr) {
+            return {'text': (instr['controller'] as TextEditingController).text.trim()};
+          }).toList(),
+          'videoUrl': exercise['controllers']['videoUrl'].text.trim(),
+        };
+      }).toList(),
+    },
+    totalCalories: int.tryParse(totalCaloriesController.text.trim()) ?? 0,
+    totalMacronutrients: {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0},
+    isFavorite: isEditMode.value ? plans.firstWhere((p) => p.id == planId.value, orElse: () => PlanModel(id: null, title: '', type: planType, userId: userId.value, details: {}, isFavorite: false, createdAt: Timestamp.now(), totalCalories: 0)).isFavorite : false,
+    createdAt: Timestamp.now(),
+  );
+
+  isLoading.value = true;
+  error.value = '';
+  try {
+    final success = await assignPlan(userId.value, plan);
+    if (success) {
+      await fetchPlans();
+      Get.back(result: true);
+      Get.snackbar('Success', '$planType plan ${isEditMode.value ? 'updated' : 'assigned'} successfully',
+          backgroundColor: AdminTheme.colors['primary'], colorText: AdminTheme.colors['surface']);
+    } else {
+      error.value = 'Failed to save plan';
+      Get.snackbar('Error', error.value,
+          backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    }
+    return success;
+  } catch (e) {
+    error.value = 'Error saving plan: $e';
+    Get.snackbar('Error', error.value,
+        backgroundColor: AdminTheme.colors['error'], colorText: AdminTheme.colors['surface']);
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
   @override
   void onClose() {

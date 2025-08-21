@@ -26,6 +26,14 @@ class PlanModel {
   });
 
   factory PlanModel.fromMap(Map<String, dynamic> map) {
+    // Safely convert macronutrients to double
+    final macroMap = Map<String, dynamic>.from(map['totalMacronutrients'] ?? {});
+    final convertedMacros = <String, double>{
+      'protein': (macroMap['protein'] is int ? macroMap['protein'].toDouble() : macroMap['protein'] as double?) ?? 0.0,
+      'carbs': (macroMap['carbs'] is int ? macroMap['carbs'].toDouble() : macroMap['carbs'] as double?) ?? 0.0,
+      'fats': (macroMap['fats'] is int ? macroMap['fats'].toDouble() : macroMap['fats'] as double?) ?? 0.0,
+    };
+
     return PlanModel(
       id: map['id'] as String?,
       title: map['title'] as String? ?? 'Unnamed Plan',
@@ -36,8 +44,7 @@ class PlanModel {
       isFavorite: map['isFavorite'] as bool? ?? false,
       createdAt: map['createdAt'] as Timestamp? ?? Timestamp.now(),
       totalCalories: map['totalCalories'] as int? ?? 0,
-      totalMacronutrients: Map<String, double>.from(
-          map['totalMacronutrients'] ?? {'protein': 0.0, 'carbs': 0.0, 'fats': 0.0}),
+      totalMacronutrients: convertedMacros,
     );
   }
 
