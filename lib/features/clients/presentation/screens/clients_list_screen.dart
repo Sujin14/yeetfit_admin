@@ -11,22 +11,27 @@ class ClientsListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ClientListController(goal), tag: goal);
+    // Standardize goal to lowercase
+    final standardizedGoal = goal.toLowerCase();
+    final controller = Get.put(ClientListController(standardizedGoal), tag: standardizedGoal);
 
     return Obx(
       () => Column(
         children: [
           CustomAppBar(
-            title: goal,
+            title: standardizedGoal.split(' ').map((word) {
+              if (word.isEmpty) return word;
+              return word[0].toUpperCase() + word.substring(1);
+            }).join(' '), // Display as title case for UI
             showSearchToggle: true,
             showSearchBar: controller.showSearchBar,
             onSearchToggle: controller.toggleSearchBar,
           ),
           ClientsListHeader(
-            goal: goal,
+            goal: standardizedGoal,
             showSearch: controller.showSearchBar.value,
           ),
-          Expanded(child: ClientsListBody(goal: goal)),
+          Expanded(child: ClientsListBody(goal: standardizedGoal)),
         ],
       ),
     );

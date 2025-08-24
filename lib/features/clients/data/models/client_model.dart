@@ -40,7 +40,8 @@ class ClientModel {
       height: (map['height'] as num?)?.toDouble(),
       activityLevel: map['activityLevel'],
       timeDurationWeeks: map['timeDurationWeeks'],
-      profilePicture: map['profilePicture'],
+      profilePicture:
+          map['profileImageUrl'], // Map Firestore field 'profileImageUrl' to profilePicture
     );
   }
 
@@ -57,7 +58,7 @@ class ClientModel {
       'height': height,
       'activityLevel': activityLevel,
       'timeDurationWeeks': timeDurationWeeks,
-      'profilePicture': profilePicture,
+      'profileImageUrl': profilePicture, // Save to Firestore as profileImageUrl
     };
   }
 }
