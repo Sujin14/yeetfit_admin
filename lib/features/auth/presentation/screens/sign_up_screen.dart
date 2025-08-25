@@ -14,7 +14,18 @@ class SignUpScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final authController = Get.find<AuthController>();
-    final isWeb = MediaQuery.of(context).size.width > 1800; 
+    final width = MediaQuery.of(context).size.width;
+
+    // Breakpoints
+    final bool isTablet = width >= 600 && width < 1024;
+    final bool isDesktop = width >= 1024;
+
+    double maxWidth = double.infinity;
+    if (isTablet) {
+      maxWidth = 600;
+    } else if (isDesktop) {
+      maxWidth = 800;
+    }
 
     return Scaffold(
       body: Container(
@@ -32,84 +43,70 @@ class SignUpScreen extends StatelessWidget {
           ),
         ),
         child: SafeArea(
-          child: Obx(() => authController.isLoading.value
-              ? Center(child: ShimmerLoading(height: 200.h))
-              : LayoutBuilder(
-                  builder: (context, constraints) {
-                    // Constrain content height to fit viewport in web view
-                    final contentHeight = isWeb
-                        ? constraints.maxHeight - 32.h // Adjust for SafeArea padding
-                        : double.infinity;
-
-                    return Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          maxHeight: contentHeight,
-                          maxWidth: isWeb ? 600.0 : double.infinity, // Limit form width for web
+          child: Obx(
+            () => authController.isLoading.value
+                ? Center(child: ShimmerLoading(height: 200.h))
+                : Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxWidth),
+                      child: SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 16.h,
                         ),
-                        child: SingleChildScrollView(
-                          physics: isWeb
-                              ? const NeverScrollableScrollPhysics() // Disable scroll for web
-                              : const BouncingScrollPhysics(),
-                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(height: isWeb ? 20.h : 40.h), // Reduced spacing for web
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxHeight: isWeb ? 80.0 : 100.h,
-                                  maxWidth: isWeb ? 80.0 : 100.w,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 40.h),
+                            ConstrainedBox(
+                              constraints: BoxConstraints(
+                                maxHeight: 100.h,
+                                maxWidth: 100.w,
+                              ),
+                              child: Image.asset(
+                                'assets/images/yeet_icon.png',
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                            SizedBox(height: 16.h),
+                            Card(
+                              elevation: 10,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16.r),
+                              ),
+                              color: AdminTheme.colors['surface'],
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                  vertical: 32.h,
                                 ),
-                                child: Image.asset(
-                                  'assets/images/yeet_icon.png',
-                                  fit: BoxFit.contain,
+                                child: Column(
+                                  children: const [
+                                    SignUpHeader(),
+                                    SizedBox(height: 16),
+                                    SignUpForm(),
+                                  ],
                                 ),
                               ),
-                              SizedBox(height: 16.h), // Reduced spacing
-                              ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  maxWidth: isWeb ? 400.0 : double.infinity,
-                                ),
-                                child: Card(
-                                  elevation: 10,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16.r),
-                                  ),
-                                  color: AdminTheme.colors['surface'],
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w,
-                                      vertical: isWeb ? 24.h : 32.h, // Reduced padding for web
-                                    ),
-                                    child: Column(
-                                      children: const [
-                                        SignUpHeader(),
-                                        SizedBox(height: 16), // Reduced spacing
-                                        SignUpForm(),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 16.h), // Reduced spacing
-                              AuthNavLink(
-                                prefixText: "Already have an account? ",
-                                linkText: 'Login',
-                                onPressed: authController.navigateToLogin,
-                                gradientColors: [
-                                  AdminTheme.colors['gradientStart']!,
-                                  AdminTheme.colors['gradientMid']!,
-                                ],
-                              ),
-                              if (!isWeb) SizedBox(height: 20.h), // Extra spacing for mobile
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 16.h),
+                            AuthNavLink(
+                              prefixText: "Already have an account? ",
+                              linkText: 'Login',
+                              onPressed: authController.navigateToLogin,
+                              gradientColors: [
+                                AdminTheme.colors['gradientStart']!,
+                                AdminTheme.colors['gradientMid']!,
+                              ],
+                            ),
+                            SizedBox(height: 20.h),
+                          ],
                         ),
                       ),
-                    );
-                  },
-                )),
+                    ),
+                  ),
+          ),
         ),
       ),
     );
