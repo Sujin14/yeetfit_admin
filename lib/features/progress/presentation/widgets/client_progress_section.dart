@@ -14,7 +14,7 @@ class ClientProgressSection extends StatelessWidget {
         MediaQuery.of(context).size.width > 600; // Threshold for web view
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

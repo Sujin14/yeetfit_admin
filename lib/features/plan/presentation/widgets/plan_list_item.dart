@@ -22,81 +22,110 @@ class PlanListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-      child: Slidable(
-        key: ValueKey(plan.id),
-        endActionPane: ActionPane(
-          motion: const StretchMotion(),
-          extentRatio: 0.5,
-          children: [
-            SlidableAction(
-              onPressed: (_) => onEdit(),
-              backgroundColor: AdminTheme.colors['editIcon']!,
-              foregroundColor: AdminTheme.colors['surface'],
-              icon: Icons.edit,
-              label: 'Edit',
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth >= 600 && screenWidth < 1024;
+    final isDesktop = screenWidth >= 1024;
+
+    // Constrain max width for tablet/desktop
+    double maxWidth = double.infinity;
+    if (isTablet) {
+      maxWidth = 600; // tablet width
+    } else if (isDesktop) {
+      maxWidth = 800; // desktop width
+    }
+
+    return Center(
+      // keeps the card centered on larger screens
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxWidth: maxWidth),
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          child: Slidable(
+            key: ValueKey(plan.id),
+            endActionPane: ActionPane(
+              motion: const StretchMotion(),
+              extentRatio: 0.5,
+              children: [
+                SlidableAction(
+                  onPressed: (_) => onEdit(),
+                  backgroundColor: AdminTheme.colors['editIcon']!,
+                  foregroundColor: AdminTheme.colors['surface'],
+                  icon: Icons.edit,
+                  label: 'Edit',
+                ),
+                SlidableAction(
+                  onPressed: (_) async {
+                    final confirm = await Get.dialog<bool>(
+                      AlertDialog(
+                        title: Text(
+                          'Confirm Delete',
+                          style: AdminTheme.textStyles['title'],
+                        ),
+                        content: Text(
+                          'Are you sure you want to delete "${plan.title}"?',
+                          style: AdminTheme.textStyles['body'],
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(result: false),
+                            child: Text(
+                              'Cancel',
+                              style: AdminTheme.textStyles['body'],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Get.back(result: true),
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(
+                                color: AdminTheme.colors['error'],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) onDelete();
+                  },
+                  backgroundColor: AdminTheme.colors['deleteIcon']!,
+                  foregroundColor: AdminTheme.colors['surface'],
+                  icon: Icons.delete,
+                  label: 'Delete',
+                ),
+              ],
             ),
-            SlidableAction(
-              onPressed: (_) async {
-                final confirm = await Get.dialog<bool>(
-                  AlertDialog(
-                    title: Text('Confirm Delete', style: AdminTheme.textStyles['title']),
-                    content: Text(
-                      'Are you sure you want to delete "${plan.title}"?',
-                      style: AdminTheme.textStyles['body'],
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Get.back(result: false),
-                        child: Text('Cancel', style: AdminTheme.textStyles['body']),
-                      ),
-                      TextButton(
-                        onPressed: () => Get.back(result: true),
-                        child: Text('Delete', style: TextStyle(color: AdminTheme.colors['error'])),
-                      ),
-                    ],
+            child: Card(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: ListTile(
+                leading: Icon(
+                  plan.type == 'diet' ? Icons.restaurant : Icons.fitness_center,
+                  color: AdminTheme.colors['primary'],
+                  size: 24, // keep fixed, no scaling with w/h
+                ),
+                title: Text(
+                  plan.title,
+                  textAlign: TextAlign.start,
+                  style: AdminTheme.textStyles['title']!.copyWith(
+                    color: AdminTheme.colors['textPrimary'],
+                    fontWeight: FontWeight.w600,
                   ),
-                );
-                if (confirm == true) onDelete();
-              },
-              backgroundColor: AdminTheme.colors['deleteIcon']!,
-              foregroundColor: AdminTheme.colors['surface'],
-              icon: Icons.delete,
-              label: 'Delete',
-            ),
-          ],
-        ),
-        child: Card(
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.r),
-          ),
-          child: ListTile(
-            leading: Icon(
-              plan.type == 'diet' ? Icons.restaurant : Icons.fitness_center,
-              color: AdminTheme.colors['primary'],
-              size: 24.w,
-            ),
-            title: Text(
-              plan.title,
-              textAlign: TextAlign.start,
-              style: AdminTheme.textStyles['title']!.copyWith(
-                color: AdminTheme.colors['textPrimary'],
-                fontWeight: FontWeight.w600,
+                ),
+                trailing: isFirst
+                    ? SizedBox(
+                        width: 80, // fixed sizes (don’t scale with screen)
+                        height: 80,
+                        child: Lottie.asset(
+                          'assets/animations/left_swipe.json',
+                          repeat: true,
+                          animate: true,
+                        ),
+                      )
+                    : null,
               ),
             ),
-            trailing: isFirst
-                ? SizedBox(
-                    width: 80.w,
-                    height: 80.h,
-                    child: Lottie.asset(
-                      'assets/animations/left_swipe.json',
-                      repeat: true,
-                      animate: true,
-                    ),
-                  )
-                : null,
           ),
         ),
       ),

@@ -25,7 +25,7 @@ class LoginScreen extends StatelessWidget {
     if (isTablet) {
       maxWidth = 600; // tablet width cap
     } else if (isDesktop) {
-      maxWidth = 500; // desktop width cap
+      maxWidth = 600; // desktop width cap
     }
 
     return Scaffold(

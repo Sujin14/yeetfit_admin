@@ -15,7 +15,7 @@ class ClientPlansSection extends StatelessWidget {
         MediaQuery.of(context).size.width > 600;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
