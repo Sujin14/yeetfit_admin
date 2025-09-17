@@ -34,15 +34,15 @@ class AuthController extends GetxController {
   final signUpProfileImage = Rxn<File>();
 
   AuthController()
-      : loginWithEmail = LoginWithEmail(
-          AuthRepositoryImpl(emailService: EmailAuthService()),
-        ),
-        signUpWithEmail = SignUpWithEmail(
-          AuthRepositoryImpl(emailService: EmailAuthService()),
-        ),
-        resetPasswordUseCase = SendPasswordResetEmail(
-          AuthRepositoryImpl(emailService: EmailAuthService()),
-        );
+    : loginWithEmail = LoginWithEmail(
+        AuthRepositoryImpl(emailService: EmailAuthService()),
+      ),
+      signUpWithEmail = SignUpWithEmail(
+        AuthRepositoryImpl(emailService: EmailAuthService()),
+      ),
+      resetPasswordUseCase = SendPasswordResetEmail(
+        AuthRepositoryImpl(emailService: EmailAuthService()),
+      );
 
   /// Clears controllers and temporary image. Call this when logging out
   /// or when navigating to auth screens so previous credentials aren't visible.
@@ -201,24 +201,18 @@ class AuthController extends GetxController {
 
   void navigateToSignUp() {
     clearAuthFields();
-    Get.toNamed('/signup');
+    Get.offNamed('/signup');
   }
 
   void navigateToLogin() {
     clearAuthFields();
-    Get.toNamed('/');
+    Get.offNamed('/');
   }
 
   Future<bool> isAdmin(String uid) async {
     try {
       return await EmailAuthService().isAdmin(uid);
     } catch (e) {
-      Get.snackbar(
-        'Error',
-        'Failed to check admin status: $e',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
       return false;
     }
   }
@@ -228,7 +222,6 @@ class AuthController extends GetxController {
     try {
       await FirebaseAuth.instance.signOut();
 
-      // Clear local controllers immediately on logout to avoid leaking cached creds
       clearAuthFields();
 
       Get.offAllNamed('/');
@@ -236,7 +229,7 @@ class AuthController extends GetxController {
     } catch (e) {
       Get.snackbar(
         'Error',
-        'Failed to log out: $e',
+        'Failed to log out',
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );

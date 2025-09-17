@@ -20,14 +20,14 @@ class LoginForm extends StatelessWidget {
         children: [
           AuthTextField(
             controller: authController.loginEmailController,
-            labelText: 'Email',
+            labelText: 'Email*',
             keyboardType: TextInputType.emailAddress,
             validator: FormValidators.validateEmail,
           ),
           Obx(
             () => AuthTextField(
               controller: authController.loginPasswordController,
-              labelText: 'Password',
+              labelText: 'Password*',
               obscureText: !authController.showLoginPassword.value,
               validator: FormValidators.validatePassword,
               suffixIcon: IconButton(
@@ -46,7 +46,6 @@ class LoginForm extends StatelessWidget {
             child: ForgotPasswordButton(),
           ),
 
-          // Make the button reactive so loading state shows only on the button
           Obx(
             () => AuthButton(
               text: 'Login',
@@ -54,10 +53,7 @@ class LoginForm extends StatelessWidget {
               onPressed: authController.isLoading.value
                   ? null
                   : () {
-                      // Dismiss keyboard before calling login
                       FocusScope.of(context).unfocus();
-
-                      // Validate locally before calling controller
                       if (!authController.loginFormKey.currentState!.validate()) {
                         return;
                       }

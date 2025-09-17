@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../theme/theme.dart';
+import 'shimmer_loading.dart';
 
 class CustomButton extends StatelessWidget {
   final String text;
@@ -46,12 +47,11 @@ class CustomButton extends StatelessWidget {
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.r)),
         ),
         child: isLoading
-            ? SizedBox(
-                width: 24.w,
-                height: 24.h,
-                child: CircularProgressIndicator(
-                  color: AdminTheme.colors['surface'],
-                  strokeWidth: 2,
+            ? ShimmerLoading.text(
+                key: UniqueKey(),
+                text: text,
+                textStyle: AdminTheme.textStyles['button']!.copyWith(
+                  color: AdminTheme.colors['white'],
                 ),
               )
             : Row(

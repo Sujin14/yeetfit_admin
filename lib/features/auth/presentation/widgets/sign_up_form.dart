@@ -25,19 +25,19 @@ class SignUpForm extends StatelessWidget {
           SizedBox(height: 16.h),
           AuthTextField(
             controller: authController.signUpNameController,
-            labelText: 'Name',
+            labelText: 'Name*',
             validator: FormValidators.validateUserName,
           ),
           AuthTextField(
             controller: authController.signUpEmailController,
-            labelText: 'Email',
+            labelText: 'Email*',
             keyboardType: TextInputType.emailAddress,
             validator: FormValidators.validateEmail,
           ),
           Obx(
             () => AuthTextField(
               controller: authController.signUpPasswordController,
-              labelText: 'Password',
+              labelText: 'Password*',
               obscureText: !authController.showSignUpPassword.value,
               validator: FormValidators.validatePassword,
               suffixIcon: IconButton(
@@ -54,7 +54,7 @@ class SignUpForm extends StatelessWidget {
           Obx(
             () => AuthTextField(
               controller: authController.signUpConfirmPasswordController,
-              labelText: 'Confirm Password',
+              labelText: 'Confirm Password*',
               obscureText: !authController.showSignUpConfirmPassword.value,
               validator: (value) {
                 if (value == null || value.isEmpty) {
