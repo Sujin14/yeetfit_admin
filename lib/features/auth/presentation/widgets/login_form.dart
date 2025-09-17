@@ -45,10 +45,25 @@ class LoginForm extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: ForgotPasswordButton(),
           ),
-          AuthButton(
-            text: 'Login',
-            isLoading: authController.isLoading.value,
-            onPressed: authController.login,
+
+          // Make the button reactive so loading state shows only on the button
+          Obx(
+            () => AuthButton(
+              text: 'Login',
+              isLoading: authController.isLoading.value,
+              onPressed: authController.isLoading.value
+                  ? null
+                  : () {
+                      // Dismiss keyboard before calling login
+                      FocusScope.of(context).unfocus();
+
+                      // Validate locally before calling controller
+                      if (!authController.loginFormKey.currentState!.validate()) {
+                        return;
+                      }
+                      authController.login();
+                    },
+            ),
           ),
         ],
       ),

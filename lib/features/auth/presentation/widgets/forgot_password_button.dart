@@ -1,3 +1,4 @@
+// path: lib/features/auth/presentation/widgets/forgot_password_button.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -13,8 +14,11 @@ class ForgotPasswordButton extends StatelessWidget {
 
     return TextButton(
       onPressed: () async {
+        // Dismiss keyboard before dialog
+        FocusScope.of(context).unfocus();
         final email = await _askForEmailDialog(context);
         if (email != null && email.trim().isNotEmpty) {
+          // show loading at button level in controller
           await authController.resetPassword(email);
         }
       },
@@ -47,17 +51,24 @@ class ForgotPasswordButton extends StatelessWidget {
           ),
           keyboardType: TextInputType.emailAddress,
           onChanged: (value) => email = value,
+          autofocus: true,
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Navigator.pop(context);
+            },
             child: Text(
               "Cancel",
               style: AdminTheme.textStyles['body'],
             ),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(context, email),
+            onPressed: () {
+              FocusScope.of(context).unfocus();
+              Navigator.pop(context, email);
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: AdminTheme.colors['primary'],
               foregroundColor: AdminTheme.colors['surface'],

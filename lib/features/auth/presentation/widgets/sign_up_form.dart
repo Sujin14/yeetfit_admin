@@ -1,13 +1,14 @@
+// path: lib/features/auth/presentation/widgets/sign_up_form.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/form_validators.dart';
 import '../../../../core/widgets/shimmer_loading.dart';
-import '../../../settings/presentation/widgets/profile_avatar.dart';
 import '../controllers/auth_controller.dart';
 import 'auth_button.dart';
 import 'auth_text_field.dart';
+import 'sign_up_profile.dart';
 
 class SignUpForm extends StatelessWidget {
   const SignUpForm({super.key});
@@ -20,7 +21,7 @@ class SignUpForm extends StatelessWidget {
       key: authController.signUpFormKey,
       child: Column(
         children: [
-          const ProfileAvatar(isSignup: true),
+          const SignUpProfileAvatar(isSignup: true),
           SizedBox(height: 16.h),
           AuthTextField(
             controller: authController.signUpNameController,
@@ -59,6 +60,9 @@ class SignUpForm extends StatelessWidget {
                 if (value == null || value.isEmpty) {
                   return 'Please confirm your password';
                 }
+                if (value != authController.signUpPasswordController.text) {
+                  return 'Passwords do not match';
+                }
                 return null;
               },
               suffixIcon: IconButton(
@@ -72,13 +76,41 @@ class SignUpForm extends StatelessWidget {
               ),
             ),
           ),
+
           Obx(
             () => AuthButton(
               text: 'Sign Up',
               isLoading: authController.isLoading.value,
               onPressed: authController.isLoading.value
-                  ? () {}
-                  : () => authController.signUp(),
+                  ? null
+                  : () {
+                      FocusScope.of(context).unfocus();
+
+                      if (!authController.signUpFormKey.currentState!.validate()) {
+                        return;
+                      }
+                      if (authController.signUpPasswordController.text !=
+                          authController.signUpConfirmPasswordController.text) {
+                        Get.snackbar(
+                          'Error',
+                          'Passwords do not match',
+                          backgroundColor: AdminTheme.colors['error'],
+                          colorText: AdminTheme.colors['surface'],
+                        );
+                        return;
+                      }
+                      if (authController.signUpPasswordController.text.trim().length < 6) {
+                        Get.snackbar(
+                          'Error',
+                          'Password must be at least 6 characters',
+                          backgroundColor: AdminTheme.colors['error'],
+                          colorText: AdminTheme.colors['surface'],
+                        );
+                        return;
+                      }
+
+                      authController.signUp();
+                    },
               loadingWidget: ShimmerLoading(height: 24.h, width: 24.w),
             ),
           ),

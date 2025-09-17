@@ -1,3 +1,4 @@
+// path: lib/features/auth/presentation/controllers/auth_controller.dart
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -43,6 +44,32 @@ class AuthController extends GetxController {
           AuthRepositoryImpl(emailService: EmailAuthService()),
         );
 
+  /// Clears controllers and temporary image. Call this when logging out
+  /// or when navigating to auth screens so previous credentials aren't visible.
+  void clearAuthFields() {
+    loginEmailController
+      ..text = ''
+      ..clear();
+    loginPasswordController
+      ..text = ''
+      ..clear();
+
+    signUpEmailController
+      ..text = ''
+      ..clear();
+    signUpPasswordController
+      ..text = ''
+      ..clear();
+    signUpConfirmPasswordController
+      ..text = ''
+      ..clear();
+    signUpNameController
+      ..text = ''
+      ..clear();
+
+    signUpProfileImage.value = null;
+  }
+
   Future<void> pickProfileImage() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(
@@ -65,9 +92,7 @@ class AuthController extends GetxController {
   }
 
   Future<bool> login() async {
-    if (!loginFormKey.currentState!.validate()) {
-      return false;
-    }
+    // validation is done in UI, keep guard
     isLoading.value = true;
     try {
       final success = await loginWithEmail(
@@ -83,6 +108,10 @@ class AuthController extends GetxController {
         );
         return false;
       }
+
+      // Clear sensitive fields immediately after successful login.
+      clearAuthFields();
+
       Get.offAllNamed('/home/dashboard');
       return true;
     } catch (e) {
@@ -99,28 +128,6 @@ class AuthController extends GetxController {
   }
 
   Future<bool> signUp() async {
-    if (!signUpFormKey.currentState!.validate()) {
-      return false;
-    }
-    if (signUpPasswordController.text != signUpConfirmPasswordController.text) {
-      Get.snackbar(
-        'Error',
-        'Passwords do not match',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    }
-    if (signUpPasswordController.text.trim().length < 6) {
-      Get.snackbar(
-        'Error',
-        'Password must be at least 6 characters',
-        backgroundColor: AdminTheme.colors['error'],
-        colorText: AdminTheme.colors['surface'],
-      );
-      return false;
-    }
-
     isLoading.value = true;
     try {
       final success = await signUpWithEmail(
@@ -129,6 +136,7 @@ class AuthController extends GetxController {
         signUpNameController.text.trim(),
         profileImageFile: signUpProfileImage.value,
       );
+
       if (!success) {
         Get.snackbar(
           'Error',
@@ -138,6 +146,10 @@ class AuthController extends GetxController {
         );
         return false;
       }
+
+      // Clear sensitive fields after signup
+      clearAuthFields();
+
       Get.offAllNamed('/home/dashboard');
       return true;
     } catch (e) {
@@ -187,8 +199,15 @@ class AuthController extends GetxController {
     showSignUpConfirmPassword.value = !showSignUpConfirmPassword.value;
   }
 
-  void navigateToSignUp() => Get.toNamed('/signup');
-  void navigateToLogin() => Get.toNamed('/');
+  void navigateToSignUp() {
+    clearAuthFields();
+    Get.toNamed('/signup');
+  }
+
+  void navigateToLogin() {
+    clearAuthFields();
+    Get.toNamed('/');
+  }
 
   Future<bool> isAdmin(String uid) async {
     try {
@@ -208,6 +227,10 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       await FirebaseAuth.instance.signOut();
+
+      // Clear local controllers immediately on logout to avoid leaking cached creds
+      clearAuthFields();
+
       Get.offAllNamed('/');
       return true;
     } catch (e) {
