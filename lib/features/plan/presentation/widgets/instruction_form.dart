@@ -24,29 +24,31 @@ class InstructionForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutPlanController>(tag: controllerTag);
 
-    return Column(
-      children: [
-        SizedBox(height: 16.h),
-        Row(
-          children: [
-            Expanded(
-              child: CustomTextField(
-                controller: instruction['controller'],
-                labelText: 'Instruction Step ${instructionIndex + 1}',
-                validator: FormValidators.validateInstruction,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.list, color: AdminTheme.colors['textSecondary']),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.h),
+      child: Row(
+        children: [
+          Expanded(
+            child: CustomTextField(
+              controller: instruction['controller'],
+              labelText: 'Instruction ${instructionIndex + 1}',
+              validator: FormValidators.validateInstruction,
+              decoration: InputDecoration(
+                prefixIcon: Icon(Icons.list,
+                    color: AdminTheme.colors['textSecondary']),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             ),
-            IconButton(
-              icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-              onPressed: () => controller.removeInstruction(exerciseIndex, instructionIndex),
-            ),
-          ],
-        ),
-      ],
+          ),
+          IconButton(
+            icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
+            onPressed: () =>
+                controller.removeInstruction(exerciseIndex, instructionIndex),
+          ),
+        ],
+      ),
     );
   }
 }

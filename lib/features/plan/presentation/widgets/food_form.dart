@@ -41,7 +41,7 @@ class FoodForm extends StatelessWidget {
           children: [
             CustomTextField(
               controller: f['name'],
-              labelText: 'Food Name (e.g., Dosa)',
+              labelText: 'Name (e.g., Dosa)',
               validator: (value) => FormValidators.validateName(value, 'food'),
               decoration: InputDecoration(
                 prefixIcon: Icon(
@@ -118,7 +118,7 @@ class FoodForm extends StatelessWidget {
             SizedBox(height: 16.h),
             CustomTextField(
               controller: f['protein'],
-              labelText: 'Protein (Optional)',
+              labelText: 'Protein',
               keyboardType: TextInputType.number,
               validator: FormValidators.validateMacronutrient,
               decoration: InputDecoration(
@@ -135,7 +135,7 @@ class FoodForm extends StatelessWidget {
             SizedBox(height: 16.h),
             CustomTextField(
               controller: f['carbs'],
-              labelText: 'Carbohydrates (Optional)',
+              labelText: 'Carbohydrates',
               keyboardType: TextInputType.number,
               validator: FormValidators.validateMacronutrient,
               decoration: InputDecoration(
@@ -152,7 +152,7 @@ class FoodForm extends StatelessWidget {
             SizedBox(height: 16.h),
             CustomTextField(
               controller: f['fats'],
-              labelText: 'Fats (Optional)',
+              labelText: 'Fat',
               keyboardType: TextInputType.number,
               validator: FormValidators.validateMacronutrient,
               decoration: InputDecoration(
@@ -169,7 +169,7 @@ class FoodForm extends StatelessWidget {
             SizedBox(height: 16.h),
             CustomTextField(
               controller: f['description'],
-              labelText: 'Description (Optional)',
+              labelText: 'Description',
               maxLines: 3,
               decoration: InputDecoration(
                 prefixIcon: Icon(

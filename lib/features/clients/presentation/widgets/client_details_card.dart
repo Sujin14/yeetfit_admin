@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/responsive_layout.dart';
 import '../../data/models/client_model.dart';
 
 class ClientDetailsCard extends StatelessWidget {
@@ -10,106 +11,120 @@ class ClientDetailsCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isWeb =
-        MediaQuery.of(context).size.width > 600; // Threshold for web view
+    final isWeb = MediaQuery.of(context).size.width > 600;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+      padding: EdgeInsets.zero,
       child: Card(
-        elevation: 2,
+        elevation: 6,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(20.r),
         ),
+        color: AdminTheme.colors['surface'],
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+          padding: LayoutConstants.screenPadding,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Hero(
-                    tag: 'client-avatar-${client.uid}',
-                    child: CircleAvatar(
-                      radius: isWeb
-                          ? 20.0
-                          : 24.r, // Constrain avatar size for web
-                      backgroundColor: AdminTheme.colors['secondary'],
-                      backgroundImage: client.profilePicture?.isNotEmpty == true
-                          ? NetworkImage(client.profilePicture!)
-                          : null,
-                      child: client.profilePicture?.isNotEmpty != true
-                          ? Text(
-                              client.name.isNotEmpty
-                                  ? client.name[0].toUpperCase()
-                                  : '',
-                              style: AdminTheme.textStyles['body']!.copyWith(
-                                color: AdminTheme.colors['onPrimary'],
-                                fontSize: isWeb
-                                    ? 14.0
-                                    : 16.sp, // Constrain font size
-                              ),
-                            )
-                          : null,
-                    ),
+              Hero(
+                tag: 'client-avatar-${client.uid}',
+                child: CircleAvatar(
+                  radius: isWeb ? 60.0 : 80.r,
+                  backgroundColor: AdminTheme.colors['secondary'],
+                  backgroundImage: client.profilePicture?.isNotEmpty == true
+                      ? NetworkImage(client.profilePicture!)
+                      : null,
+                  child: client.profilePicture?.isNotEmpty != true
+                      ? Text(
+                          client.name.isNotEmpty
+                              ? client.name[0].toUpperCase()
+                              : '',
+                          style: AdminTheme.textStyles['title']!.copyWith(
+                            color: AdminTheme.colors['onPrimary'],
+                            fontSize: isWeb ? 24.0 : 30.sp,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+
+              SizedBox(height: LayoutConstants.itemSpacing * 2),
+
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      AdminTheme.colors['primary']!,
+                      AdminTheme.colors['secondary']!,
+                    ],
                   ),
-                  SizedBox(width: 16.w),
-                  Text(
-                    client.name,
-                    style: AdminTheme.textStyles['title']!.copyWith(
-                      color: AdminTheme.colors['textPrimary'],
-                      fontSize: isWeb
-                          ? 16.0
-                          : 18.sp, // Constrain title font size
-                    ),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Text(
+                  client.goal ?? 'No Goal',
+                  style: AdminTheme.textStyles['title']!.copyWith(
+                    color: AdminTheme.colors['onPrimary'],
+                    fontSize: isWeb ? 18.0 : 20.sp,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              SizedBox(height: 16.h),
-              Text(
-                'Goal: ${client.goal ?? 'Not set'}',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
+                  textAlign: TextAlign.center,
                 ),
               ),
-              Text(
-                'Height: ${client.height?.toStringAsFixed(1) ?? 'Not set'} cm',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
+
+              SizedBox(height: LayoutConstants.itemSpacing),
+
+              _buildDetailRow(
+                "Height",
+                client.height?.toStringAsFixed(1) ?? "Not set",
+                "cm",
               ),
-              Text(
-                'Current Weight: ${client.currentWeight?.toStringAsFixed(1) ?? 'Not set'} kg',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
+              _buildDetailRow(
+                "Current Weight",
+                client.currentWeight?.toStringAsFixed(1) ?? "Not set",
+                "kg",
               ),
-              Text(
-                'Goal Weight: ${client.goalWeight?.toStringAsFixed(1) ?? 'Not set'} kg',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
+              _buildDetailRow(
+                "Goal Weight",
+                client.goalWeight?.toStringAsFixed(1) ?? "Not set",
+                "kg",
               ),
-              Text(
-                'Gender: ${client.gender ?? 'Not set'}',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
-              ),
-              Text(
-                'Age: ${client.age?.toString() ?? 'Not set'}',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
-              ),
-              Text(
-                'Activity Level: ${client.activityLevel ?? 'Not set'}',
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  fontSize: isWeb ? 14.0 : 16.sp,
-                ),
+              _buildDetailRow("Gender", client.gender ?? "Not set"),
+              _buildDetailRow("Age", client.age?.toString() ?? "Not set"),
+              _buildDetailRow(
+                "Activity Level",
+                client.activityLevel ?? "Not set",
               ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(String label, String value, [String unit = ""]) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: AdminTheme.textStyles['body']!.copyWith(
+              fontWeight: FontWeight.w600,
+              color: AdminTheme.colors['textSecondary'],
+            ),
+          ),
+          Text(
+            "$value ${unit.isNotEmpty ? unit : ''}",
+            style: AdminTheme.textStyles['body']!.copyWith(
+              fontWeight: FontWeight.bold,
+              color: AdminTheme.colors['textPrimary'],
+            ),
+          ),
+        ],
       ),
     );
   }

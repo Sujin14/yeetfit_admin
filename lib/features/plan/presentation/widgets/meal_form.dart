@@ -30,100 +30,134 @@ class MealForm extends StatelessWidget {
       margin: EdgeInsets.symmetric(vertical: 12.h),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.r),
-        side: BorderSide(color: AdminTheme.colors['textSecondary']!, width: 0.5),
+        side: BorderSide(
+          color: AdminTheme.colors['textSecondary']!,
+          width: 0.5,
+        ),
       ),
-      child: ExpansionTile(
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(
+                child: Text(
+                  mealName,
+                  style: AdminTheme.textStyles['body']!.copyWith(
+                    color: AdminTheme.colors['textPrimary'],
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (![
+                'Breakfast',
+                'Morning Snack',
+                'Lunch',
+                'Evening Snack',
+                'Dinner',
+              ].contains(mealName))
+                IconButton(
+                  icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
+                  onPressed: () => controller.removeMeal(mealName),
+                ),
+            ],
+          ),
+          tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+          childrenPadding: EdgeInsets.all(16.w),
           children: [
-            Expanded(
-              child: Text(
-                mealName,
-                style: AdminTheme.textStyles['body']!.copyWith(
-                  color: AdminTheme.colors['textPrimary'],
-                  fontWeight: FontWeight.w600,
+            CustomTextField(
+              controller: controller.mealCalorieControllers[mealName],
+              labelText: 'Calorie Goal',
+              keyboardType: TextInputType.number,
+              validator: FormValidators.validateCalories,
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.local_fire_department,
+                  color: AdminTheme.colors['textSecondary'],
+                ),
+                suffixText: 'cal',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
                 ),
               ),
             ),
-            if (!['Breakfast', 'Morning Snack', 'Lunch', 'Evening Snack', 'Dinner'].contains(mealName))
-              IconButton(
-                icon: Icon(Icons.delete, color: AdminTheme.colors['error']),
-                onPressed: () => controller.removeMeal(mealName),
+            SizedBox(height: 16.h),
+            CustomTextField(
+              controller: mealControllers['protein'],
+              labelText: 'Protein',
+              keyboardType: TextInputType.number,
+              validator: FormValidators.validateMacronutrient,
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.food_bank,
+                  color: AdminTheme.colors['textSecondary'],
+                ),
+                suffixText: 'g',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
               ),
+            ),
+            SizedBox(height: 16.h),
+            CustomTextField(
+              controller: mealControllers['carbs'],
+              labelText: 'Carbohydrates',
+              keyboardType: TextInputType.number,
+              validator: FormValidators.validateMacronutrient,
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.food_bank,
+                  color: AdminTheme.colors['textSecondary'],
+                ),
+                suffixText: 'g',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            CustomTextField(
+              controller: mealControllers['fats'],
+              labelText: 'Fats',
+              keyboardType: TextInputType.number,
+              validator: FormValidators.validateMacronutrient,
+              decoration: InputDecoration(
+                prefixIcon: Icon(
+                  Icons.food_bank,
+                  color: AdminTheme.colors['textSecondary'],
+                ),
+                suffixText: 'g',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+              ),
+            ),
+            SizedBox(height: 16.h),
+            Text(
+              'Foods',
+              style: AdminTheme.textStyles['body']!.copyWith(
+                color: AdminTheme.colors['textPrimary'],
+              ),
+            ),
+            ...(meal['foods'] as List).asMap().entries.map((foodEntry) {
+              final foodIndex = foodEntry.key;
+              final food = foodEntry.value;
+              return FoodForm(
+                mealName: mealName,
+                food: food,
+                foodIndex: foodIndex,
+                controllerTag: controllerTag,
+              );
+            }).toList(),
+            SizedBox(height: 16.h),
+            CustomButton(
+              text: 'Add Food',
+              onPressed: () => controller.addFood(mealName),
+              icon: Icons.add,
+            ),
           ],
         ),
-        tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-        childrenPadding: EdgeInsets.all(16.w),
-        children: [
-          CustomTextField(
-            controller: controller.mealCalorieControllers[mealName],
-            labelText: 'Calorie Goal',
-            keyboardType: TextInputType.number,
-            validator: FormValidators.validateCalories,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
-              suffixText: 'cal',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          CustomTextField(
-            controller: mealControllers['protein'],
-            labelText: 'Protein (Optional)',
-            keyboardType: TextInputType.number,
-            validator: FormValidators.validateMacronutrient,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
-              suffixText: 'g',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          CustomTextField(
-            controller: mealControllers['carbs'],
-            labelText: 'Carbohydrates (Optional)',
-            keyboardType: TextInputType.number,
-            validator: FormValidators.validateMacronutrient,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
-              suffixText: 'g',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          CustomTextField(
-            controller: mealControllers['fats'],
-            labelText: 'Fats (Optional)',
-            keyboardType: TextInputType.number,
-            validator: FormValidators.validateMacronutrient,
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.food_bank, color: AdminTheme.colors['textSecondary']),
-              suffixText: 'g',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            'Foods',
-            style: AdminTheme.textStyles['body']!.copyWith(color: AdminTheme.colors['textPrimary']),
-          ),
-          ...(meal['foods'] as List).asMap().entries.map((foodEntry) {
-            final foodIndex = foodEntry.key;
-            final food = foodEntry.value;
-            return FoodForm(
-              mealName: mealName,
-              food: food,
-              foodIndex: foodIndex,
-              controllerTag: controllerTag,
-            );
-          }).toList(),
-          SizedBox(height: 16.h),
-          CustomButton(
-            text: 'Add Food',
-            onPressed: () => controller.addFood(mealName),
-            icon: Icons.add,
-          ),
-        ],
       ),
     );
   }

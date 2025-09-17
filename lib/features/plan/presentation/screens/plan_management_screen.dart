@@ -4,10 +4,10 @@ import 'package:get/get.dart';
 import 'package:yeetfit_admin/features/plan/presentation/controllers/base_plan_controller.dart.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/custom_error_widget.dart';
-import '../../../../core/widgets/shimmer_loading.dart';
 import '../controllers/diet_plan_controller.dart.dart';
 import '../controllers/workout_plan_controller.dart';
 import '../widgets/diet_form_field.dart';
+import '../widgets/plan_shimmer.dart';
 import '../widgets/workout_form_field.dart';
 
 class PlanManagementScreen extends StatelessWidget {
@@ -41,7 +41,10 @@ class PlanManagementScreen extends StatelessWidget {
           ),
         ),
         body: controller.isLoading.value
-            ? Center(child: ShimmerLoading(height: 200.h))
+            ?  SingleChildScrollView(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+        child: const PlanShimmer(),
+      )
             : controller.error.value.isNotEmpty &&
                   !controller.error.value.contains('fill all required fields')
             ? CustomErrorWidget(

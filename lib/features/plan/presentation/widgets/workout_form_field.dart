@@ -25,74 +25,83 @@ class WorkoutFormFields extends StatelessWidget {
         children: [
           CustomTextField(
             controller: controller.titleController,
-            labelText: 'Workout Plan Title',
+            labelText: 'Title*',
             validator: FormValidators.validatePlanTitle,
             decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.title,
-                color: AdminTheme.colors['textSecondary'],
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
+              prefixIcon: Icon(Icons.title, color: AdminTheme.colors['textSecondary']),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
             ),
           ),
           SizedBox(height: 16.h),
           CustomTextField(
             controller: controller.descriptionController,
-            labelText: 'Plan Description (Optional)',
+            labelText: 'Description',
             maxLines: 3,
             decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.description,
-                color: AdminTheme.colors['textSecondary'],
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
+              prefixIcon: Icon(Icons.description, color: AdminTheme.colors['textSecondary']),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
             ),
           ),
           SizedBox(height: 16.h),
           CustomTextField(
             controller: controller.totalCaloriesController,
-            labelText: 'Total Calories to Burn',
+            labelText: 'Total Calories*',
             keyboardType: TextInputType.number,
             validator: FormValidators.validateCalories,
             decoration: InputDecoration(
-              prefixIcon: Icon(
-                Icons.local_fire_department,
-                color: AdminTheme.colors['textSecondary'],
-              ),
+              prefixIcon: Icon(Icons.local_fire_department, color: AdminTheme.colors['textSecondary']),
               suffixText: 'cal',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8.r),
-              ),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8.r)),
             ),
           ),
-          SizedBox(height: 16.h),
-          Text(
-            'Exercises',
-            style: AdminTheme.textStyles['title']!.copyWith(
-              color: AdminTheme.colors['textPrimary'],
-            ),
-          ),
-          Obx(
-            () => Column(
-              children: controller.exercises.asMap().entries.map((entry) {
-                return ExerciseForm(
-                  exercise: entry.value,
-                  index: entry.key,
-                  controllerTag: controllerTag,
-                );
-              }).toList(),
-            ),
-          ),
-          SizedBox(height: 16.h),
-          CustomButton(
-            text: 'Add More Exercise',
-            onPressed: controller.addExercise,
-            icon: Icons.add,
-          ),
+          SizedBox(height: 24.h),
+          Obx(() {
+            if (controller.exercises.isEmpty) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Add exercises to save",
+                    style: AdminTheme.textStyles['body']!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AdminTheme.colors['textPrimary'],
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.add_circle, color: AdminTheme.colors['primary']),
+                    onPressed: controller.addExercise,
+                  )
+                ],
+              );
+            }
+            return Column(
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      "Exercises",
+                      style: AdminTheme.textStyles['title']!.copyWith(
+                        color: AdminTheme.colors['textPrimary'],
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Spacer(),
+                    IconButton(
+                      icon: Icon(Icons.add_circle, color: AdminTheme.colors['primary']),
+                      onPressed: controller.addExercise,
+                    ),
+                  ],
+                ),
+                ...controller.exercises.asMap().entries.map((entry) {
+                  return ExerciseForm(
+                    exercise: entry.value,
+                    index: entry.key,
+                    controllerTag: controllerTag,
+                  );
+                }).toList(),
+              ],
+            );
+          }),
           SizedBox(height: 24.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

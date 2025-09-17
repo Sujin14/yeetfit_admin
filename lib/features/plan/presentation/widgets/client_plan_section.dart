@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/responsive_layout.dart';
 import '../../../clients/presentation/controllers/client_details_controller.dart';
 
 class ClientPlansSection extends StatelessWidget {
@@ -11,64 +12,89 @@ class ClientPlansSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ClientDetailsController>();
-    final isWeb =
-        MediaQuery.of(context).size.width > 600;
+    final isWeb = MediaQuery.of(context).size.width > 600;
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Plan Management',
-            style: AdminTheme.textStyles['title']!.copyWith(
-              color: AdminTheme.colors['textPrimary'],
-              fontSize: isWeb ? 16.0 : 18.sp, // Constrain title font size
+          Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: Text(
+              'Plan Management',
+              style: AdminTheme.textStyles['title'],
             ),
           ),
-          SizedBox(height: 8.h),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/diet.png',
-              width: isWeb ? 40.0 : 50.w, // Constrain image size for web
-              height: isWeb ? 40.0 : 50.h,
+          SizedBox(height: LayoutConstants.itemSpacing),
+
+          // Diet Plans Card
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            title: Text(
-              'Diet Plans',
-              style: AdminTheme.textStyles['body']!.copyWith(
-                fontSize: isWeb ? 14.0 : 16.sp, // Constrain font size
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
               ),
-            ),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: isWeb ? 14.0 : 16.w, // Constrain icon size for web
-              color: AdminTheme.colors['textSecondary'],
-            ),
-            onTap: () => AppRoutes.debounceNavigate(
-              '/home/plan-list',
-              arguments: {'uid': controller.uid.value, 'type': 'diet'},
+              leading: Image.asset(
+                'assets/images/diet.png',
+                width: isWeb ? 40.0 : 40.w,
+                height: isWeb ? 40.0 : 40.h,
+              ),
+              title: Text(
+                'Diet Plans',
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: isWeb ? 14.0 : 16.w,
+                color: AdminTheme.colors['textSecondary'],
+              ),
+              onTap: () => AppRoutes.debounceNavigate(
+                '/home/plan-list',
+                arguments: {'uid': controller.uid.value, 'type': 'diet'},
+              ),
             ),
           ),
-          ListTile(
-            leading: Image.asset(
-              'assets/images/workouts.png',
-              width: isWeb ? 40.0 : 50.w, // Constrain image size for web
-              height: isWeb ? 40.0 : 50.h,
+
+          SizedBox(height: LayoutConstants.itemSpacing),
+
+          // Workout Plans Card
+          Card(
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
             ),
-            title: Text(
-              'Workout Plans',
-              style: AdminTheme.textStyles['body']!.copyWith(
-                fontSize: isWeb ? 14.0 : 16.sp, // Constrain font size
+            child: ListTile(
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 16.w,
+                vertical: 8.h,
               ),
-            ),
-            trailing: Icon(
-              Icons.arrow_forward_ios,
-              size: isWeb ? 14.0 : 16.w, // Constrain icon size for web
-              color: AdminTheme.colors['textSecondary'],
-            ),
-            onTap: () => AppRoutes.debounceNavigate(
-              '/home/plan-list',
-              arguments: {'uid': controller.uid.value, 'type': 'workout'},
+              leading: Image.asset(
+                'assets/images/workouts.png',
+                width: isWeb ? 40.0 : 40.w,
+                height: isWeb ? 40.0 : 40.h,
+              ),
+              title: Text(
+                'Workout Plans',
+                style: AdminTheme.textStyles['body']!.copyWith(
+                  fontSize: isWeb ? 14.0 : 16.sp,
+                ),
+              ),
+              trailing: Icon(
+                Icons.arrow_forward_ios,
+                size: isWeb ? 14.0 : 16.w,
+                color: AdminTheme.colors['textSecondary'],
+              ),
+              onTap: () => AppRoutes.debounceNavigate(
+                '/home/plan-list',
+                arguments: {'uid': controller.uid.value, 'type': 'workout'},
+              ),
             ),
           ),
         ],

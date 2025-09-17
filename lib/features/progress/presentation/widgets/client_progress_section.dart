@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/responsive_layout.dart';
 import '../../../clients/presentation/controllers/client_details_controller.dart';
 
 class ClientProgressSection extends StatelessWidget {
@@ -14,22 +15,23 @@ class ClientProgressSection extends StatelessWidget {
         MediaQuery.of(context).size.width > 600; // Threshold for web view
 
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Daily Progress',
-            style: AdminTheme.textStyles['title']!.copyWith(
-              fontSize: isWeb ? 16.0 : 18.sp, // Constrain title font size
-            ),
-          ),
-          SizedBox(height: 8.h),
-          Card(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12.r),
-            ),
+  padding: EdgeInsets.zero,
+  child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.all(6.0),
+        child: Text(
+          'Daily Progress',
+          style: AdminTheme.textStyles['title'],
+        ),
+      ),
+      SizedBox(height: LayoutConstants.itemSpacing),
+      Card(
+        elevation: 2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.r),
+        ),
             child: ListTile(
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 16.w,
@@ -48,9 +50,6 @@ class ClientProgressSection extends StatelessWidget {
                 color: AdminTheme.colors['textSecondary'],
               ),
               onTap: () {
-                print(
-                  'ClientProgressSection: Navigating to /home/client-progress with UID: ${controller.uid.value}',
-                );
                 Get.toNamed(
                   '/home/client-progress',
                   arguments: {'uid': controller.uid.value},

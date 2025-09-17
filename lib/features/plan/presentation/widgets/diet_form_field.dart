@@ -23,7 +23,7 @@ class DietFormFields extends StatelessWidget {
         children: [
           CustomTextField(
             controller: controller.titleController,
-            labelText: 'Plan Title',
+            labelText: 'Title*',
             validator: FormValidators.validatePlanTitle,
             decoration: InputDecoration(
               prefixIcon: Icon(
@@ -38,7 +38,7 @@ class DietFormFields extends StatelessWidget {
           SizedBox(height: 16.h),
           CustomTextField(
             controller: controller.descriptionController,
-            labelText: 'Description (Optional)',
+            labelText: 'Description',
             maxLines: 3,
             decoration: InputDecoration(
               prefixIcon: Icon(
@@ -53,7 +53,7 @@ class DietFormFields extends StatelessWidget {
           SizedBox(height: 16.h),
           CustomTextField(
             controller: controller.totalCaloriesController,
-            labelText: 'Total Calories to Eat',
+            labelText: 'Total Calories*',
             keyboardType: TextInputType.number,
             validator: FormValidators.validateCalories,
             decoration: InputDecoration(
@@ -68,67 +68,70 @@ class DietFormFields extends StatelessWidget {
             ),
           ),
           SizedBox(height: 16.h),
-          ExpansionTile(
-            title: Text(
-              'Macronutrients (Optional)',
-              style: AdminTheme.textStyles['title']!.copyWith(
-                color: AdminTheme.colors['textPrimary'],
+          Theme(
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+            child: ExpansionTile(
+              title: Text(
+                'Macronutrients*',
+                style: AdminTheme.textStyles['title']!.copyWith(
+                  color: AdminTheme.colors['textPrimary'],
+                ),
               ),
+              tilePadding: EdgeInsets.zero,
+              childrenPadding: EdgeInsets.all(16.w),
+              children: [
+                CustomTextField(
+                  controller: controller.proteinController,
+                  labelText: 'Protein*',
+                  keyboardType: TextInputType.number,
+                  validator: FormValidators.validateMacronutrient,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.food_bank,
+                      color: AdminTheme.colors['textSecondary'],
+                    ),
+                    suffixText: 'g',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                CustomTextField(
+                  controller: controller.carbsController,
+                  labelText: 'Carbohydrates*',
+                  keyboardType: TextInputType.number,
+                  validator: FormValidators.validateMacronutrient,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.food_bank,
+                      color: AdminTheme.colors['textSecondary'],
+                    ),
+                    suffixText: 'g',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                CustomTextField(
+                  controller: controller.fatsController,
+                  labelText: 'Fats*',
+                  keyboardType: TextInputType.number,
+                  validator: FormValidators.validateMacronutrient,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.food_bank,
+                      color: AdminTheme.colors['textSecondary'],
+                    ),
+                    suffixText: 'g',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            tilePadding: EdgeInsets.zero,
-            childrenPadding: EdgeInsets.all(16.w),
-            children: [
-              CustomTextField(
-                controller: controller.proteinController,
-                labelText: 'Protein',
-                keyboardType: TextInputType.number,
-                validator: FormValidators.validateMacronutrient,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.food_bank,
-                    color: AdminTheme.colors['textSecondary'],
-                  ),
-                  suffixText: 'g',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.h),
-              CustomTextField(
-                controller: controller.carbsController,
-                labelText: 'Carbohydrates',
-                keyboardType: TextInputType.number,
-                validator: FormValidators.validateMacronutrient,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.food_bank,
-                    color: AdminTheme.colors['textSecondary'],
-                  ),
-                  suffixText: 'g',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              ),
-              SizedBox(height: 16.h),
-              CustomTextField(
-                controller: controller.fatsController,
-                labelText: 'Fats',
-                keyboardType: TextInputType.number,
-                validator: FormValidators.validateMacronutrient,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.food_bank,
-                    color: AdminTheme.colors['textSecondary'],
-                  ),
-                  suffixText: 'g',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                ),
-              ),
-            ],
           ),
           SizedBox(height: 16.h),
           Text(
@@ -150,7 +153,7 @@ class DietFormFields extends StatelessWidget {
           ),
           SizedBox(height: 16.h),
           CustomButton(
-            text: 'Add Custom Meal',
+            text: 'Custom Meal',
             onPressed: controller.addMeal,
             icon: Icons.add,
           ),

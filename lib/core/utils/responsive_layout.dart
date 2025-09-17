@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ResponsiveLayout extends StatelessWidget {
   final Widget mobile;
@@ -23,4 +24,11 @@ class ResponsiveLayout extends StatelessWidget {
       return desktop;
     }
   }
+}
+
+
+class LayoutConstants {
+  static EdgeInsets get screenPadding => EdgeInsets.all(16.w);
+  static double get sectionSpacing => 16.h;
+  static double get itemSpacing => 8.h;
 }

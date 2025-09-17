@@ -22,13 +22,7 @@ class ClientsListScreen extends StatelessWidget {
       () => Column(
         children: [
           CustomAppBar(
-            title: standardizedGoal
-                .split(' ')
-                .map((word) {
-                  if (word.isEmpty) return word;
-                  return word[0].toUpperCase() + word.substring(1);
-                })
-                .join(' '), // Display as title case for UI
+            title: 'YeetFit Admin',
             showSearchToggle: true,
             showSearchBar: controller.showSearchBar,
             onSearchToggle: controller.toggleSearchBar,
