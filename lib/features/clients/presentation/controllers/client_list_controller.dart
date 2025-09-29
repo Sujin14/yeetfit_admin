@@ -72,7 +72,7 @@ class ClientListController extends GetxController {
         clients
             .where(
               (client) =>
-                  client.name.toLowerCase().contains(query.toLowerCase()),
+                  client.name.toLowerCase().startsWith(query.toLowerCase()),
             )
             .toList(),
       );

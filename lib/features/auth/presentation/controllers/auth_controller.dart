@@ -1,4 +1,3 @@
-// path: lib/features/auth/presentation/controllers/auth_controller.dart
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -34,18 +33,17 @@ class AuthController extends GetxController {
   final signUpProfileImage = Rxn<File>();
 
   AuthController()
-    : loginWithEmail = LoginWithEmail(
-        AuthRepositoryImpl(emailService: EmailAuthService()),
-      ),
-      signUpWithEmail = SignUpWithEmail(
-        AuthRepositoryImpl(emailService: EmailAuthService()),
-      ),
-      resetPasswordUseCase = SendPasswordResetEmail(
-        AuthRepositoryImpl(emailService: EmailAuthService()),
-      );
+      : loginWithEmail = LoginWithEmail(
+          AuthRepositoryImpl(emailService: EmailAuthService()),
+        ),
+        signUpWithEmail = SignUpWithEmail(
+          AuthRepositoryImpl(emailService: EmailAuthService()),
+        ),
+        resetPasswordUseCase = SendPasswordResetEmail(
+          AuthRepositoryImpl(emailService: EmailAuthService()),
+        );
 
-  /// Clears controllers and temporary image. Call this when logging out
-  /// or when navigating to auth screens so previous credentials aren't visible.
+  // Clears controllers and temporary image.
   void clearAuthFields() {
     loginEmailController
       ..text = ''
@@ -92,7 +90,6 @@ class AuthController extends GetxController {
   }
 
   Future<bool> login() async {
-    // validation is done in UI, keep guard
     isLoading.value = true;
     try {
       final success = await loginWithEmail(
@@ -109,15 +106,38 @@ class AuthController extends GetxController {
         return false;
       }
 
-      // Clear sensitive fields immediately after successful login.
       clearAuthFields();
-
       Get.offAllNamed('/home/dashboard');
       return true;
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'No user found with this email. Please register.';
+          break;
+        case 'wrong-password':
+          message = 'Incorrect password. Please try again.';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email format.';
+          break;
+        case 'user-disabled':
+          message = 'This account has been disabled. Contact support.';
+          break;
+        default:
+          message = 'Login failed. Please try again.';
+      }
       Get.snackbar(
         'Error',
-        'Login failed: $e',
+        message,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+      return false;
+    } catch (_) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again.',
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );
@@ -147,15 +167,35 @@ class AuthController extends GetxController {
         return false;
       }
 
-      // Clear sensitive fields after signup
       clearAuthFields();
-
       Get.offAllNamed('/home/dashboard');
       return true;
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'email-already-in-use':
+          message = 'This email is already registered. Try logging in.';
+          break;
+        case 'weak-password':
+          message = 'Password is too weak. Use at least 6 characters.';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email format.';
+          break;
+        default:
+          message = 'Signup failed. Please try again.';
+      }
       Get.snackbar(
         'Error',
-        'Signup failed: $e',
+        message,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+      return false;
+    } catch (_) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again.',
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );
@@ -171,14 +211,32 @@ class AuthController extends GetxController {
       await resetPasswordUseCase(email.trim());
       Get.snackbar(
         'Success',
-        'Password reset link sent',
+        'Password reset link sent to $email',
         backgroundColor: AdminTheme.colors['primary'],
         colorText: AdminTheme.colors['surface'],
       );
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
+      String message;
+      switch (e.code) {
+        case 'user-not-found':
+          message = 'No user found with this email.';
+          break;
+        case 'invalid-email':
+          message = 'Invalid email address.';
+          break;
+        default:
+          message = 'Failed to send reset link. Please try again.';
+      }
       Get.snackbar(
         'Error',
-        'Failed to send password reset email: $e',
+        message,
+        backgroundColor: AdminTheme.colors['error'],
+        colorText: AdminTheme.colors['surface'],
+      );
+    } catch (_) {
+      Get.snackbar(
+        'Error',
+        'Something went wrong. Please try again.',
         backgroundColor: AdminTheme.colors['error'],
         colorText: AdminTheme.colors['surface'],
       );
@@ -212,7 +270,7 @@ class AuthController extends GetxController {
   Future<bool> isAdmin(String uid) async {
     try {
       return await EmailAuthService().isAdmin(uid);
-    } catch (e) {
+    } catch (_) {
       return false;
     }
   }
@@ -221,12 +279,10 @@ class AuthController extends GetxController {
     isLoading.value = true;
     try {
       await FirebaseAuth.instance.signOut();
-
       clearAuthFields();
-
       Get.offAllNamed('/');
       return true;
-    } catch (e) {
+    } catch (_) {
       Get.snackbar(
         'Error',
         'Failed to log out',

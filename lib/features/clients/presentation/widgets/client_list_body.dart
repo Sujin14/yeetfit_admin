@@ -26,7 +26,7 @@ class ClientsListBody extends StatelessWidget {
       } else if (controller.filteredClients.isEmpty) {
         return Center(
           child: Text(
-            'No clients found for $goal',
+            'No clients with this name found for $goal',
             style: AdminTheme.textStyles['body']!.copyWith(
               color: AdminTheme.colors['textSecondary'],
             ),

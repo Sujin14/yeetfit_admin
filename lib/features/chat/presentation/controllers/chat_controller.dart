@@ -49,7 +49,7 @@ class ChatController extends GetxController {
   final participantTyping = false.obs;
   final participantName = ''.obs;
   final participantImage = ''.obs;
-  final messageItems = <dynamic>[].obs; // Messages and date separators
+  final messageItems = <dynamic>[].obs;
   String? _chatId;
   String? _participantId;
 

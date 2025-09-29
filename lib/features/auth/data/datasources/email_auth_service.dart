@@ -10,7 +10,12 @@ class EmailAuthService {
 
   Future<UserCredential?> signInWithEmail(String email, String password) async {
     try {
-      return await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return await _auth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on FirebaseAuthException {
+      rethrow;
     } catch (e) {
       throw Exception('Sign-in failed: $e');
     }
@@ -32,7 +37,10 @@ class EmailAuthService {
       String? photoUrl;
 
       if (profileImageFile != null && uid != null) {
-        photoUrl = await _storageService.uploadProfileImage(uid, profileImageFile);
+        photoUrl = await _storageService.uploadProfileImage(
+          uid,
+          profileImageFile,
+        );
       }
 
       await _firestore.collection('users').doc(uid).set({
@@ -51,7 +59,10 @@ class EmailAuthService {
       }
 
       return userCredential;
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Signup failed: $e');
     }
   }
@@ -60,7 +71,10 @@ class EmailAuthService {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       return doc.exists && doc.data()?['role'] == 'admin';
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Failed to check admin status: $e');
     }
   }
@@ -83,7 +97,10 @@ class EmailAuthService {
       }
 
       if (profileImageFile != null) {
-        final photoUrl = await _storageService.uploadProfileImage(uid, profileImageFile);
+        final photoUrl = await _storageService.uploadProfileImage(
+          uid,
+          profileImageFile,
+        );
         data['profilePicture'] = photoUrl;
         if (currentUser != null) {
           await currentUser.updatePhotoURL(photoUrl);
@@ -93,14 +110,19 @@ class EmailAuthService {
       if (email != null && currentUser != null && currentUser.email != email) {
         await currentUser.verifyBeforeUpdateEmail(email);
       }
-      if (name != null && currentUser != null && currentUser.displayName != name) {
+      if (name != null &&
+          currentUser != null &&
+          currentUser.displayName != name) {
         await currentUser.updateDisplayName(name);
       }
 
       if (data.isNotEmpty) {
         await _firestore.collection('users').doc(uid).update(data);
       }
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Profile update failed: $e');
     }
   }
@@ -111,9 +133,15 @@ class EmailAuthService {
       if (user != null) {
         await user.updatePassword(newPassword);
       } else {
-        throw FirebaseAuthException(code: 'no-user', message: 'No authenticated user');
+        throw FirebaseAuthException(
+          code: 'no-user',
+          message: 'No authenticated user',
+        );
       }
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Password update failed: $e');
     }
   }
@@ -122,12 +150,21 @@ class EmailAuthService {
     try {
       final user = _auth.currentUser;
       if (user != null) {
-        final credential = EmailAuthProvider.credential(email: email, password: password);
+        final credential = EmailAuthProvider.credential(
+          email: email,
+          password: password,
+        );
         await user.reauthenticateWithCredential(credential);
       } else {
-        throw FirebaseAuthException(code: 'no-user', message: 'No authenticated user');
+        throw FirebaseAuthException(
+          code: 'no-user',
+          message: 'No authenticated user',
+        );
       }
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Reauthentication failed: $e');
     }
   }
@@ -135,7 +172,10 @@ class EmailAuthService {
   Future<void> sendPasswordResetEmail(String email) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
-    } catch (e) {
+    } on FirebaseAuthException {
+      rethrow;
+    }
+    catch (e) {
       throw Exception('Failed to send password reset email: $e');
     }
   }

@@ -1,4 +1,3 @@
-// lib/features/settings/widgets/settings_tile.dart
 import 'package:flutter/material.dart';
 import '../../../../core/theme/theme.dart';
 
