@@ -68,14 +68,7 @@ class ClientListController extends GetxController {
     if (query.isEmpty) {
       filteredClients.assignAll(clients);
     } else {
-      filteredClients.assignAll(
-        clients
-            .where(
-              (client) =>
-                  client.name.toLowerCase().startsWith(query.toLowerCase()),
-            )
-            .toList(),
-      );
+       
     }
   }
 
