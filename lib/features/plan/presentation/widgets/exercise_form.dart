@@ -25,9 +25,8 @@ class ExerciseForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<WorkoutPlanController>(tag: controllerTag);
-    final previewController = Get.find<PreviewController>(
-      tag: 'preview-$controllerTag',
-    );
+    final previewController =
+        Get.find<PreviewController>(tag: 'preview-$controllerTag');
     final exCtrl = exercise['controllers'];
 
     return GetBuilder<PreviewController>(
@@ -37,6 +36,41 @@ class ExerciseForm extends StatelessWidget {
         final showPreview = index < previewCtrl.previewStates.length
             ? previewCtrl.previewStates[index]
             : false;
+
+        final url = exCtrl['videoUrl']!.text.trim();
+
+        // DEBUG: use both the package helper and our extractor to compare.
+        final pkgId = (() {
+          try {
+            return YoutubePlayerController.convertUrlToId(url);
+          } catch (_) {
+            return null;
+          }
+        })();
+
+        final extractedId = FormValidators.extractYouTubeId(url);
+
+        // Print debug info to console to help you see what's happening.
+        // Check your IDE console (or `flutter run` terminal) for these logs.
+        print('--- YouTube Preview Debug (Exercise $index) ---');
+        print('Raw URL: "$url"');
+        print('convertUrlToId (package): $pkgId');
+        print('extractYouTubeId (robust): $extractedId');
+
+        if (pkgId != null && pkgId.length != 11) {
+          print('Warning: package returned id with length ${pkgId.length}');
+        }
+        if (extractedId != null && extractedId.length != 11) {
+          print('Warning: extractor returned id with length ${extractedId.length}');
+        }
+
+        final videoId = (extractedId != null && extractedId.length == 11)
+            ? extractedId
+            : (pkgId != null && pkgId.length == 11 ? pkgId : null);
+
+        // Extra print for final id used
+        print('Final videoId used for player: $videoId');
+
         return Card(
           elevation: 4,
           margin: EdgeInsets.symmetric(vertical: 12.h),
@@ -76,9 +110,11 @@ class ExerciseForm extends StatelessWidget {
                   ),
                 ],
               ),
-              tilePadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+              tilePadding:
+                  EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
               childrenPadding: EdgeInsets.all(16.w),
               children: [
+                // ... (all your other fields unchanged) ...
                 CustomTextField(
                   controller: exCtrl['name']!,
                   labelText: 'Exercise Name',
@@ -95,14 +131,13 @@ class ExerciseForm extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16.h),
+
                 DropdownButtonFormField<String>(
                   value: exercise['repsType'],
                   items: const [
                     DropdownMenuItem(value: 'reps', child: Text('Reps')),
                     DropdownMenuItem(
-                      value: 'duration',
-                      child: Text('Duration (min)'),
-                    ),
+                        value: 'duration', child: Text('Duration (min)')),
                   ],
                   onChanged: (value) {
                     if (value != null) {
@@ -117,41 +152,44 @@ class ExerciseForm extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 16.h),
-                exercise['repsType'] == 'reps'
-                    ? CustomTextField(
-                        controller: exCtrl['reps']!,
-                        labelText: 'Reps',
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            FormValidators.validateReps(value, 'reps'),
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.repeat,
-                            color: AdminTheme.colors['textSecondary'],
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
-                      )
-                    : CustomTextField(
-                        controller: exCtrl['reps']!,
-                        labelText: 'Duration',
-                        keyboardType: TextInputType.number,
-                        validator: (value) =>
-                            FormValidators.validateReps(value, 'duration'),
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(
-                            Icons.timer,
-                            color: AdminTheme.colors['textSecondary'],
-                          ),
-                          suffixText: 'min',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8.r),
-                          ),
-                        ),
+
+                if (exercise['repsType'] == 'reps')
+                  CustomTextField(
+                    controller: exCtrl['reps']!,
+                    labelText: 'Reps',
+                    keyboardType: TextInputType.number,
+                    validator: (value) =>
+                        FormValidators.validateReps(value, 'reps'),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.repeat,
+                        color: AdminTheme.colors['textSecondary'],
                       ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                  )
+                else
+                  CustomTextField(
+                    controller: exCtrl['reps']!,
+                    labelText: 'Duration',
+                    keyboardType: TextInputType.number,
+                    validator: (value) =>
+                        FormValidators.validateReps(value, 'duration'),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.timer,
+                        color: AdminTheme.colors['textSecondary'],
+                      ),
+                      suffixText: 'min',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                  ),
                 SizedBox(height: 16.h),
+
                 Stack(
                   alignment: Alignment.centerRight,
                   children: [
@@ -181,6 +219,7 @@ class ExerciseForm extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: 16.h),
+
                 CustomTextField(
                   controller: exCtrl['description']!,
                   labelText: 'Description (Optional)',
@@ -196,7 +235,6 @@ class ExerciseForm extends StatelessWidget {
                 ),
                 SizedBox(height: 16.h),
 
-                /// Instructions Section
                 Row(
                   children: [
                     Text(
@@ -207,13 +245,16 @@ class ExerciseForm extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: Icon(Icons.add_circle,
-                          color: AdminTheme.colors['primary']),
+                      icon:
+                          Icon(Icons.add_circle, color: AdminTheme.colors['primary']),
                       onPressed: () => controller.addInstruction(index),
                     ),
                   ],
                 ),
-                ...(exercise['instructions'] as List).asMap().entries.map((entry) {
+                ...(exercise['instructions'] as List)
+                    .asMap()
+                    .entries
+                    .map((entry) {
                   final instrIndex = entry.key;
                   final instr = entry.value;
                   return InstructionForm(
@@ -225,6 +266,7 @@ class ExerciseForm extends StatelessWidget {
                 }).toList(),
 
                 SizedBox(height: 16.h),
+
                 Row(
                   children: [
                     Expanded(
@@ -247,24 +289,19 @@ class ExerciseForm extends StatelessWidget {
                     CustomButton(
                       text: showPreview ? 'Hide Preview' : 'Preview',
                       onPressed: () => previewController.togglePreview(index),
-                      icon:
-                          showPreview ? Icons.visibility_off : Icons.visibility,
+                      icon: showPreview ? Icons.visibility_off : Icons.visibility,
                     ),
                   ],
                 ),
-                if (showPreview &&
-                    exCtrl['videoUrl']!.text.trim().isNotEmpty &&
-                    FormValidators.validateYouTubeUrl(exCtrl['videoUrl']!.text) ==
-                        null) ...[
+
+                if (showPreview && url.isNotEmpty && videoId != null) ...[
                   SizedBox(height: 16.h),
                   SizedBox(
-                    width: double.infinity,
+                    width: double.infinity,  
                     height: 200.h,
                     child: YoutubePlayer(
                       controller: YoutubePlayerController.fromVideoId(
-                        videoId: YoutubePlayerController.convertUrlToId(
-                          exCtrl['videoUrl']!.text.trim(),
-                        )!,
+                        videoId: videoId,
                         autoPlay: false,
                         params: const YoutubePlayerParams(
                           showFullscreenButton: true,
@@ -272,7 +309,15 @@ class ExerciseForm extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
+                ] else if (showPreview && url.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 12.h),
+                    child: Text(
+                      'Preview unavailable: invalid YouTube ID or embedding blocked.',
+                      style: AdminTheme.textStyles['body']!
+                          .copyWith(color: AdminTheme.colors['error']),
+                    ),
+                  ),
               ],
             ),
           ),

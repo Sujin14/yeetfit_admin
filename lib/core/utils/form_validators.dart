@@ -1,6 +1,86 @@
+// core/utils/form_validators.dart
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 class FormValidators {
+  // ... keep your other validators above (omitted here for brevity) ...
+
+  /// Extracts a clean 11-character YouTube video ID from many URL formats.
+  /// Returns null when no 11-char ID is found.
+  static String? extractYouTubeId(String? url) {
+    if (url == null) return null;
+    final trimmed = url.trim();
+
+    if (trimmed.isEmpty) return null;
+
+    // 1) Quick attempt with package helper (works for simple urls)
+    try {
+      final quick = YoutubePlayerController.convertUrlToId(trimmed);
+      if (quick != null && quick.length == 11) {
+        return quick;
+      }
+    } catch (_) {
+      // ignore — continue to more robust parsing
+    }
+
+    // 2) Robust regex patterns for various URL shapes
+    final patterns = <RegExp>[
+      // https://www.youtube.com/watch?v=VIDEOID
+      RegExp(r'v=([0-9A-Za-z_-]{11})'),
+      // https://youtu.be/VIDEOID
+      RegExp(r'youtu\.be\/([0-9A-Za-z_-]{11})'),
+      // https://www.youtube.com/embed/VIDEOID
+      RegExp(r'embed\/([0-9A-Za-z_-]{11})'),
+      // https://www.youtube.com/shorts/VIDEOID
+      RegExp(r'shorts\/([0-9A-Za-z_-]{11})'),
+      // any 11 char id preceded by / or = or ?
+      RegExp(r'([0-9A-Za-z_-]{11})'),
+    ];
+
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(trimmed);
+      if (match != null && match.groupCount >= 1) {
+        final id = match.group(1);
+        if (id != null && id.length == 11) return id;
+      }
+    }
+
+    // 3) final fallback - try to strip query params and pick last path segment
+    try {
+      final uri = Uri.tryParse(trimmed);
+      if (uri != null) {
+        // check path segments
+        if (uri.pathSegments.isNotEmpty) {
+          final last = uri.pathSegments.last;
+          // strip query-like trailing parts
+          final cleaned = last.split(RegExp(r'[?&]')).first;
+          if (cleaned.length == 11) return cleaned;
+          // sometimes last contains 'watch' or 'embed' — attempt to find 11-char in it
+          final m = RegExp(r'([0-9A-Za-z_-]{11})').firstMatch(cleaned);
+          if (m != null) return m.group(1);
+        }
+        // check query parameter v
+        if (uri.queryParameters.containsKey('v')) {
+          final v = uri.queryParameters['v'];
+          if (v != null && v.length >= 11) return v.substring(0, 11);
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
+
+    return null;
+  }
+
+  static String? validateYouTubeUrl(String? value) {
+    if (value == null || value.isEmpty) return null; // optional field
+    final id = extractYouTubeId(value);
+    if (id == null || id.length != 11) {
+      return 'Please enter a valid YouTube URL (e.g., https://youtu.be/xyz).';
+    }
+    return null;
+  }
+
+  // Keep the rest of your validators...
   static String? validateEmail(String? value) {
     if (value == null || value.isEmpty) return 'Please enter an email address.';
     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
@@ -85,14 +165,6 @@ class FormValidators {
     }
     if (int.tryParse(value) == null || int.parse(value) < 0) {
       return 'Please enter a valid calorie count (e.g., 200).';
-    }
-    return null;
-  }
-
-  static String? validateYouTubeUrl(String? value) {
-    if (value == null || value.isEmpty) return null;
-    if (YoutubePlayerController.convertUrlToId(value.trim()) == null) {
-      return 'Please enter a valid YouTube URL (e.g., https://youtu.be/xyz).';
     }
     return null;
   }
